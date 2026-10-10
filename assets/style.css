@@ -79,18 +79,52 @@ a.note-card:hover{transform:rotate(-.5deg) translateY(-2px);border-color:var(--r
 .tape{position:absolute;top:-12px;left:50%;width:90px;height:24px;transform:translateX(-50%) rotate(-3deg);background:var(--hl-yellow);opacity:.85}
 .new{font-size:14px;letter-spacing:.06em;text-transform:uppercase;background:var(--red);color:var(--paper);border-radius:6px;padding:0 8px}
 
-/* roadmap */
-ol.road{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;position:relative}
-ol.road::before{content:"";position:absolute;left:24px;top:12px;bottom:12px;border-left:3px dashed var(--ink-soft)}
-ol.road li{display:flex;gap:16px;align-items:center;position:relative}
-ol.road .pn{background:var(--hl-grey)}
+/* roadmap: a hand-drawn road, phases as stops alternating on each side */
+.progress{display:flex;flex-direction:column;gap:8px;max-width:640px}
+.progress .lbl{font-size:19px}
+.progress .lbl b{font-family:var(--f-hand);font-size:26px}
+.progress .track{display:block;height:20px;border:2.5px solid var(--ink);border-radius:999px;background:var(--card);overflow:hidden}
+.progress .fill{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--hl-yellow) 0 8px,var(--hl-orange) 8px 16px);border-right:2.5px solid var(--ink)}
+
+ol.road{list-style:none;margin:0;padding:8px 0;display:flex;flex-direction:column;gap:18px;position:relative}
+ol.road::before{content:"";position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);width:0;border-left:4px dashed var(--ink-soft)}
+ol.road li.stage{align-self:center;position:relative;z-index:1}
+ol.road li.stage span{display:inline-block;font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1;color:var(--red);background:var(--paper);border:2.5px solid var(--red);border-radius:999px;padding:6px 18px;transform:rotate(-2deg)}
+ol.road li.stop{position:relative;width:50%}
+ol.road li.stop.left{align-self:flex-start;padding-right:46px}
+ol.road li.stop.right{align-self:flex-end;padding-left:46px}
+ol.road .pn{position:absolute;top:14px;z-index:1;background:var(--hl-grey)}
+ol.road li.left .pn{right:-26px}
+ol.road li.right .pn{left:-26px}
 ol.road li.done .pn{background:var(--hl-yellow)}
-ol.road .body{flex:1;min-width:0;background:var(--card);border:2px dashed var(--ink-soft);border-radius:14px 18px 12px 16px;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px}
-ol.road li.done .body{border-style:solid;border-color:var(--ink)}
-ol.road .body b{font-family:var(--f-hand);font-size:28px;line-height:1}
-ol.road .body span{font-size:16px;color:var(--ink-soft);flex:1 1 220px}
-ol.road .state{font-size:15px;border:2px solid currentColor;border-radius:999px;padding:0 10px;white-space:nowrap;color:var(--ink-soft);text-decoration:none}
-ol.road li.done .state{color:var(--blue)}
+ol.road li.next .pn{background:var(--hl-blue)}
+ol.road details{background:var(--card);border:2.5px dashed var(--ink-soft);border-radius:16px 20px 14px 18px;padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+ol.road li.done details{border-style:solid;border-color:var(--ink);box-shadow:5px 6px 0 var(--shadow)}
+ol.road li.next details{border-style:solid;border-color:var(--blue)}
+ol.road summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+ol.road summary::-webkit-details-marker{display:none}
+ol.road summary::after{content:"+ show topics";font-size:15px;color:var(--blue)}
+ol.road details[open] summary::after{content:"− hide topics"}
+ol.road .ttl{font-family:var(--f-hand);font-weight:700;font-size:32px;line-height:1.05}
+ol.road .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+ol.road .wk{font-size:16px;color:var(--ink-soft)}
+ol.road .state{font-size:15px;border:2px solid currentColor;border-radius:999px;padding:0 10px;white-space:nowrap;color:var(--ink-soft)}
+ol.road .state.ok{color:var(--paper);background:var(--red);border-color:var(--red)}
+ol.road .state.nx{color:var(--blue)}
+ol.road .sub{font-size:16px;color:var(--ink-soft)}
+ol.road ul.topics{margin:4px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:2px;font-size:17px}
+ol.road ul.topics li::marker{color:var(--red)}
+.here{position:absolute;top:-16px;left:14px;z-index:2;font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1;color:var(--ink);background:var(--hl-yellow);padding:4px 10px;transform:rotate(-4deg);box-shadow:3px 4px 0 var(--shadow)}
+ol.road li.right .here{left:60px}
+.btn.small{font-size:22px;padding:8px 16px;align-self:flex-start}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:760px){
+  ol.road::before{left:25px;transform:none}
+  ol.road li.stage{align-self:flex-start;padding-left:4px}
+  ol.road li.stop,ol.road li.stop.left,ol.road li.stop.right{width:100%;align-self:stretch;padding:0 0 0 68px}
+  ol.road li.left .pn,ol.road li.right .pn{left:0;right:auto}
+  ol.road li.right .here,.here{left:80px}
+}
 
 /* about */
 .about{display:flex;flex-direction:column;gap:14px;background:var(--hl-yellow);padding:24px 26px;box-shadow:5px 7px 0 var(--shadow);transform:rotate(-.6deg);max-width:720px}

@@ -52,13 +52,38 @@
     if (!el) return;
     var byPhase = {};
     published(data).forEach(function (n) { if (!byPhase[n.phase]) byPhase[n.phase] = n; });
-    el.innerHTML = (data.roadmap || []).map(function (r) {
+    var road = data.roadmap || [];
+    var ready = road.filter(function (r) { return byPhase[r.phase]; });
+    var here = ready.length ? ready[ready.length - 1].phase : null;
+    var nextUp = road.filter(function (r) { return !byPhase[r.phase]; })[0];
+    var lastStage = '';
+
+    el.innerHTML = road.map(function (r, i) {
       var n = byPhase[r.phase];
-      var state = n ? '<a class="state" href="' + root + 'notes/' + encodeURIComponent(n.slug) + '/index.html">Read notes</a>'
-        : '<span class="state">Coming soon</span>';
-      return '<li class="' + (n ? 'done' : '') + '"><span class="pn">' + esc(r.phase) + '</span>' +
-        '<div class="body"><b>' + esc(r.title) + '</b><span>' + esc(r.topics) + '</span>' + state + '</div></li>';
+      var stage = '';
+      if (r.stage && r.stage !== lastStage) { lastStage = r.stage; stage = '<li class="stage"><span>' + esc(r.stage) + '</span></li>'; }
+      var cls = n ? 'done' : (nextUp && nextUp.phase === r.phase ? 'next' : '');
+      var badge = n ? '<span class="state ok">Ready</span>' : (cls === 'next' ? '<span class="state nx">Up next</span>' : '<span class="state">Coming soon</span>');
+      var items = (r.list || []).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+      var link = n ? '<a class="btn small" href="' + root + 'notes/' + encodeURIComponent(n.slug) + '/index.html">Read the notes →</a>' : '';
+      return stage + '<li class="stop ' + cls + (i % 2 ? ' right' : ' left') + '">' +
+        '<span class="pn" aria-hidden="true">' + esc(r.phase) + '</span>' +
+        (r.phase === here ? '<span class="here" aria-hidden="true">You are here</span>' : '') +
+        '<details' + (n ? ' open' : '') + '><summary>' +
+          '<span class="ttl"><span class="sr">Phase ' + esc(r.phase) + ': </span>' + esc(r.title) + '</span>' +
+          '<span class="row">' + (r.weeks ? '<span class="wk">⏱ ' + esc(r.weeks) + '</span>' : '') + badge + '</span>' +
+          '<span class="sub">' + esc(r.topics) + '</span>' +
+        '</summary>' + (items ? '<ul class="topics">' + items + '</ul>' : '') + link + '</details></li>';
     }).join('');
+
+    var bar = document.getElementById('road-progress');
+    if (bar) {
+      var pct = road.length ? Math.round(ready.length / road.length * 100) : 0;
+      bar.innerHTML = '<span class="lbl"><b>' + ready.length + ' of ' + road.length + '</b> phases ready' +
+        (nextUp ? ' · next up: <b>' + esc(nextUp.title) + '</b>' : '') + '</span>' +
+        '<span class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '" aria-label="Phases ready">' +
+        '<span class="fill" style="width:' + Math.max(pct, 3) + '%"></span></span>';
+    }
   }
 
   function renderAll(data) {
