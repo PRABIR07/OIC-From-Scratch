@@ -4,65 +4,84 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>OIC from Scratch | devwithprabir</title>
-<meta name="description" content="Learn Oracle Integration Cloud (OIC) from zero. Hand-written style notes with diagrams, by @devwithprabir.">
+<meta name="description" content="Learn Oracle Integration Cloud (OIC) from zero. Free hand-written style notes with diagrams, by @devwithprabir.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&display=swap">
-<style>
-/* Layout: a notebook cover page listing the phases as a hand-written contents page */
-:root{
-  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
-  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
-  --hl-yellow:#FFE58A; --hl-grey:#ECE8DD; --shadow:rgba(31,42,68,.14);
-  --f-hand:'Caveat','Brush Script MT',cursive; --f-body:'Patrick Hand','Trebuchet MS',sans-serif;
-}
-@media (prefers-color-scheme:dark){:root{
-  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
-  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
-  --hl-yellow:#5E5222; --hl-grey:#33424A; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
-  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px)}
-.page{max-width:860px;margin:0 auto;padding-inline:clamp(20px,6vw,72px) 16px;padding-block:48px 72px;position:relative;display:flex;flex-direction:column;gap:28px}
-.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(8px,3vw,40px);width:2px;background:var(--margin)}
-h1,h2{font-family:var(--f-hand);font-weight:700;line-height:1.05;margin:0;text-wrap:balance}
-h1{font-size:clamp(56px,10vw,96px)}
-h2{font-size:clamp(34px,5vw,44px)}
-p{margin:0;max-width:62ch}
-.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
-.stamp{align-self:flex-start;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:4px 14px;transform:rotate(-3deg);font-family:var(--f-hand);font-weight:700;font-size:30px;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
-mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
-ol.phases{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
-.phase{display:flex;gap:16px;align-items:center;background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:14px 18px;text-decoration:none;color:inherit;box-shadow:4px 5px 0 var(--shadow)}
-a.phase:hover,a.phase:focus-visible{border-color:var(--red);outline:none;transform:rotate(-.4deg)}
-.phase.soon{opacity:.6;box-shadow:none;border-style:dashed}
-.n{flex:none;width:52px;height:52px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
-.phase.soon .n{background:var(--hl-grey)}
-.phase b{font-family:var(--f-hand);font-size:30px;display:block;line-height:1}
-.phase span.sub{font-size:16px;color:var(--ink-soft)}
-.badge{margin-left:auto;font-size:15px;border:2px solid currentColor;border-radius:999px;padding:0 10px;color:var(--blue);white-space:nowrap}
-.phase.soon .badge{color:var(--ink-soft)}
-footer{color:var(--ink-soft);font-size:17px;padding-top:12px}
-@media (max-width:520px){.badge{display:none}}
-@media (prefers-reduced-motion:no-preference){a.phase{transition:transform .15s,border-color .15s}}
-</style>
+<link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
-<div class="page">
-  <div class="stamp">devwithprabir</div>
-  <p class="eyebrow">Learn Oracle Integration Cloud from zero</p>
-  <h1>OIC from Scratch</h1>
-  <p>Step-by-step notes for complete beginners. Every idea comes with an <mark>everyday example</mark> and a hand-drawn diagram. Read the notes, watch the video, then try it yourself.</p>
+<body data-root="./">
 
-  <h2>Phases</h2>
-  <ol class="phases">
-    <li><a class="phase" href="phase-01-how-systems-talk/"><span class="n">1</span><span><b>How Systems Talk</b><span class="sub">Client &amp; server · DNS · URLs · ports · methods · status codes · headers · HTTPS</span></span><span class="badge">Read notes</span></a></li>
-    <li><div class="phase soon"><span class="n">2</span><span><b>Data Formats</b><span class="sub">JSON · XML · XSD · XPath · XSLT</span></span><span class="badge">Coming soon</span></div></li>
-    <li><div class="phase soon"><span class="n">3</span><span><b>APIs</b><span class="sub">REST · SOAP · authentication · Postman</span></span><span class="badge">Coming soon</span></div></li>
-    <li><div class="phase soon"><span class="n">4</span><span><b>SQL &amp; Databases</b><span class="sub">Queries · joins · PL/SQL basics</span></span><span class="badge">Coming soon</span></div></li>
-    <li><div class="phase soon"><span class="n">5</span><span><b>Integration Concepts</b><span class="sub">Sync vs async · events · files · patterns</span></span><span class="badge">Coming soon</span></div></li>
-    <li><div class="phase soon"><span class="n">6</span><span><b>OIC Basics</b><span class="sub">Connections · adapters · mapper · monitoring</span></span><span class="badge">Coming soon</span></div></li>
-  </ol>
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="./">OIC from Scratch <span>✎</span></a>
+    <nav class="main" aria-label="Main">
+      <a href="./" aria-current="page">Home</a>
+      <a href="notes/">Notes</a>
+      <a href="#roadmap-title">Roadmap</a>
+      <a href="#about">About</a>
+    </nav>
+  </div>
+</header>
 
-  <footer>Made with care by @devwithprabir · Notes are free to read and share.</footer>
-</div>
+<main class="wrap">
+
+  <section aria-labelledby="hero-title">
+    <div class="stamp">devwithprabir</div>
+    <p class="eyebrow">Free notes · for complete beginners</p>
+    <h1 id="hero-title">OIC from Scratch</h1>
+    <svg class="squiggle" viewBox="0 0 200 14" aria-hidden="true"><path d="M3 8 C 22 2, 40 13, 62 7 S 104 2, 126 8 S 168 13, 197 6"/></svg>
+    <p class="lede">Learn <mark>Oracle Integration Cloud</mark> from zero, one hand-written page at a time. Every idea comes with an everyday example and a diagram, so you can follow even with no IT background.</p>
+    <div class="actions">
+      <a class="btn primary" id="start-reading" href="notes/">Start reading →</a>
+      <a class="btn" href="notes/">Browse all notes</a>
+    </div>
+  </section>
+
+  <section aria-labelledby="how-title">
+    <h2 id="how-title">How each phase works</h2>
+    <ol class="steps">
+      <li><b>1 · Read the notes</b><p>Short chapters, real-life stories and sketched diagrams.</p></li>
+      <li><b>2 · Watch the video</b><p>I walk through the same notes on screen, step by step.</p></li>
+      <li><b>3 · Try it yourself</b><p>Run the commands, tick “Got it”, and take the self-check.</p></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="latest-title">
+    <p class="eyebrow">Fresh from the notebook</p>
+    <h2 id="latest-title">Latest notes</h2>
+    <ul class="note-list" id="latest" aria-live="polite"><li class="empty">Loading notes…</li></ul>
+    <div class="actions"><a class="btn" href="notes/">See all notes →</a></div>
+  </section>
+
+  <section aria-labelledby="roadmap-title">
+    <p class="eyebrow">The full journey</p>
+    <h2 id="roadmap-title">Roadmap</h2>
+    <p>Ten phases, from “how do two computers talk?” to cracking an OIC interview. Each phase becomes one set of notes.</p>
+    <ol class="road" id="roadmap"><li class="empty">Loading roadmap…</li></ol>
+  </section>
+
+  <section id="about" aria-labelledby="about-title">
+    <div class="about">
+      <h2 id="about-title">Hi, I’m Prabir 👋</h2>
+      <p>I’m learning Oracle Integration Cloud from scratch and sharing every step as notes and videos, so you don’t have to figure it out alone.</p>
+      <p>If something isn’t clear, ask. That question probably helps someone else too.</p>
+      <div class="actions">
+        <a class="btn" data-link="youtube" hidden>YouTube</a>
+        <a class="btn" data-link="linkedin" hidden>LinkedIn</a>
+        <a class="btn" data-link="instagram" hidden>Instagram</a>
+        <a class="btn" data-link="github" hidden>GitHub</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>OIC from Scratch · made by @devwithprabir</span>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="notes/">Notes</a></nav>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
 </body>
 </html>

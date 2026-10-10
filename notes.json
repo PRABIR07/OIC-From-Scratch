@@ -1,0 +1,38 @@
+{
+  "site": {
+    "name": "OIC from Scratch",
+    "author": "@devwithprabir",
+    "tagline": "Learn Oracle Integration Cloud from zero, one hand-written page at a time.",
+    "links": {
+      "github": "https://github.com/PRABIR07/OIC-From-Scratch",
+      "youtube": "",
+      "linkedin": "",
+      "instagram": ""
+    }
+  },
+  "notes": [
+    {
+      "slug": "phase-01-how-systems-talk",
+      "phase": 1,
+      "title": "How Systems Talk",
+      "summary": "How one system talks to another: the restaurant, the contact list, the postal address, the bank and the hotel, all the way to how OIC uses them.",
+      "topics": ["Client & server", "DNS", "URLs", "Ports", "HTTP methods", "Status codes", "Headers & body", "HTTPS"],
+      "date": "2026-10-10",
+      "readMinutes": 25,
+      "video": "",
+      "status": "published"
+    }
+  ],
+  "roadmap": [
+    { "phase": 1, "title": "How Systems Talk", "topics": "Client & server · DNS · URLs · methods · status codes · HTTPS" },
+    { "phase": 2, "title": "Data Formats", "topics": "JSON · XML · XSD · XPath · XSLT" },
+    { "phase": 3, "title": "APIs", "topics": "REST · SOAP · authentication · Postman" },
+    { "phase": 4, "title": "SQL & Databases", "topics": "Queries · joins · PL/SQL basics" },
+    { "phase": 5, "title": "Integration Concepts", "topics": "Sync vs async · events · files · patterns" },
+    { "phase": 6, "title": "OIC Basics", "topics": "Connections · adapters · mapper · monitoring" },
+    { "phase": 7, "title": "OIC Intermediate", "topics": "Loops · fault handling · stage file · lookups" },
+    { "phase": 8, "title": "Oracle Fusion Applications", "topics": "BIP reports · FBDI · HDL · business events" },
+    { "phase": 9, "title": "Advanced & Related Tools", "topics": "VBCS · Process Automation · OCI basics" },
+    { "phase": 10, "title": "Certification & Job Prep", "topics": "Exam prep · portfolio projects · interviews" }
+  ]
+}
