@@ -144,3 +144,6 @@ footer.site .wrap::before{display:none}
 footer.site nav{display:flex;gap:14px;flex-wrap:wrap}
 
 @media (max-width:560px){.steps li,.about{transform:none}}
+
+/* keep jump-to targets clear of the sticky top bar */
+[id]{scroll-margin-top:110px}
