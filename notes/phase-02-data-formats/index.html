@@ -1,0 +1,720 @@
+<title>Phase 2 · Data Formats | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 2 notes</p>
+  <h1>Data Formats</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">In Phase 1 we learned how a message travels. Now we open the parcel and look at what’s inside: <b>JSON, XML, XSD, XPath, XSLT</b> and <b>CSV</b>. This is the heart of OIC’s mapper.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#why">1 · Why formats?</a><a href="#json">2 · JSON basics</a><a href="#json-nest">3 · Nested JSON</a><a href="#xml">4 · XML basics</a>
+    <a href="#ns">5 · Namespaces</a><a href="#compare">6 · JSON vs XML</a><a href="#xsd">7 · XSD</a><a href="#xpath">8 · XPath</a>
+    <a href="#xslt">9 · XSLT</a><a href="#convert">10 · JSON ↔ XML</a><a href="#csv">11 · CSV files</a><a href="#tools">12 · Hands-on</a>
+    <a href="#oic">13 · In OIC</a><a href="#mistakes">14 · Common mistakes</a><a href="#quiz">15 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 WHY -->
+<section class="ch" id="why">
+  <div class="ch-head"><h2><span class="num">1</span>Why data formats?</h2><label class="got"><input type="checkbox" id="got-why"> Got it</label></div>
+  <div class="story"><b class="lbl">The bank form</b>When you open a bank account, you don’t write a free-style letter. You fill a <b>form</b>: Name here, Date of birth there, PAN in this box. Because everyone fills the same form, the bank can read thousands of them quickly. <mark>A data format is a form that computers agree on.</mark></div>
+  <p>The body of a request (Phase 1, chapter 7) is just text. But the sender and receiver must agree on <b>how that text is arranged</b>, or the receiver can’t find the name, the salary or the date. The two most common arrangements are <mark class="b">JSON</mark> and <mark class="g">XML</mark>.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="Oracle HCM sends XML, OIC translates it, the payroll app receives JSON">
+      <g class="rough"><rect class="box f-green" x="20" y="60" width="190" height="110" rx="14"/><rect class="box f-yellow" x="265" y="60" width="190" height="110" rx="14"/><rect class="box f-blue" x="510" y="60" width="190" height="110" rx="14"/>
+      <path class="ln" d="M214 115 L 258 115" marker-end="url(#ah)"/><path class="ln" d="M459 115 L 503 115" marker-end="url(#ah)"/></g>
+      <text class="th" x="115" y="102" text-anchor="middle">System A</text><text class="ts" x="115" y="128" text-anchor="middle">speaks XML</text><text class="ts" x="115" y="150" text-anchor="middle" style="font-family:var(--f-mono)">&lt;name&gt;Ravi&lt;/name&gt;</text>
+      <text class="th" x="360" y="102" text-anchor="middle">OIC</text><text class="ts" x="360" y="128" text-anchor="middle">the translator</text><text class="ts" x="360" y="150" text-anchor="middle">maps field to field</text>
+      <text class="th" x="605" y="102" text-anchor="middle">System B</text><text class="ts" x="605" y="128" text-anchor="middle">speaks JSON</text><text class="ts" x="605" y="150" text-anchor="middle" style="font-family:var(--f-mono)">"fullName": "Ravi"</text>
+      <text class="tr" x="360" y="215" text-anchor="middle">Same information, different forms</text>
+    </svg></div>
+    <figcaption>Most of an integration developer’s day is translating one format into another.</figcaption>
+  </figure>
+</section>
+
+<!-- 2 JSON -->
+<section class="ch" id="json">
+  <div class="ch-head"><h2><span class="num">2</span>JSON basics</h2><label class="got"><input type="checkbox" id="got-json"> Got it</label></div>
+  <div class="story"><b class="lbl">A contact card</b>Your phone stores a contact as <b>labels with values</b>: Name → Ravi, Phone → 98xxxx, City → Pune. JSON (JavaScript Object Notation) is exactly that: <mark>a list of labels (keys) and their values, inside curly brackets</mark>.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 360" role="img" aria-label="A JSON object with labels pointing to the braces, a key, a colon, a string, a number, a boolean, null and a comma">
+      <g class="rough"><rect class="box f-card" x="190" y="30" width="340" height="290" rx="12"/></g>
+      <text class="t" x="210" y="70" style="font-family:var(--f-mono);font-size:19px">{</text>
+      <text class="t" x="235" y="105" style="font-family:var(--f-mono);font-size:19px"><tspan style="fill:var(--red)">"name"</tspan>: <tspan style="fill:var(--blue)">"Ravi Kumar"</tspan>,</text>
+      <text class="t" x="235" y="145" style="font-family:var(--f-mono);font-size:19px"><tspan style="fill:var(--red)">"id"</tspan>: 101,</text>
+      <text class="t" x="235" y="185" style="font-family:var(--f-mono);font-size:19px"><tspan style="fill:var(--red)">"active"</tspan>: true,</text>
+      <text class="t" x="235" y="225" style="font-family:var(--f-mono);font-size:19px"><tspan style="fill:var(--red)">"manager"</tspan>: null,</text>
+      <text class="t" x="235" y="265" style="font-family:var(--f-mono);font-size:19px"><tspan style="fill:var(--red)">"salary"</tspan>: 55000.50</text>
+      <text class="t" x="210" y="300" style="font-family:var(--f-mono);font-size:19px">}</text>
+      <g class="rough">
+        <path class="lr" d="M170 64 L 205 64" marker-end="url(#ahr)"/>
+        <path class="lr" d="M170 98 L 230 98" marker-end="url(#ahr)"/>
+        <path class="lb" d="M555 98 L 505 98" marker-end="url(#ahb)"/>
+        <path class="lb" d="M555 140 L 325 140" marker-end="url(#ahb)"/>
+        <path class="lb" d="M555 180 L 365 180" marker-end="url(#ahb)"/>
+        <path class="lb" d="M555 220 L 375 220" marker-end="url(#ahb)"/>
+        <path class="lr" d="M170 230 L 300 222" marker-end="url(#ahr)"/>
+        <path class="lr" d="M170 296 L 205 296" marker-end="url(#ahr)"/>
+      </g>
+      <text class="tr" x="160" y="70" text-anchor="end">{ starts</text>
+      <text class="tr" x="160" y="104" text-anchor="end">key (label)</text>
+      <text class="ts" x="160" y="124" text-anchor="end">always "double quotes"</text>
+      <text class="tb" x="565" y="104">string (text)</text>
+      <text class="tb" x="565" y="146">number</text>
+      <text class="tb" x="565" y="186">boolean</text>
+      <text class="tb" x="565" y="226">null = empty</text>
+      <text class="tr" x="160" y="236" text-anchor="end">: links key</text>
+      <text class="ts" x="160" y="256" text-anchor="end">to its value</text>
+      <text class="tr" x="160" y="302" text-anchor="end">} ends</text>
+    </svg></div>
+    <figcaption>A JSON <b>object</b> = curly brackets holding <b>key: value</b> pairs, separated by commas.</figcaption>
+  </figure>
+  <h3>The 6 kinds of values</h3>
+  <div class="tbl"><table>
+    <tr><th style="width:22%">Type</th><th style="width:34%">Example</th><th style="width:44%">Think of it as</th></tr>
+    <tr><td>String</td><td><code>"Ravi Kumar"</code></td><td>Text. Always in double quotes.</td></tr>
+    <tr><td>Number</td><td><code>101</code>, <code>55000.50</code></td><td>Amounts and counts. No quotes.</td></tr>
+    <tr><td>Boolean</td><td><code>true</code> / <code>false</code></td><td>A yes/no tick box. No quotes.</td></tr>
+    <tr><td>Null</td><td><code>null</code></td><td>The box exists, but it’s empty.</td></tr>
+    <tr><td>Object</td><td><code>{ "city": "Pune" }</code></td><td>A form inside a form.</td></tr>
+    <tr><td>Array</td><td><code>["SQL", "OIC"]</code></td><td>A list, in square brackets.</td></tr>
+  </table></div>
+  <div class="sticky"><strong>The 4 rules that break JSON.</strong> ① Keys and text in <b>double</b> quotes (not single). ② A comma <b>between</b> pairs, but <b>no comma after the last one</b>. ③ No comments. ④ Every <code>{</code> and <code>[</code> must be closed.</div>
+  <p><mark>Watch out:</mark> <code>"101"</code> (with quotes) is text, but <code>101</code> is a number. Systems care about this difference.</p>
+</section>
+
+<!-- 3 NESTED JSON -->
+<section class="ch" id="json-nest">
+  <div class="ch-head"><h2><span class="num">3</span>Nested JSON: objects &amp; arrays</h2><label class="got"><input type="checkbox" id="got-json-nest"> Got it</label></div>
+  <div class="story"><b class="lbl">Boxes inside boxes</b>A courier box can hold smaller boxes. JSON works the same: a value can itself be an <b>object</b> (a smaller form) or an <b>array</b> (a list of things). <mark>That’s how one JSON can describe a whole employee, or a whole list of employees.</mark></div>
+  <div class="two">
+    <figure><pre><span class="a">{</span>
+  "id": 101,
+  "name": "Ravi Kumar",
+  "address": <span class="b">{</span>          <span class="c">← object</span>
+    "city": "Pune",
+    "pin": "411001"
+  <span class="b">}</span>,
+  "skills": <span class="b">[</span>"SQL", "OIC"<span class="b">]</span>  <span class="c">← array</span>
+<span class="a">}</span></pre><figcaption>One employee, with a nested address and a list of skills.</figcaption></figure>
+    <figure>
+      <div class="dia"><svg viewBox="0 0 400 330" style="min-width:320px" role="img" aria-label="Tree: employee has id, name, address with city and pin, and skills with item 0 SQL and item 1 OIC">
+        <g class="rough"><rect class="box f-yellow" x="140" y="10" width="120" height="44" rx="10"/>
+        <rect class="box f-card" x="10" y="100" width="80" height="40" rx="8"/><rect class="box f-card" x="105" y="100" width="80" height="40" rx="8"/><rect class="box f-blue" x="200" y="100" width="90" height="40" rx="8"/><rect class="box f-green" x="305" y="100" width="85" height="40" rx="8"/>
+        <rect class="box f-card" x="160" y="200" width="70" height="40" rx="8"/><rect class="box f-card" x="240" y="200" width="70" height="40" rx="8"/>
+        <rect class="box f-card" x="300" y="270" width="45" height="40" rx="8"/><rect class="box f-card" x="350" y="270" width="45" height="40" rx="8"/>
+        <path class="ln" d="M200 56 L 50 98 M200 56 L 145 98 M200 56 L 245 98 M200 56 L 347 98 M245 142 L 195 198 M245 142 L 275 198 M347 142 L 322 268 M347 142 L 372 268"/></g>
+        <text class="t" x="200" y="38" text-anchor="middle">employee</text>
+        <text class="t" x="50" y="126" text-anchor="middle">id</text><text class="t" x="145" y="126" text-anchor="middle">name</text><text class="t" x="245" y="126" text-anchor="middle">address</text><text class="t" x="347" y="126" text-anchor="middle">skills</text>
+        <text class="t" x="195" y="226" text-anchor="middle">city</text><text class="t" x="275" y="226" text-anchor="middle">pin</text>
+        <text class="ts" x="322" y="295" text-anchor="middle">[0]</text><text class="ts" x="372" y="295" text-anchor="middle">[1]</text>
+      </svg></div>
+      <figcaption>The same data as a family tree.</figcaption>
+    </figure>
+  </div>
+  <p>To point at one value, follow the tree with dots: <code>address.city</code> → <b>Pune</b>. Arrays count from zero: <code>skills[0]</code> → <b>SQL</b>, <code>skills[1]</code> → <b>OIC</b>.</p>
+  <p>A <b>list of employees</b> is simply an array of objects: <code>{"employees": [ {…Ravi…}, {…Priya…} ]}</code>. When an API returns many records, this is what you’ll see.</p>
+</section>
+
+<!-- 4 XML -->
+<section class="ch" id="xml">
+  <div class="ch-head"><h2><span class="num">4</span>XML basics</h2><label class="got"><input type="checkbox" id="got-xml"> Got it</label></div>
+  <div class="story"><b class="lbl">Labelled jars</b>Imagine a kitchen where every jar has a label on the lid <b>and</b> on the bottom: <b>&lt;sugar&gt;</b> … <b>&lt;/sugar&gt;</b>. XML (eXtensible Markup Language) wraps every value between an <mark>opening tag and a closing tag</mark>. Older enterprise systems, SOAP services and Oracle Fusion use it a lot, and OIC uses it inside.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 220" role="img" aria-label="An XML element: opening tag with an attribute, content, and closing tag">
+      <text class="t" x="360" y="110" text-anchor="middle" style="font-family:var(--f-mono);font-size:22px"><tspan style="fill:var(--red)">&lt;employee id="101"&gt;</tspan><tspan style="fill:var(--blue)">Ravi Kumar</tspan><tspan style="fill:var(--red)">&lt;/employee&gt;</tspan></text>
+      <g class="rough"><path class="lr" d="M110 125 Q 110 150 200 150 Q 290 150 290 125"/><path class="lb" d="M300 80 Q 300 55 345 55 Q 390 55 390 80"/><path class="lb" d="M410 125 Q 410 150 465 150 Q 520 150 520 125"/><path class="lr" d="M530 80 Q 530 55 585 55 Q 640 55 640 80"/></g>
+      <text class="tr" x="200" y="180" text-anchor="middle">opening tag</text>
+      <text class="tb" x="345" y="40" text-anchor="middle">attribute</text>
+      <text class="tb" x="465" y="180" text-anchor="middle">content (value)</text>
+      <text class="tr" x="585" y="40" text-anchor="middle">closing tag (with /)</text>
+    </svg></div>
+    <figcaption>Opening tag + content + closing tag = one <b>element</b>.</figcaption>
+  </figure>
+  <div class="two">
+    <figure><pre><span class="c">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="a">&lt;employees&gt;</span>            <span class="c">← root</span>
+  &lt;employee id="101"&gt;
+    &lt;name&gt;Ravi Kumar&lt;/name&gt;
+    &lt;dept&gt;Finance&lt;/dept&gt;
+    &lt;salary&gt;55000&lt;/salary&gt;
+  &lt;/employee&gt;
+  &lt;employee id="102"&gt;
+    &lt;name&gt;Priya Sharma&lt;/name&gt;
+    &lt;dept&gt;HR&lt;/dept&gt;
+    &lt;salary&gt;48000&lt;/salary&gt;
+  &lt;/employee&gt;
+<span class="a">&lt;/employees&gt;</span></pre><figcaption>The first line is the <b>prolog</b>: “this is XML, in UTF-8”.</figcaption></figure>
+    <figure>
+      <div class="dia"><svg viewBox="0 0 400 300" style="min-width:320px" role="img" aria-label="XML tree: employees has two employee elements, each with name, dept and salary">
+        <g class="rough"><rect class="box f-yellow" x="135" y="10" width="130" height="44" rx="10"/>
+        <rect class="box f-green" x="20" y="100" width="160" height="44" rx="10"/><rect class="box f-green" x="220" y="100" width="160" height="44" rx="10"/>
+        <rect class="box f-card" x="5" y="200" width="56" height="38" rx="8"/><rect class="box f-card" x="69" y="200" width="56" height="38" rx="8"/><rect class="box f-card" x="133" y="200" width="60" height="38" rx="8"/>
+        <rect class="box f-card" x="207" y="200" width="56" height="38" rx="8"/><rect class="box f-card" x="271" y="200" width="56" height="38" rx="8"/><rect class="box f-card" x="335" y="200" width="60" height="38" rx="8"/>
+        <path class="ln" d="M200 56 L 100 98 M200 56 L 300 98 M100 146 L 33 198 M100 146 L 97 198 M100 146 L 163 198 M300 146 L 235 198 M300 146 L 299 198 M300 146 L 365 198"/></g>
+        <text class="t" x="200" y="38" text-anchor="middle">employees</text>
+        <text class="t" x="100" y="128" text-anchor="middle">employee @id=101</text><text class="t" x="300" y="128" text-anchor="middle">employee @id=102</text>
+        <text class="ts" x="33" y="224" text-anchor="middle">name</text><text class="ts" x="97" y="224" text-anchor="middle">dept</text><text class="ts" x="163" y="224" text-anchor="middle">salary</text>
+        <text class="ts" x="235" y="224" text-anchor="middle">name</text><text class="ts" x="299" y="224" text-anchor="middle">dept</text><text class="ts" x="365" y="224" text-anchor="middle">salary</text>
+        <text class="ts" x="200" y="275" text-anchor="middle">every XML is a tree with one root</text>
+      </svg></div>
+      <figcaption>The same XML as a tree.</figcaption>
+    </figure>
+  </div>
+  <h3>Element or attribute?</h3>
+  <p>Both hold data. An <b>attribute</b> sits inside the opening tag (<code>id="101"</code>) and is best for small labels like IDs or codes. An <b>element</b> (<code>&lt;name&gt;…&lt;/name&gt;</code>) is best for the main data, and only elements can hold other elements.</p>
+  <div class="sticky l"><strong>“Well-formed” XML follows 5 rules.</strong> ① Exactly <b>one root</b> element. ② Every opening tag has a <b>closing</b> tag (or is self-closing, like <code>&lt;photo/&gt;</code>). ③ Tags close in the <b>right order</b>: inner first. ④ Tag names are <b>case-sensitive</b>: <code>&lt;name&gt;</code> ≠ <code>&lt;Name&gt;</code>. ⑤ Attribute values in quotes, and special characters escaped: <code>&amp;</code> → <code>&amp;amp;</code>, <code>&lt;</code> → <code>&amp;lt;</code>.</div>
+</section>
+
+<!-- 5 NAMESPACES -->
+<section class="ch" id="ns">
+  <div class="ch-head"><h2><span class="num">5</span>Namespaces</h2><label class="got"><input type="checkbox" id="got-ns"> Got it</label></div>
+  <div class="story"><b class="lbl">Two Ravis in one class</b>When two students are both called Ravi, the teacher says “Ravi <b>Kumar</b>” and “Ravi <b>Sharma</b>”. The surname tells them apart. <mark>A namespace is a surname for XML tags</mark>, so two tags with the same name but different meanings don’t get confused.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 280" role="img" aria-label="An employee XML holds hr:id 101 and pay:id PAY-7781; the prefixes hr and pay point to two different namespace addresses">
+      <g class="rough"><rect class="box f-card" x="20" y="20" width="420" height="230" rx="12"/>
+      <rect class="box f-green" x="480" y="45" width="220" height="70" rx="12"/><rect class="box f-blue" x="480" y="160" width="220" height="70" rx="12"/>
+      <path class="lr" d="M300 118 C 380 110, 420 85, 472 80" marker-end="url(#ahr)"/><path class="lb" d="M330 196 C 400 196, 430 196, 472 195" marker-end="url(#ahb)"/></g>
+      <text class="t" x="40" y="58" style="font-family:var(--f-mono);font-size:15px">&lt;hr:employee</text>
+      <text class="t" x="60" y="82" style="font-family:var(--f-mono);font-size:15px">xmlns:hr="http://company.com/hr"</text>
+      <text class="t" x="60" y="104" style="font-family:var(--f-mono);font-size:15px">xmlns:pay="http://company.com/payroll"&gt;</text>
+      <text class="t" x="60" y="140" style="font-family:var(--f-mono);font-size:15px"><tspan style="fill:var(--red)">&lt;hr:id&gt;</tspan>101<tspan style="fill:var(--red)">&lt;/hr:id&gt;</tspan></text>
+      <text class="t" x="60" y="166" style="font-family:var(--f-mono);font-size:15px">&lt;hr:name&gt;Ravi Kumar&lt;/hr:name&gt;</text>
+      <text class="t" x="60" y="200" style="font-family:var(--f-mono);font-size:15px"><tspan style="fill:var(--blue)">&lt;pay:id&gt;</tspan>PAY-7781<tspan style="fill:var(--blue)">&lt;/pay:id&gt;</tspan></text>
+      <text class="t" x="40" y="232" style="font-family:var(--f-mono);font-size:15px">&lt;/hr:employee&gt;</text>
+      <text class="th" x="590" y="78" text-anchor="middle">hr = HR system</text><text class="ts" x="590" y="102" text-anchor="middle">employee number</text>
+      <text class="th" x="590" y="193" text-anchor="middle">pay = Payroll</text><text class="ts" x="590" y="217" text-anchor="middle">payroll account ID</text>
+    </svg></div>
+    <figcaption>Two <code>id</code> tags, two meanings. The prefix (<code>hr:</code>, <code>pay:</code>) says which family each belongs to.</figcaption>
+  </figure>
+  <p><code>xmlns:hr="http://company.com/hr"</code> declares the namespace: the <b>prefix</b> <code>hr</code> stands for that long name. The address looks like a web link, but it’s only a unique name: nothing is downloaded from it.</p>
+  <div class="sticky"><strong>Why you must care in OIC.</strong> The mapper shows prefixes like <code>ns0:</code>, <code>nsmpr0:</code> everywhere. And an XPath without the right namespace finds <b>nothing</b>, which is one of the most common “why is my value empty?” problems. You’ll see this live in chapter 12.</div>
+</section>
+
+<!-- 6 COMPARE -->
+<section class="ch" id="compare">
+  <div class="ch-head"><h2><span class="num">6</span>JSON vs XML</h2><label class="got"><input type="checkbox" id="got-compare"> Got it</label></div>
+  <div class="two">
+    <figure><pre><span class="c">// JSON</span>
+{
+  "employee": {
+    "id": 101,
+    "name": "Ravi Kumar",
+    "skills": ["SQL", "OIC"]
+  }
+}</pre></figure>
+    <figure><pre><span class="c">&lt;!-- XML --&gt;</span>
+&lt;employee id="101"&gt;
+  &lt;name&gt;Ravi Kumar&lt;/name&gt;
+  &lt;skills&gt;
+    &lt;skill&gt;SQL&lt;/skill&gt;
+    &lt;skill&gt;OIC&lt;/skill&gt;
+  &lt;/skills&gt;
+&lt;/employee&gt;</pre></figure>
+  </div>
+  <div class="tbl"><table>
+    <tr><th style="width:24%"></th><th style="width:38%">JSON</th><th style="width:38%">XML</th></tr>
+    <tr><td>Looks like</td><td>key: value in { }</td><td>&lt;tag&gt;value&lt;/tag&gt;</td></tr>
+    <tr><td>Size</td><td>Short and light</td><td>Longer (every tag twice)</td></tr>
+    <tr><td>Lists</td><td>Arrays <code>[ ]</code></td><td>Repeat the same element</td></tr>
+    <tr><td>Data types</td><td>string, number, boolean, null</td><td>Everything is text (XSD adds types)</td></tr>
+    <tr><td>Attributes, namespaces</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Rules / contract</td><td>JSON Schema (optional)</td><td>XSD (very common)</td></tr>
+    <tr><td>Where you’ll see it</td><td>Modern REST APIs, mobile apps</td><td>SOAP services, Fusion, files, OIC inside</td></tr>
+  </table></div>
+  <p>Neither is “better”. As an integration developer you must be <mark>comfortable reading both</mark>, because you’ll receive one and send the other all the time.</p>
+</section>
+
+<!-- 7 XSD -->
+<section class="ch" id="xsd">
+  <div class="ch-head"><h2><span class="num">7</span>XSD: the rule book</h2><label class="got"><input type="checkbox" id="got-xsd"> Got it</label></div>
+  <div class="story"><b class="lbl">The blank form vs the filled form</b>The bank prints a <b>blank form</b> that says: Name (text, required), Age (number, required), Nominee (optional), Phone (up to 3). Your <b>filled form</b> must follow it. <mark>XSD (XML Schema Definition) is the blank form; the XML is the filled one.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="An XSD rule list on the left checks the XML on the right, field by field">
+      <g class="rough"><rect class="box f-purple" x="20" y="20" width="300" height="260" rx="14"/><rect class="box f-card" x="400" y="20" width="300" height="260" rx="14"/>
+      <path class="ln dash" d="M325 95 L 395 95" marker-end="url(#ah)"/><path class="ln dash" d="M325 140 L 395 140" marker-end="url(#ah)"/><path class="ln dash" d="M325 185 L 395 185" marker-end="url(#ah)"/><path class="ln dash" d="M325 230 L 395 230" marker-end="url(#ah)"/></g>
+      <text class="th" x="170" y="58" text-anchor="middle">XSD (blank form)</text>
+      <text class="t" x="40" y="100">employee: 1 or more</text>
+      <text class="t" x="40" y="145">name: text, required</text>
+      <text class="t" x="40" y="190">salary: decimal number</text>
+      <text class="t" x="40" y="235">@id: integer, required</text>
+      <text class="th" x="550" y="58" text-anchor="middle">XML (filled form)</text>
+      <text class="t" x="420" y="100" style="font-family:var(--f-mono);font-size:15px">&lt;employee id="101"&gt;  ✓</text>
+      <text class="t" x="420" y="145" style="font-family:var(--f-mono);font-size:15px">&lt;name&gt;Ravi&lt;/name&gt;  ✓</text>
+      <text class="t" x="420" y="190" style="font-family:var(--f-mono);font-size:15px">&lt;salary&gt;55000&lt;/salary&gt; ✓</text>
+      <text class="t" x="420" y="235" style="font-family:var(--f-mono);font-size:15px">id="101"  ✓</text>
+    </svg></div>
+    <figcaption>Every rule in the XSD is checked against the XML.</figcaption>
+  </figure>
+  <figure><pre><span class="c">&lt;!-- employees.xsd --&gt;</span>
+&lt;xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;xs:element name="employees"&gt;
+    &lt;xs:complexType&gt;                       <span class="c">← has children</span>
+      &lt;xs:sequence&gt;                        <span class="c">← children in this order</span>
+        &lt;xs:element name="employee" <span class="a">minOccurs="1" maxOccurs="unbounded"</span>&gt;
+          &lt;xs:complexType&gt;
+            &lt;xs:sequence&gt;
+              &lt;xs:element name="name"   <span class="b">type="xs:string"</span>/&gt;
+              &lt;xs:element name="dept"   <span class="b">type="xs:string"</span>/&gt;
+              &lt;xs:element name="salary" <span class="b">type="xs:decimal"</span>/&gt;
+            &lt;/xs:sequence&gt;
+            &lt;xs:attribute name="id" type="xs:integer" <span class="a">use="required"</span>/&gt;
+          &lt;/xs:complexType&gt;
+        &lt;/xs:element&gt;
+      &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+&lt;/xs:schema&gt;</pre><figcaption>Read it from the inside out: each <code>xs:element</code> is one box on the form.</figcaption></figure>
+  <div class="tbl"><table>
+    <tr><th style="width:34%">XSD word</th><th style="width:66%">Plain meaning</th></tr>
+    <tr><td><b>simple type</b></td><td>A single value, no children: <code>xs:string</code>, <code>xs:integer</code>, <code>xs:decimal</code>, <code>xs:date</code>, <code>xs:boolean</code></td></tr>
+    <tr><td><b>complexType</b></td><td>A box that holds other boxes (children) or attributes</td></tr>
+    <tr><td><b>sequence</b></td><td>The children must appear in this order</td></tr>
+    <tr><td><b>minOccurs</b></td><td>At least how many times. <code>0</code> = optional, <code>1</code> = required (the default)</td></tr>
+    <tr><td><b>maxOccurs</b></td><td>At most how many times. <code>unbounded</code> = as many as you like (a list)</td></tr>
+    <tr><td><b>use="required"</b></td><td>The attribute must be there</td></tr>
+  </table></div>
+  <div class="sticky l"><strong>Well-formed vs valid.</strong> <b>Well-formed</b> = the grammar is correct (tags closed, one root). <b>Valid</b> = well-formed <i>and</i> it follows the XSD. <code>&lt;salary&gt;fifty thousand&lt;/salary&gt;</code> is well-formed, but <b>not valid</b>, because the XSD says salary is a decimal number.</div>
+  <p><mark class="b">In OIC</mark>, schemas are what draw the trees you see in the mapper. When you give OIC a sample JSON, it quietly creates a schema from it; when you connect a SOAP service, its WSDL brings its XSD with it.</p>
+</section>
+
+<!-- 8 XPATH -->
+<section class="ch" id="xpath">
+  <div class="ch-head"><h2><span class="num">8</span>XPath: finding a value</h2><label class="got"><input type="checkbox" id="got-xpath"> Got it</label></div>
+  <div class="story"><b class="lbl">Folder paths</b>On your laptop, <code>/Users/prabir/Documents/resume.pdf</code> tells you exactly where a file is. <mark>XPath is a path to a value inside XML</mark>, written the same way with slashes.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="XPath /employees/employee[2]/dept walks from the root to the second employee and then to its dept, which is HR">
+      <g class="rough"><rect class="box f-yellow" x="290" y="10" width="140" height="44" rx="10"/>
+      <rect class="box f-card" x="110" y="100" width="190" height="44" rx="10"/><rect class="box f-green" x="420" y="100" width="190" height="44" rx="10"/>
+      <rect class="box f-card" x="40" y="200" width="90" height="40" rx="8"/><rect class="box f-card" x="160" y="200" width="90" height="40" rx="8"/><rect class="box f-card" x="270" y="200" width="90" height="40" rx="8"/>
+      <rect class="box f-card" x="370" y="200" width="90" height="40" rx="8"/><rect class="box f-orange" x="480" y="200" width="90" height="40" rx="8"/><rect class="box f-card" x="590" y="200" width="100" height="40" rx="8"/>
+      <path class="ln" d="M360 56 L 205 98 M205 146 L 85 198 M205 146 L 205 198 M205 146 L 315 198 M515 146 L 415 198 M515 146 L 635 198"/>
+      <path class="lr" style="stroke-width:5" d="M360 56 L 515 98 M515 146 L 525 198"/></g>
+      <text class="t" x="360" y="38" text-anchor="middle">employees</text>
+      <text class="t" x="205" y="128" text-anchor="middle">employee[1]</text><text class="t" x="515" y="128" text-anchor="middle">employee[2]</text>
+      <text class="ts" x="85" y="225" text-anchor="middle">name</text><text class="ts" x="205" y="225" text-anchor="middle">dept</text><text class="ts" x="315" y="225" text-anchor="middle">salary</text>
+      <text class="ts" x="415" y="225" text-anchor="middle">name</text><text class="t" x="525" y="225" text-anchor="middle">dept = HR</text><text class="ts" x="640" y="225" text-anchor="middle">salary</text>
+      <text class="tr" x="360" y="285" text-anchor="middle">/employees/employee[2]/dept  →  HR</text>
+    </svg></div>
+    <figcaption>The red path is the XPath. Note: XPath counts from <b>1</b>, not 0.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:44%">XPath</th><th style="width:30%">Means</th><th style="width:26%">Result (our XML)</th></tr>
+    <tr><td><code>/employees/employee[1]/name</code></td><td>Full path from the root</td><td>Ravi Kumar</td></tr>
+    <tr><td><code>//name</code></td><td><b>//</b> = search anywhere</td><td>Ravi Kumar, Priya Sharma</td></tr>
+    <tr><td><code>//employee[@id='102']/dept</code></td><td><b>@</b> = attribute; <b>[ ]</b> = filter</td><td>HR</td></tr>
+    <tr><td><code>//employee[salary &gt; 50000]/name</code></td><td>Filter by a value</td><td>Ravi Kumar</td></tr>
+    <tr><td><code>count(//employee)</code></td><td>How many</td><td>2</td></tr>
+    <tr><td><code>sum(//salary)</code></td><td>Add them up</td><td>103000</td></tr>
+  </table></div>
+  <p>Other handy functions: <code>concat(a, ' ', b)</code> joins text, <code>substring()</code>, <code>contains()</code>, <code>string-length()</code>, <code>normalize-space()</code> (trims spaces), <code>upper-case()</code>, and <code>current-dateTime()</code>.</p>
+  <div class="sticky"><strong>In OIC</strong>, every field you drag in the mapper is really an XPath, something like <code>$GetEmployee/nsmpr0:response/ns1:name</code>. The <code>$</code> part is a variable holding a message, and the prefixes are namespaces. Switch Conditions, Assign and Filter all use XPath too.</div>
+</section>
+
+<!-- 9 XSLT -->
+<section class="ch" id="xslt">
+  <div class="ch-head"><h2><span class="num">9</span>XSLT: reshaping XML</h2><label class="got"><input type="checkbox" id="got-xslt"> Got it</label></div>
+  <div class="story"><b class="lbl">A recipe</b>You have ingredients (the input XML) and a recipe card (the XSLT). Follow the recipe and you get a new dish (the output XML). <mark>XSLT (eXtensible Stylesheet Language Transformations) is a recipe for turning one XML shape into another.</mark> It uses XPath to pick the ingredients.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 260" role="img" aria-label="Input employees XML plus the XSLT recipe go into the XSLT engine, which produces the payroll XML">
+      <g class="rough"><rect class="box f-green" x="20" y="20" width="200" height="90" rx="12"/><rect class="box f-purple" x="20" y="150" width="200" height="90" rx="12"/>
+      <rect class="box f-yellow" x="290" y="85" width="150" height="90" rx="40"/><rect class="box f-blue" x="510" y="80" width="190" height="100" rx="12"/>
+      <path class="ln" d="M224 65 C 260 70, 270 100, 284 115" marker-end="url(#ah)"/><path class="ln" d="M224 195 C 260 190, 270 160, 284 148" marker-end="url(#ah)"/><path class="lr" d="M444 130 L 503 130" marker-end="url(#ahr)"/></g>
+      <text class="th" x="120" y="58" text-anchor="middle">Input XML</text><text class="ts" x="120" y="84" text-anchor="middle">employees: name, dept, salary</text>
+      <text class="th" x="120" y="188" text-anchor="middle">XSLT recipe</text><text class="ts" x="120" y="214" text-anchor="middle">for each employee, make a worker</text>
+      <text class="th" x="365" y="123" text-anchor="middle">Engine</text><text class="ts" x="365" y="148" text-anchor="middle">OIC runs this</text>
+      <text class="th" x="605" y="120" text-anchor="middle">Output XML</text><text class="ts" x="605" y="146" text-anchor="middle">payroll: empId, fullName, band</text>
+    </svg></div>
+  </figure>
+  <figure><pre><span class="c">&lt;!-- payroll.xsl --&gt;</span>
+&lt;xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:template <span class="a">match="/"</span>&gt;                         <span class="c">← start at the root</span>
+    &lt;payroll&gt;
+      &lt;xsl:<span class="a">for-each</span> select="employees/employee"&gt;  <span class="c">← loop</span>
+        &lt;worker&gt;
+          &lt;empId&gt;&lt;xsl:<span class="b">value-of</span> select="@id"/&gt;&lt;/empId&gt;      <span class="c">← copy a value</span>
+          &lt;fullName&gt;&lt;xsl:value-of select="name"/&gt;&lt;/fullName&gt;
+          &lt;xsl:<span class="a">choose</span>&gt;                               <span class="c">← if / else</span>
+            &lt;xsl:when test="salary &amp;gt; 50000"&gt;&lt;band&gt;Senior&lt;/band&gt;&lt;/xsl:when&gt;
+            &lt;xsl:otherwise&gt;&lt;band&gt;Junior&lt;/band&gt;&lt;/xsl:otherwise&gt;
+          &lt;/xsl:choose&gt;
+        &lt;/worker&gt;
+      &lt;/xsl:for-each&gt;
+    &lt;/payroll&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;</pre><figcaption>Plain XML tags (<code>&lt;payroll&gt;</code>, <code>&lt;worker&gt;</code>) are copied to the output; <code>xsl:</code> tags are instructions.</figcaption></figure>
+  <div class="two">
+    <div class="tbl"><table>
+      <tr><th style="width:42%">Instruction</th><th style="width:58%">Does</th></tr>
+      <tr><td><b>template</b></td><td>Where the recipe starts</td></tr>
+      <tr><td><b>value-of</b></td><td>Copy one value</td></tr>
+      <tr><td><b>for-each</b></td><td>Repeat for every item</td></tr>
+      <tr><td><b>if</b></td><td>Only when a test is true</td></tr>
+      <tr><td><b>choose / when / otherwise</b></td><td>If… else if… else</td></tr>
+      <tr><td><b>variable</b></td><td>Remember a value to reuse</td></tr>
+    </table></div>
+    <figure><pre><span class="c">&lt;!-- output --&gt;</span>
+&lt;payroll&gt;
+  &lt;worker&gt;
+    &lt;empId&gt;101&lt;/empId&gt;
+    &lt;fullName&gt;Ravi Kumar&lt;/fullName&gt;
+    &lt;band&gt;Senior&lt;/band&gt;
+  &lt;/worker&gt;
+  &lt;worker&gt;
+    &lt;empId&gt;102&lt;/empId&gt;
+    &lt;fullName&gt;Priya Sharma&lt;/fullName&gt;
+    &lt;band&gt;Junior&lt;/band&gt;
+  &lt;/worker&gt;
+&lt;/payroll&gt;</pre></figure>
+  </div>
+  <div class="sticky l"><strong>In OIC</strong>, when you drag lines in the mapper, OIC is writing XSLT for you behind the scenes. Open the mapper’s <b>code view</b> and you’ll see <code>xsl:for-each</code>, <code>xsl:value-of</code> and <code>xsl:choose</code>, exactly like this. Knowing XSLT lets you fix what drag-and-drop can’t.</div>
+</section>
+
+<!-- 10 CONVERT -->
+<section class="ch" id="convert">
+  <div class="ch-head"><h2><span class="num">10</span>JSON ↔ XML in OIC</h2><label class="got"><input type="checkbox" id="got-convert"> Got it</label></div>
+  <div class="story"><b class="lbl">The interpreter’s notebook</b>An interpreter listens in Hindi, writes notes in her own shorthand, and speaks in English. <mark>OIC receives JSON, converts it to XML inside, maps it with XSLT, and converts it back to JSON if needed.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 200" role="img" aria-label="JSON comes in, OIC converts it to XML, maps it with XSLT, converts it back to JSON and sends it out">
+      <g class="rough"><rect class="box f-blue" x="10" y="60" width="110" height="70" rx="12"/><rect class="box f-green" x="160" y="60" width="120" height="70" rx="12"/><rect class="box f-yellow" x="320" y="60" width="120" height="70" rx="12"/><rect class="box f-green" x="480" y="60" width="110" height="70" rx="12"/><rect class="box f-blue" x="620" y="60" width="90" height="70" rx="12"/>
+      <path class="ln" d="M122 95 L 153 95" marker-end="url(#ah)"/><path class="ln" d="M282 95 L 313 95" marker-end="url(#ah)"/><path class="ln" d="M442 95 L 473 95" marker-end="url(#ah)"/><path class="ln" d="M592 95 L 613 95" marker-end="url(#ah)"/>
+      <path class="ln dash" d="M150 40 L 600 40 L 600 155 L 150 155 Z"/></g>
+      <text class="th" x="65" y="102" text-anchor="middle">JSON in</text>
+      <text class="th" x="220" y="102" text-anchor="middle">→ XML</text>
+      <text class="th" x="380" y="102" text-anchor="middle">Mapper</text><text class="ts" x="380" y="122" text-anchor="middle">XSLT + XPath</text>
+      <text class="th" x="535" y="102" text-anchor="middle">XML</text>
+      <text class="th" x="665" y="102" text-anchor="middle">JSON</text>
+      <text class="tr" x="375" y="185" text-anchor="middle">inside OIC: everything is XML</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">JSON</th><th style="width:36%">Becomes in XML</th><th style="width:34%">Watch out for</th></tr>
+    <tr><td><code>"name": "Ravi"</code></td><td><code>&lt;name&gt;Ravi&lt;/name&gt;</code></td><td>Straightforward</td></tr>
+    <tr><td>Object <code>{ }</code></td><td>Element with children</td><td>Needs one root wrapper</td></tr>
+    <tr><td>Array <code>[ ]</code></td><td>Same element repeated</td><td>Give a sample with <b>2+ items</b>, or OIC may treat it as a single item</td></tr>
+    <tr><td><code>101</code> vs <code>"101"</code></td><td>Both are text in XML</td><td>Types come back from the schema</td></tr>
+  </table></div>
+</section>
+
+<!-- 11 CSV -->
+<section class="ch" id="csv">
+  <div class="ch-head"><h2><span class="num">11</span>CSV &amp; delimited files</h2><label class="got"><input type="checkbox" id="got-csv"> Got it</label></div>
+  <div class="story"><b class="lbl">A spreadsheet saved as plain text</b>Open Excel, save as <b>.csv</b>, then open it in Notepad: each row is one line, and the columns are separated by commas. <mark>CSV (Comma-Separated Values) is the most common format for file-based integrations</mark>, like a bank sending a daily payments file over SFTP.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="A spreadsheet table on the left becomes lines of comma separated text on the right">
+      <g class="rough"><rect class="box f-green" x="20" y="30" width="320" height="170" rx="10"/><path class="ln" d="M20 72 L 340 72 M20 114 L 340 114 M20 156 L 340 156 M70 30 L 70 200 M190 30 L 190 200 M265 30 L 265 200"/>
+      <rect class="box f-card" x="400" y="30" width="300" height="170" rx="10"/><path class="lr" d="M346 115 L 393 115" marker-end="url(#ahr)"/></g>
+      <text class="t" x="45" y="57" text-anchor="middle">id</text><text class="t" x="130" y="57" text-anchor="middle">name</text><text class="t" x="228" y="57" text-anchor="middle">dept</text><text class="t" x="302" y="57" text-anchor="middle">salary</text>
+      <text class="ts" x="45" y="99" text-anchor="middle">101</text><text class="ts" x="130" y="99" text-anchor="middle">Ravi Kumar</text><text class="ts" x="228" y="99" text-anchor="middle">Finance</text><text class="ts" x="302" y="99" text-anchor="middle">55000</text>
+      <text class="ts" x="45" y="141" text-anchor="middle">102</text><text class="ts" x="130" y="141" text-anchor="middle">Priya Sharma</text><text class="ts" x="228" y="141" text-anchor="middle">HR</text><text class="ts" x="302" y="141" text-anchor="middle">48000</text>
+      <text class="ts" x="45" y="183" text-anchor="middle">103</text><text class="ts" x="130" y="183" text-anchor="middle">Rao, Arjun</text><text class="ts" x="228" y="183" text-anchor="middle">IT</text><text class="ts" x="302" y="183" text-anchor="middle">61000</text>
+      <text class="t" x="415" y="62" style="font-family:var(--f-mono);font-size:14px">id,name,dept,salary</text>
+      <text class="t" x="415" y="99" style="font-family:var(--f-mono);font-size:14px">101,Ravi Kumar,Finance,55000</text>
+      <text class="t" x="415" y="136" style="font-family:var(--f-mono);font-size:14px">102,Priya Sharma,HR,48000</text>
+      <text class="t" x="415" y="173" style="font-family:var(--f-mono);font-size:14px">103,"Rao, Arjun",IT,61000</text>
+    </svg></div>
+    <figcaption>Row 1 is the <b>header</b>. Notice the quotes around <code>"Rao, Arjun"</code>: the comma is part of the name, not a separator.</figcaption>
+  </figure>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Delimiter</h4><p>The separator character: comma <code>,</code>, pipe <code>|</code>, tab, or semicolon. Agree on it first.</p></div>
+    <div class="card t2 tilt-b"><h4>Header row</h4><p>The first line with column names. Some files have none, so check.</p></div>
+    <div class="card t3 tilt-a"><h4>Quotes</h4><p>Wrap a value in <code>"…"</code> when it contains the delimiter.</p></div>
+    <div class="card t4 tilt-b"><h4>Fixed-length</h4><p>Older files use positions instead: characters 1–5 = id, 6–30 = name.</p></div>
+  </div>
+  <p><mark class="b">In OIC</mark>, you describe a CSV file’s columns once (OIC creates a special schema for it, called an <b>NXSD</b>), and then the <b>Stage File</b> action reads the file into XML that you can map like anything else.</p>
+</section>
+
+<!-- 12 TOOLS -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">12</span>Try it yourself</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <p>These tools are already on every Mac (on Windows, use WSL or Git Bash). First, download the practice files into a new folder:</p>
+  <div class="cmd"><p class="what">Get the practice files</p><pre><span class="a">mkdir oic-phase2 &amp;&amp; cd oic-phase2
+for f in employee.json bad.json employees.xml bad.xml invalid.xml employees.xsd payroll.xsl ns-employee.xml employees.csv; do
+  curl -sO https://prabir07.github.io/OIC-From-Scratch/notes/phase-02-data-formats/practice/$f
+done
+ls</span></pre></div>
+  <div class="cmd"><p class="what">1 · Check JSON (and catch a mistake)</p><pre><span class="a">python3 -m json.tool employee.json</span>   <span class="c">← prints it neatly indented</span>
+<span class="a">python3 -m json.tool bad.json</span>
+<span class="b">Illegal trailing comma before end of object: line 1 column 52 (char 51)</span>
+<span class="c">(older Python says: Expecting property name enclosed in double quotes)</span></pre></div>
+  <div class="cmd"><p class="what">2 · Is the XML well-formed?</p><pre><span class="a">xmllint --noout employees.xml</span>       <span class="c">← no output = all good</span>
+<span class="a">xmllint --noout bad.xml</span>
+<span class="b">bad.xml:4: parser error : Opening and ending tag mismatch: name line 4 and Name</span></pre></div>
+  <div class="cmd"><p class="what">3 · Is it valid against the XSD?</p><pre><span class="a">xmllint --noout --schema employees.xsd employees.xml</span>
+<span class="b">employees.xml validates</span>
+<span class="a">xmllint --noout --schema employees.xsd invalid.xml</span>
+<span class="b">… Element 'salary': 'fifty thousand' is not a valid value of the atomic type 'xs:decimal'.
+invalid.xml fails to validate</span></pre></div>
+  <div class="cmd"><p class="what">4 · Run XPath</p><pre><span class="a">xmllint --xpath "string(/employees/employee[1]/name)" employees.xml</span>   <span class="b">Ravi Kumar</span>
+<span class="a">xmllint --xpath "//name/text()" employees.xml</span>                    <span class="b">Ravi Kumar  Priya Sharma</span>
+<span class="a">xmllint --xpath "string(//employee[@id='102']/dept)" employees.xml</span>  <span class="b">HR</span>
+<span class="a">xmllint --xpath "count(//employee)" employees.xml</span>                  <span class="b">2</span>
+<span class="a">xmllint --xpath "sum(//salary)" employees.xml</span>                      <span class="b">103000</span></pre></div>
+  <div class="cmd"><p class="what">5 · See the namespace trap</p><pre><span class="a">xmllint --xpath "//name/text()" ns-employee.xml</span>
+<span class="b">XPath set is empty</span>                                 <span class="c">← the tag is really hr:name</span>
+<span class="a">xmllint --xpath "//*[local-name()='name']/text()" ns-employee.xml</span>
+<span class="b">Ravi Kumar</span></pre></div>
+  <div class="cmd"><p class="what">6 · Run the XSLT recipe</p><pre><span class="a">xsltproc payroll.xsl employees.xml</span>
+<span class="b">&lt;payroll&gt;
+  &lt;worker&gt;&lt;empId&gt;101&lt;/empId&gt;&lt;fullName&gt;Ravi Kumar&lt;/fullName&gt;&lt;band&gt;Senior&lt;/band&gt;&lt;/worker&gt;
+  &lt;worker&gt;&lt;empId&gt;102&lt;/empId&gt;&lt;fullName&gt;Priya Sharma&lt;/fullName&gt;&lt;band&gt;Junior&lt;/band&gt;&lt;/worker&gt;
+&lt;/payroll&gt;</span>  <span class="c">(shown here on fewer lines)</span></pre></div>
+  <p>Try changing things: set Priya’s salary to 60000 and run the XSLT again, or add a third employee and re-run <code>count()</code>.</p>
+</section>
+
+<!-- 13 OIC -->
+<section class="ch" id="oic">
+  <div class="ch-head"><h2><span class="num">13</span>Where this shows up in OIC</h2><label class="got"><input type="checkbox" id="got-oic"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Idea</th><th style="width:76%">Where you meet it in OIC</th></tr>
+    <tr><td>JSON</td><td>REST adapter: you paste a <b>sample JSON</b> request and response, and OIC builds the structure from it</td></tr>
+    <tr><td>XML &amp; namespaces</td><td>Every message inside OIC; the <code>ns0:</code>-style prefixes in the mapper</td></tr>
+    <tr><td>XSD</td><td>Uploaded schemas, SOAP WSDLs, and the trees on both sides of the mapper</td></tr>
+    <tr><td>XPath</td><td>Each mapped field, Switch conditions, Assign expressions, filters</td></tr>
+    <tr><td>XSLT</td><td>The mapper itself: drag-and-drop writes XSLT; code view shows it</td></tr>
+    <tr><td>CSV</td><td>Stage File and FTP file integrations, described with an NXSD schema</td></tr>
+  </table></div>
+</section>
+
+<!-- 14 MISTAKES -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">14</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Trailing comma in JSON</b>The last pair must not end with a comma. The whole request fails with a 400.</div></li>
+    <li><span class="dot">2</span><div><b>Number sent as text</b><code>"salary": "55000"</code> when the API expects <code>55000</code>.</div></li>
+    <li><span class="dot">3</span><div><b>Wrong case in XML</b><code>&lt;Name&gt;</code> and <code>&lt;name&gt;</code> are different tags.</div></li>
+    <li><span class="dot">4</span><div><b>Unescaped &amp;</b>“Johnson &amp; Sons” must be written <code>Johnson &amp;amp; Sons</code> inside XML.</div></li>
+    <li><span class="dot">5</span><div><b>Namespace mismatch</b>The XPath looks right but returns nothing, because the namespace is different.</div></li>
+    <li><span class="dot">6</span><div><b>Single item vs list</b>A sample JSON with only one array item can make OIC treat a list as one value.</div></li>
+    <li><span class="dot">7</span><div><b>Required field missing</b>The XSD says <code>minOccurs="1"</code>, but the mapping left it empty.</div></li>
+  </ol>
+</section>
+
+<!-- 15 QUIZ -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">15</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. What are the 6 kinds of values in JSON?</summary><p>String, number, boolean, null, object, array.</p></details>
+    <details><summary>2. What’s wrong with <code>{"id": 101, "name": "Ravi",}</code>?</summary><p>The comma after the last pair (a trailing comma).</p></details>
+    <details><summary>3. In <code>{"skills": ["SQL", "OIC"]}</code>, what is <code>skills[1]</code>?</summary><p>OIC. JSON arrays count from 0.</p></details>
+    <details><summary>4. Name 3 rules of well-formed XML.</summary><p>One root; every tag closed; correct nesting order; case-sensitive names; quoted attributes and escaped special characters.</p></details>
+    <details><summary>5. Well-formed vs valid?</summary><p>Well-formed = correct grammar. Valid = well-formed and follows the XSD.</p></details>
+    <details><summary>6. What does <code>maxOccurs="unbounded"</code> mean?</summary><p>The element can repeat any number of times: it’s a list.</p></details>
+    <details><summary>7. What does <code>//employee[@id='102']/dept</code> return?</summary><p>HR. <code>@</code> means attribute, and <code>[ ]</code> filters.</p></details>
+    <details><summary>8. Does XPath count from 0 or 1?</summary><p>From 1. (JSON arrays count from 0.)</p></details>
+    <details><summary>9. Your XPath is correct but returns nothing. What do you check first?</summary><p>The namespace.</p></details>
+    <details><summary>10. What is the OIC mapper really writing behind the scenes?</summary><p>XSLT, with XPath to pick each value.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final">Systems send data as <b>JSON</b> or <b>XML</b> (or <b>CSV</b> files); an <b>XSD</b> is the rule book that says what valid data looks like; <b>XPath</b> points to a value; and <b>XSLT</b> reshapes one structure into another, which is exactly what OIC’s mapper does.</p>
+  <p>Next up, Phase 3: APIs, where we put all of this to work with REST, SOAP, authentication and Postman.</p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 2 · Data Formats · by @devwithprabir</footer>
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p2-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p2-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>

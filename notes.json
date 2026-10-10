@@ -21,6 +21,17 @@
       "readMinutes": 25,
       "video": "",
       "status": "published"
+    },
+    {
+      "slug": "phase-02-data-formats",
+      "phase": 2,
+      "title": "Data Formats",
+      "summary": "Open the parcel: JSON and XML explained with contact cards, labelled jars and bank forms, then XSD rules, XPath paths and XSLT recipes, the things OIC’s mapper runs on.",
+      "topics": ["JSON", "XML", "Namespaces", "XSD", "XPath", "XSLT", "JSON ↔ XML", "CSV"],
+      "date": "2026-10-10",
+      "readMinutes": 35,
+      "video": "",
+      "status": "published"
     }
   ],
   "roadmap": [

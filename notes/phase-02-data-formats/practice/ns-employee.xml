@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hr:employee xmlns:hr="http://company.com/hr" xmlns:pay="http://company.com/payroll">
+  <hr:id>101</hr:id>
+  <hr:name>Ravi Kumar</hr:name>
+  <pay:id>PAY-7781</pay:id>
+</hr:employee>
