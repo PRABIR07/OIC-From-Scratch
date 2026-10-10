@@ -4,8 +4,8 @@
 
 by **@devwithprabir**
 
-🌐 **Website:** https://prabir07.github.io/OIC-From-Scratch/
-📖 **All notes:** https://prabir07.github.io/OIC-From-Scratch/notes/
+🌐 **Website:** https://prabir07.github.io/OIC-From-Scratch/index.html  
+📖 **All notes:** https://prabir07.github.io/OIC-From-Scratch/notes/index.html
 
 ---
 
@@ -13,7 +13,7 @@ by **@devwithprabir**
 
 | # | Phase | What you'll learn | Notes |
 |---|-------|-------------------|-------|
-| 1 | **How Systems Talk** | Client & server, DNS, URLs, ports, HTTP methods, status codes, headers & body, HTTPS | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-01-how-systems-talk/) |
+| 1 | **How Systems Talk** | Client & server, DNS, URLs, ports, HTTP methods, status codes, headers & body, HTTPS | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-01-how-systems-talk/index.html) |
 | 2 | Data Formats | JSON, XML, XSD, XPath, XSLT | Coming soon |
 | 3 | APIs | REST, SOAP, authentication, Postman | Coming soon |
 | 4 | SQL & Databases | Queries, joins, PL/SQL basics | Coming soon |

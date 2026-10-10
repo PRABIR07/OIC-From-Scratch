@@ -17,7 +17,7 @@
     return !isNaN(d) && (Date.now() - d.getTime()) < 14 * 864e5;
   }
   function card(n) {
-    var href = root + 'notes/' + encodeURIComponent(n.slug) + '/';
+    var href = root + 'notes/' + encodeURIComponent(n.slug) + '/index.html';
     var chips = (n.topics || []).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
     var meta = [fmtDate(n.date), n.readMinutes ? n.readMinutes + ' min read' : '', n.video ? 'video available' : '']
       .filter(Boolean).join(' · ');
@@ -44,7 +44,7 @@
       : '<li class="empty">The first notes are on their way.</li>';
     var first = published(data).sort(function (a, b) { return a.phase - b.phase; })[0];
     var start = document.getElementById('start-reading');
-    if (start && first) start.href = root + 'notes/' + encodeURIComponent(first.slug) + '/';
+    if (start && first) start.href = root + 'notes/' + encodeURIComponent(first.slug) + '/index.html';
   }
 
   function renderRoadmap(data) {
@@ -54,7 +54,7 @@
     published(data).forEach(function (n) { if (!byPhase[n.phase]) byPhase[n.phase] = n; });
     el.innerHTML = (data.roadmap || []).map(function (r) {
       var n = byPhase[r.phase];
-      var state = n ? '<a class="state" href="' + root + 'notes/' + encodeURIComponent(n.slug) + '/">Read notes</a>'
+      var state = n ? '<a class="state" href="' + root + 'notes/' + encodeURIComponent(n.slug) + '/index.html">Read notes</a>'
         : '<span class="state">Coming soon</span>';
       return '<li class="' + (n ? 'done' : '') + '"><span class="pn">' + esc(r.phase) + '</span>' +
         '<div class="body"><b>' + esc(r.title) + '</b><span>' + esc(r.topics) + '</span>' + state + '</div></li>';
