@@ -1,0 +1,202 @@
+{
+  "info": {
+    "name": "OIC from Scratch · Phase 3 · APIs",
+    "description": "Practice requests for Phase 3 by @devwithprabir. Import this file into Postman (File → Import). Uses the free practice APIs JSONPlaceholder, httpbin and a public SOAP service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1 · REST basics",
+      "item": [
+        {
+          "name": "Get one post",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/posts/1",
+            "description": "GET one resource by its ID (path parameter)."
+          }
+        },
+        {
+          "name": "Filter posts by user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/posts?userId=1",
+            "description": "Query parameter as a filter. Returns user 1's 10 posts."
+          }
+        },
+        {
+          "name": "Nested resource: comments of a post",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/posts/1/comments",
+            "description": "A resource inside a resource."
+          }
+        },
+        {
+          "name": "Page 1, 2 per page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/posts?_page=1&_limit=2",
+            "description": "Pagination. Check the X-Total-Count and Link response headers."
+          }
+        },
+        {
+          "name": "Create a post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/posts",
+            "description": "Creates a post. Expect 201 Created and id 101.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Learning OIC\",\n  \"body\": \"Phase 3: APIs\",\n  \"userId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 · Authentication",
+      "item": [
+        {
+          "name": "Basic Auth: no credentials (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://httpbin.org/basic-auth/{{username}}/{{password}}",
+            "description": "No credentials sent, so the server answers 401.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Basic Auth: with credentials (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://httpbin.org/basic-auth/{{username}}/{{password}}",
+            "description": "Postman builds the Authorization: Basic header for you.",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bearer token: missing (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://httpbin.org/bearer",
+            "description": "No token, so 401.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Bearer token: sent (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://httpbin.org/bearer",
+            "description": "Sends Authorization: Bearer {{token}}.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "API key in a header",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "https://httpbin.org/headers",
+            "description": "httpbin echoes back the headers it received, so you can see your key arrive."
+          }
+        },
+        {
+          "name": "Rate limit: 429",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://httpbin.org/status/429",
+            "description": "What a 'too many requests' answer looks like."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 · SOAP",
+      "item": [
+        {
+          "name": "NumberToWords (SOAP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              }
+            ],
+            "url": "https://www.dataaccess.com/webservicesserver/NumberConversion.wso",
+            "description": "A real SOAP call: always POST, always an XML envelope.",
+            "body": {
+              "mode": "raw",
+              "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <NumberToWords xmlns=\"http://www.dataaccess.com/webservicesserver/\">\n      <ubiNum>101</ubiNum>\n    </NumberToWords>\n  </soap:Body>\n</soap:Envelope>\n",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://jsonplaceholder.typicode.com"
+    }
+  ]
+}

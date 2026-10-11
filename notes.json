@@ -32,6 +32,17 @@
       "readMinutes": 35,
       "video": "",
       "status": "published"
+    },
+    {
+      "slug": "phase-03-apis",
+      "phase": 3,
+      "title": "APIs",
+      "summary": "The menu and the waiter of every system: REST and endpoints, SOAP envelopes and WSDL, Basic Auth, API keys, OAuth 2.0 and JWT, pagination and rate limits, with a ready-made Postman collection.",
+      "topics": ["What an API is", "REST", "Endpoints", "SOAP", "WSDL", "Basic Auth", "API keys", "OAuth 2.0", "JWT", "Pagination", "Rate limits", "Postman"],
+      "date": "2026-10-11",
+      "readMinutes": 40,
+      "video": "",
+      "status": "published"
     }
   ],
   "roadmap": [

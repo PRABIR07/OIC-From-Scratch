@@ -15,7 +15,7 @@ by **@devwithprabir**
 |---|-------|-------------------|-------|
 | 1 | **How Systems Talk** | Client & server, DNS, URLs, ports, HTTP methods, status codes, headers & body, HTTPS | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-01-how-systems-talk/index.html) |
 | 2 | **Data Formats** | JSON, XML, namespaces, XSD, XPath, XSLT, JSON ↔ XML, CSV | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-02-data-formats/index.html) |
-| 3 | APIs | REST, SOAP, authentication, Postman | Coming soon |
+| 3 | **APIs** | REST, endpoints, SOAP, WSDL, Basic Auth, API keys, OAuth 2.0, JWT, pagination, rate limits, Postman | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-03-apis/index.html) |
 | 4 | SQL & Databases | Queries, joins, PL/SQL basics | Coming soon |
 | 5 | Integration Concepts | Sync vs async, events, files, patterns | Coming soon |
 | 6 | OIC Basics | Connections, adapters, mapper, monitoring | Coming soon |
