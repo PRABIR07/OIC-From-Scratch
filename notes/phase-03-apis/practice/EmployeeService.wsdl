@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A small practice WSDL for OIC from Scratch, Phase 3.2 -->
+<definitions name="EmployeeService"
+    targetNamespace="http://company.com/hr/employee"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://company.com/hr/employee"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <!-- 1. TYPES: the shapes of the data (an XSD) -->
+  <types>
+    <xsd:schema targetNamespace="http://company.com/hr/employee" elementFormDefault="qualified">
+      <xsd:element name="GetEmployeeRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="employeeId" type="xsd:integer"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="GetEmployeeResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="employeeId" type="xsd:integer"/>
+            <xsd:element name="name" type="xsd:string"/>
+            <xsd:element name="dept" type="xsd:string"/>
+            <xsd:element name="email" type="xsd:string" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="CreateEmployeeRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="name" type="xsd:string"/>
+            <xsd:element name="dept" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="CreateEmployeeResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="employeeId" type="xsd:integer"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </types>
+
+  <!-- 2. MESSAGES: what goes in and what comes out -->
+  <message name="GetEmployeeInput">
+    <part name="parameters" element="tns:GetEmployeeRequest"/>
+  </message>
+  <message name="GetEmployeeOutput">
+    <part name="parameters" element="tns:GetEmployeeResponse"/>
+  </message>
+  <message name="CreateEmployeeInput">
+    <part name="parameters" element="tns:CreateEmployeeRequest"/>
+  </message>
+  <message name="CreateEmployeeOutput">
+    <part name="parameters" element="tns:CreateEmployeeResponse"/>
+  </message>
+
+  <!-- 3. PORT TYPE: the operations (the dishes on the menu) -->
+  <portType name="EmployeePortType">
+    <operation name="GetEmployee">
+      <input message="tns:GetEmployeeInput"/>
+      <output message="tns:GetEmployeeOutput"/>
+    </operation>
+    <operation name="CreateEmployee">
+      <input message="tns:CreateEmployeeInput"/>
+      <output message="tns:CreateEmployeeOutput"/>
+    </operation>
+  </portType>
+
+  <!-- 4. BINDING: how to call them (SOAP 1.1 over HTTP, document/literal) -->
+  <binding name="EmployeeBinding" type="tns:EmployeePortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="GetEmployee">
+      <soap:operation soapAction="http://company.com/hr/employee/GetEmployee"/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+    </operation>
+    <operation name="CreateEmployee">
+      <soap:operation soapAction="http://company.com/hr/employee/CreateEmployee"/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+    </operation>
+  </binding>
+
+  <!-- 5. SERVICE: where it lives (the endpoint address) -->
+  <service name="EmployeeService">
+    <port name="EmployeePort" binding="tns:EmployeeBinding">
+      <soap:address location="https://hr.company.com/soap/EmployeeService"/>
+    </port>
+  </service>
+</definitions>

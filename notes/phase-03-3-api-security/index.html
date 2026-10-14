@@ -1,0 +1,626 @@
+<title>Phase 3.3 · API security in depth | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 3 · Part 3 of 4</p>
+  <h1>API security in depth</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 3: <a href="../phase-03-1-rest/index.html">3.1 REST</a> · <a href="../phase-03-2-soap-wsdl/index.html">3.2 SOAP &amp; WSDL</a> · <b>3.3 API security</b> · <a href="../phase-03-4-real-world-apis/index.html">3.4 Real-world APIs</a>. Every OIC connection has a security policy. Here we see the <mark>exact requests</mark> behind Basic Auth, API keys, OAuth 2.0 and JWT, so the settings in OIC make complete sense.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#three">1 · Three questions</a><a href="#where">2 · Where credentials travel</a><a href="#basic">3 · Basic Auth, step by step</a><a href="#keys">4 · API keys</a>
+    <a href="#why-oauth">5 · Why OAuth exists</a><a href="#roles">6 · OAuth’s four roles</a><a href="#cc">7 · Client credentials, exact HTTP</a><a href="#code">8 · Authorization code</a>
+    <a href="#refresh">9 · Refresh tokens</a><a href="#grants">10 · Which grant when</a><a href="#scopes">11 · Scopes</a><a href="#jwt">12 · JWT claims</a>
+    <a href="#sign">13 · How signatures work</a><a href="#oracle">14 · Oracle: OCI IAM</a><a href="#hygiene">15 · Token hygiene</a><a href="#tools">16 · Hands-on</a>
+    <a href="#oic">17 · In OIC</a><a href="#mistakes">18 · Mistakes</a><a href="#quiz">19 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="three">
+  <div class="ch-head"><h2><span class="num">1</span>Three questions every API asks</h2><label class="got"><input type="checkbox" id="got-three"> Got it</label></div>
+  <div class="story"><b class="lbl">Sending money at a bank</b>The cashier asks: <b>Who are you?</b> (show ID). <b>Are you allowed?</b> (is this your account, within your limit?). And the money travels in a <b>sealed bag</b> so nobody opens or swaps it on the way. <mark>API security answers the same three questions.</mark></div>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Who are you?</h4><p><b>Authentication.</b> Password, API key or token. Fails with <b>401</b>.</p></div>
+    <div class="card t2 tilt-b"><h4>Are you allowed?</h4><p><b>Authorization.</b> Roles, scopes, permissions. Fails with <b>403</b>.</p></div>
+    <div class="card t3 tilt-a"><h4>Was it seen or changed?</h4><p><b>Confidentiality &amp; integrity.</b> HTTPS (Phase 1) and signatures (chapter 13).</p></div>
+  </div>
+  <p>Everything else in this part is a different way of answering the first two questions. HTTPS always answers the third, which is why <mark class="p">none of these methods are safe over plain HTTP</mark>.</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="where">
+  <div class="ch-head"><h2><span class="num">2</span>Where credentials travel</h2><label class="got"><input type="checkbox" id="got-where"> Got it</label></div>
+  <p>Almost always in one header, <code>Authorization</code>, whose value starts with a <b>scheme</b> word that says what kind of proof follows:</p>
+  <div class="tbl"><table>
+    <tr><th style="width:44%">Header</th><th style="width:56%">Means</th></tr>
+    <tr><td><code>Authorization: Basic dXNlcjpwYXNzd2Q=</code></td><td>Username and password, Base64-encoded (ch. 3)</td></tr>
+    <tr><td><code>Authorization: Bearer eyJhbGci…</code></td><td>“Whoever bears this token may enter” (OAuth, JWT)</td></tr>
+    <tr><td><code>x-api-key: 9f2c…</code></td><td>An API key, in a custom header (ch. 4)</td></tr>
+    <tr><td><code>&lt;wsse:Security&gt;</code> in the SOAP Header</td><td>WS-Security (Part 3.2)</td></tr>
+  </table></div>
+  <p><b>Bearer</b> literally means “the one carrying it”, like a cinema ticket: the usher doesn’t check your name, only the ticket. So <mark>a bearer token is as good as a password while it’s valid</mark>. Anyone who steals it can use it.</p>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="basic">
+  <div class="ch-head"><h2><span class="num">3</span>Basic Auth, step by step</h2><label class="got"><input type="checkbox" id="got-basic"> Got it</label></div>
+  <div class="story"><b class="lbl">The security guard</b>You walk up to the gate. The guard says “<b>ID please</b>.” You show it, and you’re in. Next time, you show it again, because the guard doesn’t remember faces. <mark>Basic Auth sends the username and password with every single call.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="Sequence: client calls without credentials, server answers 401 with WWW-Authenticate Basic; client retries with Authorization Basic; server answers 200">
+      <g class="rough"><rect class="box f-blue" x="40" y="10" width="140" height="44" rx="10"/><rect class="box f-green" x="540" y="10" width="140" height="44" rx="10"/>
+      <path class="ln dash" d="M110 56 L 110 290"/><path class="ln dash" d="M610 56 L 610 290"/>
+      <path class="lr" d="M114 90 L 602 90" marker-end="url(#ahr)"/><path class="lb" d="M606 140 L 118 140" marker-end="url(#ahb)"/>
+      <path class="lr" d="M114 200 L 602 200" marker-end="url(#ahr)"/><path class="lb" d="M606 255 L 118 255" marker-end="url(#ahb)"/></g>
+      <text class="th" x="110" y="38" text-anchor="middle">Client</text><text class="th" x="610" y="38" text-anchor="middle">Server</text>
+      <text class="t" x="360" y="80" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">① GET /employees/101  (no credentials)</text>
+      <text class="t" x="360" y="130" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">② 401 · WWW-Authenticate: Basic realm="HR API"</text>
+      <text class="ts" x="360" y="160" text-anchor="middle">“the challenge”: which kind of proof I want</text>
+      <text class="t" x="360" y="190" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">③ GET /employees/101 · Authorization: Basic dXNlcjpwYXNzd2Q=</text>
+      <text class="t" x="360" y="245" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">④ 200 OK + data</text>
+      <text class="ts" x="360" y="280" text-anchor="middle">tools like OIC and Postman skip ①–② and send the header straight away</text>
+    </svg></div>
+  </figure>
+  <figure><pre><span class="c">How the header value is made:</span>
+username:password            →  <span class="a">user:passwd</span>
+Base64 of that               →  <span class="a">dXNlcjpwYXNzd2Q=</span>
+header                       →  <span class="b">Authorization: Basic dXNlcjpwYXNzd2Q=</span>
+
+<span class="c">And anyone can reverse it:</span>
+echo dXNlcjpwYXNzd2Q= | base64 --decode   →   user:passwd</pre></figure>
+  <div class="two">
+    <div class="card t2 tilt-a"><h4>Why it’s still used</h4><p>Simple, universal, every tool supports it. Many Oracle Fusion integrations use it with a dedicated <b>integration user</b>.</p></div>
+    <div class="card t3 tilt-b"><h4>Its weak spots</h4><p>The real password travels on every call; if it leaks, it works until someone changes it; and password expiry can silently break integrations overnight.</p></div>
+  </div>
+  <div class="sticky l"><strong>Real-world tip:</strong> integration users should have a password that doesn’t expire unexpectedly, or a calendar reminder to rotate it. “The integration stopped at midnight with 401s” is very often an expired password.</div>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="keys">
+  <div class="ch-head"><h2><span class="num">4</span>API keys</h2><label class="got"><input type="checkbox" id="got-keys"> Got it</label></div>
+  <div class="story"><b class="lbl">The gym card</b>The gym gives your membership card a code. At the door they scan the card, not your face. If you lose it, they cancel <b>that card</b> and print a new one; your account is fine. <mark>An API key identifies an application, not a person, and can be replaced without touching anyone’s password.</mark></div>
+  <div class="tbl"><table>
+    <tr><th style="width:34%">Sent as</th><th style="width:40%">Example</th><th style="width:26%">Verdict</th></tr>
+    <tr><td>Custom header</td><td><code>x-api-key: 9f2c71…</code></td><td>Preferred</td></tr>
+    <tr><td>Authorization header</td><td><code>Authorization: ApiKey 9f2c71…</code></td><td>Fine</td></tr>
+    <tr><td>Query parameter</td><td><code>?api_key=9f2c71…</code></td><td>Avoid: it lands in logs</td></tr>
+  </table></div>
+  <p>Good practice: one key <b>per application and per environment</b> (test key ≠ production key), and <b>rotate</b> keys on a schedule: create the new key, switch the connection, then delete the old one. API keys usually can’t express fine-grained permissions, which is where OAuth comes in.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="why-oauth">
+  <div class="ch-head"><h2><span class="num">5</span>Why OAuth exists</h2><label class="got"><input type="checkbox" id="got-why-oauth"> Got it</label></div>
+  <div class="story"><b class="lbl">The valet key</b>Some cars come with a <b>valet key</b>: it starts the car and opens the door, but not the boot or the glovebox, and you can take it back any time. You’d never give the valet your house keys too. <mark>OAuth 2.0 gives an app a limited, temporary key instead of your real password.</mark></div>
+  <div class="tbl"><table>
+    <tr><th style="width:32%">Problem with passwords</th><th style="width:68%">How OAuth solves it</th></tr>
+    <tr><td>The password travels on every call</td><td>It’s exchanged once; then only a short-lived <b>access token</b> travels</td></tr>
+    <tr><td>A leaked password works forever</td><td>Tokens <b>expire</b>, often within an hour</td></tr>
+    <tr><td>A password can do everything</td><td>Tokens carry <b>scopes</b>: only what was granted</td></tr>
+    <tr><td>Revoking means changing the password everywhere</td><td>Revoke one app’s access; nothing else changes</td></tr>
+    <tr><td>Each API stores and checks passwords</td><td>One <b>authorization server</b> handles all logins</td></tr>
+  </table></div>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="roles">
+  <div class="ch-head"><h2><span class="num">6</span>OAuth’s four roles</h2><label class="got"><input type="checkbox" id="got-roles"> Got it</label></div>
+  <div class="story"><b class="lbl">The hotel</b>The <b>guest</b> owns the stay. The <b>travel agent</b> books on the guest’s behalf. The <b>reception</b> checks identity and hands out key cards. The <b>room door</b> only checks the card. <mark>OAuth names these four roles.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="Four OAuth roles: resource owner, client, authorization server, resource server, with hotel equivalents and Oracle examples">
+      <g class="rough"><rect class="box f-pink" x="20" y="20" width="330" height="120" rx="14"/><rect class="box f-yellow" x="370" y="20" width="330" height="120" rx="14"/>
+      <rect class="box f-purple" x="20" y="160" width="330" height="120" rx="14"/><rect class="box f-blue" x="370" y="160" width="330" height="120" rx="14"/></g>
+      <text class="th" x="185" y="56" text-anchor="middle">Resource owner</text><text class="ts" x="185" y="82" text-anchor="middle">hotel: the guest</text><text class="ts" x="185" y="104" text-anchor="middle">a person whose data it is (or nobody,</text><text class="ts" x="185" y="124" text-anchor="middle">in system-to-system calls)</text>
+      <text class="th" x="535" y="56" text-anchor="middle">Client</text><text class="ts" x="535" y="82" text-anchor="middle">hotel: the travel agent</text><text class="ts" x="535" y="104" text-anchor="middle">the app that wants access:</text><text class="ts" x="535" y="124" text-anchor="middle">OIC, Postman, a mobile app</text>
+      <text class="th" x="185" y="196" text-anchor="middle">Authorization server</text><text class="ts" x="185" y="222" text-anchor="middle">hotel: reception</text><text class="ts" x="185" y="244" text-anchor="middle">checks identity, issues tokens:</text><text class="ts" x="185" y="264" text-anchor="middle">OCI IAM, Google, Azure AD</text>
+      <text class="th" x="535" y="196" text-anchor="middle">Resource server</text><text class="ts" x="535" y="222" text-anchor="middle">hotel: the room door</text><text class="ts" x="535" y="244" text-anchor="middle">the API that holds the data:</text><text class="ts" x="535" y="264" text-anchor="middle">Oracle Fusion, a payroll API</text>
+    </svg></div>
+  </figure>
+  <p>A <b>grant type</b> (or “flow”) is the exact sequence of steps the client follows to get a token. Which grant you use depends on whether a person is involved.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="cc">
+  <div class="ch-head"><h2><span class="num">7</span>Client credentials: the exact HTTP</h2><label class="got"><input type="checkbox" id="got-cc"> Got it</label></div>
+  <div class="story"><b class="lbl">A company’s delivery van</b>The van driver doesn’t log in as any particular employee. The <b>company itself</b> is registered with the warehouse, and the warehouse issues a day pass to the van. <mark>Client credentials is OAuth for system-to-system calls: the app proves its own identity, with no person involved.</mark> It’s the flow you’ll use most in OIC.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 380" role="img" aria-label="Sequence: OIC posts client ID and secret to the token URL, receives an access token with expires_in; then calls the API with Bearer token; the API validates and returns data; after expiry the API returns 401 and OIC fetches a new token">
+      <g class="rough"><rect class="box f-yellow" x="20" y="10" width="140" height="44" rx="10"/><rect class="box f-purple" x="290" y="10" width="160" height="44" rx="10"/><rect class="box f-blue" x="580" y="10" width="120" height="44" rx="10"/>
+      <path class="ln dash" d="M90 56 L 90 370"/><path class="ln dash" d="M370 56 L 370 370"/><path class="ln dash" d="M640 56 L 640 370"/>
+      <path class="lr" d="M94 95 L 362 95" marker-end="url(#ahr)"/><path class="lb" d="M366 150 L 98 150" marker-end="url(#ahb)"/>
+      <path class="lr" d="M94 215 L 632 215" marker-end="url(#ahr)"/><path class="lb" d="M636 265 L 98 265" marker-end="url(#ahb)"/>
+      <path class="lr dash" d="M94 330 L 632 330" marker-end="url(#ahr)"/></g>
+      <text class="th" x="90" y="38" text-anchor="middle">OIC (client)</text><text class="th" x="370" y="38" text-anchor="middle">Auth server</text><text class="th" x="640" y="38" text-anchor="middle">API</text>
+      <text class="t" x="228" y="85" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">① POST /oauth2/v1/token</text>
+      <text class="ts" x="228" y="113" text-anchor="middle">client ID + secret, grant_type, scope</text>
+      <text class="t" x="228" y="140" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">② access_token, expires_in: 3600</text>
+      <text class="t" x="365" y="205" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">③ GET /employees · Authorization: Bearer eyJ…</text>
+      <text class="ts" x="365" y="240" text-anchor="middle">API checks: signature, expiry, scope</text>
+      <text class="t" x="365" y="257" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">④ 200 OK + data</text>
+      <text class="ts" x="365" y="320" text-anchor="middle">… an hour later the same token gets 401 → back to step ①</text>
+      <text class="ts" x="365" y="355" text-anchor="middle">(OIC does this refresh for you automatically)</text>
+    </svg></div>
+  </figure>
+  <h3>Step ① — the token request, exactly</h3>
+  <figure><pre><span class="a">POST /oauth2/v1/token HTTP/1.1</span>
+Host: idcs-abc123.identity.oraclecloud.com
+<span class="a">Content-Type: application/x-www-form-urlencoded</span>        <span class="c">← form style, NOT JSON</span>
+<span class="a">Authorization: Basic</span> base64(client_id:client_secret)       <span class="c">← the app's own "username:password"</span>
+
+<span class="b">grant_type=client_credentials&amp;scope=urn:example:hr.read</span>    <span class="c">← which flow, and what access</span></pre></figure>
+  <h3>Step ② — the token response</h3>
+  <figure><pre>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "<span class="a">access_token</span>": "eyJhbGciOiJSUzI1NiIs…",   <span class="c">← the key card (often a JWT)</span>
+  "<span class="a">token_type</span>": "Bearer",                    <span class="c">← how to send it</span>
+  "<span class="a">expires_in</span>": 3600                          <span class="c">← valid for 3600 seconds = 1 hour</span>
+}</pre></figure>
+  <h3>Step ③ — using it</h3>
+  <figure><pre>GET /api/v1/employees HTTP/1.1
+Host: hr.company.com
+<span class="a">Authorization: Bearer eyJhbGciOiJSUzI1NiIs…</span></pre></figure>
+  <div class="sticky"><strong>Notice:</strong> the token request itself uses <b>Basic Auth</b> with the client ID and secret, and a <b>form</b> body. Some servers accept <code>client_id</code> and <code>client_secret</code> inside the form body instead. The docs (and OIC’s settings) say which. Getting this detail wrong gives <code>401 invalid_client</code>.</div>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="code">
+  <div class="ch-head"><h2><span class="num">8</span>Authorization code: when a person must say “Allow”</h2><label class="got"><input type="checkbox" id="got-code"> Got it</label></div>
+  <div class="story"><b class="lbl">“Sign in with Google”</b>A photo-printing website wants your Google Photos. It sends you <b>to Google</b>. You log in <b>at Google</b> (the website never sees your password), click <b>Allow</b>, and Google sends you back with a one-time <b>code</b>. Behind the scenes, the website swaps that code for a token. <mark>That’s the authorization code flow.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 440" role="img" aria-label="Authorization code flow in six steps across the user's browser, the client app and the authorization server, ending with the API call">
+      <g class="rough"><rect class="box f-pink" x="20" y="10" width="150" height="44" rx="10"/><rect class="box f-yellow" x="285" y="10" width="150" height="44" rx="10"/><rect class="box f-purple" x="550" y="10" width="150" height="44" rx="10"/>
+      <path class="ln dash" d="M95 56 L 95 430"/><path class="ln dash" d="M360 56 L 360 430"/><path class="ln dash" d="M625 56 L 625 430"/>
+      <path class="ln" d="M99 90 L 352 90" marker-end="url(#ah)"/>
+      <path class="lr" d="M356 130 L 103 130" marker-end="url(#ahr)"/>
+      <path class="lr" d="M99 175 L 617 175" marker-end="url(#ahr)"/>
+      <path class="lb" d="M621 235 L 103 235" marker-end="url(#ahb)"/>
+      <path class="lb" d="M99 275 L 352 275" marker-end="url(#ahb)"/>
+      <path class="lr" d="M364 320 L 617 320" marker-end="url(#ahr)"/>
+      <path class="lb" d="M621 370 L 368 370" marker-end="url(#ahb)"/></g>
+      <text class="th" x="95" y="38" text-anchor="middle">You (browser)</text><text class="th" x="360" y="38" text-anchor="middle">The app</text><text class="th" x="625" y="38" text-anchor="middle">Auth server</text>
+      <text class="ts" x="225" y="82" text-anchor="middle">① click “Connect Google”</text>
+      <text class="ts" x="225" y="122" text-anchor="middle">② redirect to Google’s login page</text>
+      <text class="ts" x="360" y="166" text-anchor="middle">③ log in AT Google and click Allow (password never reaches the app)</text>
+      <text class="ts" x="360" y="226" text-anchor="middle">④ redirect back with ?code=a1b2c3 (one-time, expires in minutes)</text>
+      <text class="ts" x="225" y="266" text-anchor="middle">⑤ browser hands the code to the app</text>
+      <text class="ts" x="492" y="310" text-anchor="middle">⑥ app swaps code + its secret for tokens</text>
+      <text class="ts" x="492" y="362" text-anchor="middle">access_token + refresh_token</text>
+      <text class="tr" x="360" y="415" text-anchor="middle">steps ①–⑤ happen in the browser; step ⑥ happens server to server</text>
+    </svg></div>
+  </figure>
+  <p>Why the extra code step instead of handing the token straight to the browser? Because the browser is a public place. The code is useless on its own: only the app, using its <b>client secret</b> in a private server-to-server call, can turn it into a token. Apps without a safe place for a secret (mobile apps, single-page web apps) add <b>PKCE</b>, a one-time random proof that the same app that started the flow is finishing it.</p>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="refresh">
+  <div class="ch-head"><h2><span class="num">9</span>Refresh tokens</h2><label class="got"><input type="checkbox" id="got-refresh"> Got it</label></div>
+  <div class="story"><b class="lbl">The day pass and the membership</b>A theme park gives you a <b>day pass</b> (access token) and keeps your <b>annual membership</b> on file (refresh token). Tomorrow you show the membership at the counter and get a new day pass, without filling the forms again. <mark>A refresh token gets new access tokens without asking the person to log in again.</mark></div>
+  <figure><pre><span class="a">POST /oauth2/v1/token</span>
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic base64(client_id:client_secret)
+
+<span class="b">grant_type=refresh_token&amp;refresh_token=8xLOxBtZp8…</span></pre></figure>
+  <div class="tbl"><table>
+    <tr><th style="width:24%"></th><th style="width:38%">Access token</th><th style="width:38%">Refresh token</th></tr>
+    <tr><td>Sent to</td><td>The API, on every call</td><td>Only the auth server</td></tr>
+    <tr><td>Lifetime</td><td>Short: minutes to an hour</td><td>Long: days to months</td></tr>
+    <tr><td>If stolen</td><td>Useful until it expires</td><td>Very dangerous: guard it carefully</td></tr>
+    <tr><td>Client credentials?</td><td>Yes</td><td>Usually not needed: just ask again with the secret</td></tr>
+  </table></div>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="grants">
+  <div class="ch-head"><h2><span class="num">10</span>Which grant, when</h2><label class="got"><input type="checkbox" id="got-grants"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Grant</th><th style="width:40%">Use when</th><th style="width:30%">Status</th></tr>
+    <tr><td><b>Client credentials</b></td><td>System to system, no person (most OIC connections)</td><td>Standard</td></tr>
+    <tr><td><b>Authorization code</b> (+ PKCE)</td><td>A person must give consent (“Sign in with…”)</td><td>Standard</td></tr>
+    <tr><td><b>Refresh token</b></td><td>Renewing access without a new login</td><td>Standard</td></tr>
+    <tr><td><b>JWT assertion</b></td><td>The client proves itself with a signed JWT instead of a secret; some Oracle Cloud connections support this</td><td>Standard extension</td></tr>
+    <tr><td>Resource owner password</td><td>App collects the user’s password itself</td><td>Legacy: avoid</td></tr>
+    <tr><td>Implicit</td><td>Token straight to the browser</td><td>Deprecated</td></tr>
+  </table></div>
+  <p>Interview line: <mark>“For OIC calling an API with no user involved, I use OAuth client credentials. If a user’s consent is needed, authorization code.”</mark></p>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="scopes">
+  <div class="ch-head"><h2><span class="num">11</span>Scopes and least privilege</h2><label class="got"><input type="checkbox" id="got-scopes"> Got it</label></div>
+  <div class="story"><b class="lbl">The office key ring</b>A new intern doesn’t get the master key. They get the keys to the 3rd floor and the pantry. <mark>A scope is a named permission requested with the token. Ask for the smallest set that does the job.</mark></div>
+  <figure><pre>scope=hr.employees.read                  <span class="c">← read employees only</span>
+scope=hr.employees.read hr.payroll.write  <span class="c">← several scopes, separated by spaces</span>
+
+<span class="c">If the token's scope doesn't cover the call → 403 Forbidden (often "insufficient_scope")</span></pre></figure>
+  <p>Scopes answer “what may this <b>app</b> do”. Roles answer “what may this <b>user</b> do”. In Oracle Fusion, a 403 usually means the integration user is missing a <b>role</b>; with OAuth APIs, it can also mean the token is missing a <b>scope</b>.</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="jwt">
+  <div class="ch-head"><h2><span class="num">12</span>JWT: every claim explained</h2><label class="got"><input type="checkbox" id="got-jwt"> Got it</label></div>
+  <div class="story"><b class="lbl">The boarding pass</b>Your boarding pass shows who issued it (the airline), who you are, which flight, boarding time and when it’s no longer valid, plus a barcode the airline signed. <mark>A JWT carries the same kinds of facts, called claims, plus a signature.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 260" role="img" aria-label="JWT split into header, payload, signature; each part is Base64URL-encoded JSON or bytes joined by dots">
+      <text class="t" x="360" y="40" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px"><tspan style="fill:var(--red)">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</tspan>.<tspan style="fill:var(--blue)">eyJzdWIiOiIxMDEi…</tspan>.<tspan style="fill:var(--ink-soft)">Koe2aPZx9NSh…</tspan></text>
+      <g class="rough"><rect class="box f-orange" x="20" y="70" width="210" height="170" rx="12"/><rect class="box f-blue" x="255" y="70" width="210" height="170" rx="12"/><rect class="box f-grey" x="490" y="70" width="210" height="170" rx="12"/></g>
+      <text class="th" x="125" y="104" text-anchor="middle">Header</text><text class="t" x="125" y="140" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">"alg": "HS256"</text><text class="t" x="125" y="162" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">"typ": "JWT"</text><text class="ts" x="125" y="200" text-anchor="middle">how it was signed</text>
+      <text class="th" x="360" y="104" text-anchor="middle">Payload</text><text class="ts" x="360" y="140" text-anchor="middle">the claims (facts)</text><text class="ts" x="360" y="162" text-anchor="middle">see table below</text><text class="ts" x="360" y="200" text-anchor="middle">readable by anyone</text>
+      <text class="th" x="595" y="104" text-anchor="middle">Signature</text><text class="ts" x="595" y="140" text-anchor="middle">sign(header.payload)</text><text class="ts" x="595" y="162" text-anchor="middle">with a key</text><text class="ts" x="595" y="200" text-anchor="middle">can’t be faked</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:12%">Claim</th><th style="width:22%">Full name</th><th style="width:40%">Means</th><th style="width:26%">Boarding pass</th></tr>
+    <tr><td><code>iss</code></td><td>issuer</td><td>Which auth server created it</td><td>The airline</td></tr>
+    <tr><td><code>sub</code></td><td>subject</td><td>Who or what it’s about (user or client ID)</td><td>Passenger name</td></tr>
+    <tr><td><code>aud</code></td><td>audience</td><td>Which API it’s meant for. Other APIs must reject it.</td><td>Flight number</td></tr>
+    <tr><td><code>exp</code></td><td>expiry</td><td>Not valid after this time (epoch seconds)</td><td>Gate closes</td></tr>
+    <tr><td><code>iat</code></td><td>issued at</td><td>When it was created</td><td>Check-in time</td></tr>
+    <tr><td><code>nbf</code></td><td>not before</td><td>Not valid before this time</td><td>Boarding starts</td></tr>
+    <tr><td><code>jti</code></td><td>JWT ID</td><td>Unique ID, to stop the same token being replayed</td><td>Ticket number</td></tr>
+    <tr><td><code>scope</code>, <code>role</code>…</td><td>custom</td><td>Anything the issuer adds</td><td>Seat, class</td></tr>
+  </table></div>
+  <p><b>Base64URL</b> is Base64 made safe for URLs: <code>+</code> and <code>/</code> become <code>-</code> and <code>_</code>, and the <code>=</code> padding is dropped. That’s why JWTs never contain those characters.</p>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="sign">
+  <div class="ch-head"><h2><span class="num">13</span>How signatures work</h2><label class="got"><input type="checkbox" id="got-sign"> Got it</label></div>
+  <div class="story"><b class="lbl">Two kinds of seal</b><b>HS256</b> is like a family secret recipe: whoever knows the secret can both make the dish and check it’s authentic. <b>RS256</b> is like a government seal: only the government owns the <b>stamp</b> (private key), but everyone has a <b>picture of the seal</b> (public key) to check stamps against. <mark>Change one letter of the token, and the seal no longer matches.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="Signing: auth server signs header.payload with a private key; verifying: the API recomputes with the public key; if the payload was changed, verification fails">
+      <g class="rough"><rect class="box f-purple" x="20" y="30" width="200" height="110" rx="14"/><rect class="box f-card" x="260" y="55" width="200" height="60" rx="10"/><rect class="box f-blue" x="500" y="30" width="200" height="110" rx="14"/>
+      <path class="ln" d="M222 85 L 254 85" marker-end="url(#ah)"/><path class="ln" d="M462 85 L 494 85" marker-end="url(#ah)"/>
+      <rect class="box f-green" x="500" y="170" width="200" height="50" rx="10"/><rect class="box f-orange" x="500" y="235" width="200" height="50" rx="10"/>
+      <path class="lb" d="M600 142 L 600 166" marker-end="url(#ahb)"/></g>
+      <text class="th" x="120" y="70" text-anchor="middle">Auth server</text><text class="ts" x="120" y="96" text-anchor="middle">signs with the</text><text class="ts" x="120" y="116" text-anchor="middle">PRIVATE key (RS256)</text>
+      <text class="t" x="360" y="90" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">header.payload.sig</text>
+      <text class="th" x="600" y="70" text-anchor="middle">The API</text><text class="ts" x="600" y="96" text-anchor="middle">checks with the</text><text class="ts" x="600" y="116" text-anchor="middle">PUBLIC key</text>
+      <text class="t" x="600" y="200" text-anchor="middle">untouched → valid ✓</text>
+      <text class="t" x="600" y="265" text-anchor="middle">role: HR → Admin → invalid</text>
+      <text class="ts" x="240" y="200">Public keys are published at a</text><text class="ts" x="240" y="222">“JWKS” URL on the auth server,</text><text class="ts" x="240" y="244">so any API can verify tokens</text><text class="ts" x="240" y="266">without ever seeing a secret.</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">alg</th><th style="width:40%">Signed with</th><th style="width:42%">Verified with</th></tr>
+    <tr><td><b>HS256</b></td><td>A shared secret</td><td>The same shared secret</td></tr>
+    <tr><td><b>RS256</b></td><td>A private key, kept by the issuer</td><td>The matching public key (anyone)</td></tr>
+  </table></div>
+  <div class="sticky l"><strong>Signed is not encrypted.</strong> A signature proves nobody <b>changed</b> the token; it doesn’t hide anything. That’s why secrets never go in a JWT, and why tokens still need HTTPS. In chapter 16 you’ll change a claim yourself and watch the check fail.</div>
+  <p><b>Opaque tokens</b> are the other kind: a random string with no meaning inside. The API must ask the auth server “is this valid?” every time. JWTs let the API check by itself, which is faster.</p>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="oracle">
+  <div class="ch-head"><h2><span class="num">14</span>Oracle’s auth server: OCI IAM</h2><label class="got"><input type="checkbox" id="got-oracle"> Got it</label></div>
+  <p>In Oracle Cloud, the “reception desk” is <b>OCI IAM</b> (Identity and Access Management), organised into <b>identity domains</b>. Its token URL looks like <code>https://idcs-&lt;id&gt;.identity.oraclecloud.com/oauth2/v1/token</code>. OIC itself, and many Oracle SaaS apps, trust tokens from it.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="An external app registers as a confidential application in the OCI IAM identity domain, gets a client ID and secret, requests a token, and uses it to call an OIC integration's REST endpoint">
+      <g class="rough"><rect class="box f-blue" x="20" y="70" width="170" height="90" rx="14"/><rect class="box f-purple" x="275" y="20" width="190" height="90" rx="14"/><rect class="box f-yellow" x="530" y="70" width="170" height="90" rx="14"/>
+      <path class="lr" d="M192 95 C 220 70, 240 65, 270 65" marker-end="url(#ahr)"/><path class="lb" d="M272 85 C 240 100, 220 110, 194 115" marker-end="url(#ahb)"/>
+      <path class="lr" d="M192 140 L 524 140" marker-end="url(#ahr)"/></g>
+      <text class="th" x="105" y="108" text-anchor="middle">Payroll app</text><text class="ts" x="105" y="132" text-anchor="middle">wants to call OIC</text>
+      <text class="th" x="370" y="56" text-anchor="middle">OCI IAM</text><text class="ts" x="370" y="80" text-anchor="middle">confidential app:</text><text class="ts" x="370" y="98" text-anchor="middle">client ID + secret</text>
+      <text class="th" x="615" y="108" text-anchor="middle">OIC integration</text><text class="ts" x="615" y="132" text-anchor="middle">REST trigger</text>
+      <text class="ts" x="360" y="165" text-anchor="middle">Bearer token</text>
+      <text class="tr" x="360" y="210" text-anchor="middle">the same client-credentials flow, with Oracle as reception</text>
+    </svg></div>
+  </figure>
+  <p>So the flow you learned in chapter 7 works <b>both ways</b>: OIC uses it to call other APIs, and other systems use it to call your OIC integrations. You register the caller as a <b>confidential application</b> in the identity domain, give it the right scope for your OIC instance, and hand its client ID and secret to whoever builds the caller. Your OIC administrator usually sets this up.</p>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="hygiene">
+  <div class="ch-head"><h2><span class="num">15</span>Token and secret hygiene</h2><label class="got"><input type="checkbox" id="got-hygiene"> Got it</label></div>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Never log them</h4><p>Logs are read by many people. Mask tokens, passwords and keys.</p></div>
+    <div class="card t2 tilt-b"><h4>Never hard-code</h4><p>Keep them in the OIC connection or a vault, never in a mapping or code.</p></div>
+    <div class="card t3 tilt-a"><h4>Separate environments</h4><p>Different credentials for test and production.</p></div>
+    <div class="card t4 tilt-b"><h4>Rotate</h4><p>Change secrets on a schedule, and immediately after anyone leaves.</p></div>
+    <div class="card t5 tilt-a"><h4>Least privilege</h4><p>Smallest roles and scopes that do the job.</p></div>
+    <div class="card t6 tilt-b"><h4>Check the clock</h4><p>Token checks use time. A server with a wrong clock rejects valid tokens.</p></div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">16</span>Try it yourself</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <div class="cmd"><p class="what">1 · Watch the Basic Auth challenge</p><pre><span class="a">curl -si https://httpbin.org/basic-auth/user/passwd | grep -iE "^HTTP|www-authenticate"</span>
+<span class="b">HTTP/2 401
+www-authenticate: Basic realm="Fake Realm"</span>                <span class="c">← the challenge</span>
+<span class="a">curl -s -u user:passwd https://httpbin.org/basic-auth/user/passwd</span>
+<span class="b">{ "authenticated": true, "user": "user" }</span>
+<span class="a">echo -n 'user:passwd' | base64</span>   →   <span class="b">dXNlcjpwYXNzd2Q=</span></pre></div>
+  <div class="cmd"><p class="what">2 · See exactly what a token request looks like</p><pre><span class="c"># httpbin.org/anything echoes back whatever it receives, so we can SEE the request.
+# It doesn't issue real tokens; a real auth server would answer with access_token.</span>
+<span class="a">curl -s -X POST https://httpbin.org/anything \
+  -u my-client-id:my-client-secret \
+  -d grant_type=client_credentials -d scope=hr.read</span>
+<span class="b">"form": { "grant_type": "client_credentials", "scope": "hr.read" },
+"headers": { "Authorization": "Basic bXktY2xpZW50LWlkOm15LWNsaWVudC1zZWNyZXQ=",
+             "Content-Type": "application/x-www-form-urlencoded", … }</span>
+<span class="c">curl -d sends a form body, and -u builds the Basic header from the client ID and secret.</span></pre></div>
+  <div class="cmd"><p class="what">3 · Bearer token: missing vs present</p><pre><span class="a">curl -si https://httpbin.org/bearer | head -1</span>                              <span class="b">HTTP/2 401</span>
+<span class="a">curl -s https://httpbin.org/bearer -H "Authorization: Bearer my-practice-token"</span>
+<span class="b">{ "authenticated": true, "token": "my-practice-token" }</span></pre></div>
+  <div class="cmd"><p class="what">4 · Decode, verify, and tamper with a JWT</p><pre><span class="a">for f in jwt_practice.py sample-jwt.txt; do curl -sO https://prabir07.github.io/OIC-From-Scratch/notes/phase-03-apis/practice/$f; done
+
+python3 jwt_practice.py decode sample-jwt.txt</span>
+<span class="b">HEADER : {"alg": "HS256", "typ": "JWT"}
+PAYLOAD: { "sub": "101", "name": "Ravi Kumar", "role": "HR", "iat": 1767139200, "exp": 1767142800 }
+iat = 1767139200 = 31 Dec 2025 00:00 UTC
+exp = 1767142800 = 31 Dec 2025 01:00 UTC</span>
+<span class="a">python3 jwt_practice.py verify sample-jwt.txt oic-from-scratch-demo</span>
+<span class="b">Signature VALID: nothing was changed, and it was signed with this secret.</span>
+<span class="a">python3 jwt_practice.py verify sample-jwt.txt wrong-secret</span>
+<span class="b">Signature INVALID: the token was changed, or signed with a different secret.</span>
+<span class="a">python3 jwt_practice.py tamper sample-jwt.txt role Admin
+python3 jwt_practice.py verify tampered-jwt.txt oic-from-scratch-demo</span>
+<span class="b">Signature INVALID: the token was changed, or signed with a different secret.</span></pre></div>
+  <div class="cmd"><p class="what">5 · OAuth 2.0 in Postman</p><pre><span class="c">Authorization tab → Type: OAuth 2.0 → Configure New Token:
+  Grant type: Client Credentials · Access Token URL · Client ID · Client Secret · Scope
+  Client Authentication: "Send as Basic Auth header" (or "in body")
+→ Get New Access Token → Use Token. Postman then adds "Authorization: Bearer …"
+You'll need a real auth server to try this: for example a free developer account
+on an identity provider, or your organisation's OCI IAM (ask your admin).</span></pre></div>
+</section>
+
+<!-- 17 -->
+<section class="ch" id="oic">
+  <div class="ch-head"><h2><span class="num">17</span>Where this shows up in OIC</h2><label class="got"><input type="checkbox" id="got-oic"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:36%">OIC security policy (connection)</th><th style="width:64%">What OIC does for you</th></tr>
+    <tr><td><b>Basic Authentication</b></td><td>Adds <code>Authorization: Basic …</code> from the username and password you enter</td></tr>
+    <tr><td><b>API Key Based Authentication</b></td><td>Sends your key in the header or query parameter you specify</td></tr>
+    <tr><td><b>OAuth Client Credentials</b></td><td>Calls the token URL with the client ID, secret and scope, caches the token, and refreshes it when it expires</td></tr>
+    <tr><td><b>OAuth Authorization Code Credentials</b></td><td>Runs the browser login once (you click “Provide Consent”), then keeps tokens refreshed</td></tr>
+    <tr><td><b>OAuth Custom Two/Three Legged Flow</b></td><td>For servers that don’t follow the standard exactly: you describe each request yourself</td></tr>
+    <tr><td><b>Username Password Token</b> (SOAP)</td><td>Adds the WS-Security UsernameToken to the SOAP Header (Part 3.2)</td></tr>
+    <tr><td><b>No Security Policy</b></td><td>Nothing added: for public APIs only</td></tr>
+  </table></div>
+  <p><b>The other direction:</b> when another system calls <i>your</i> integration’s REST trigger, OIC checks <i>its</i> credentials, typically an OAuth token from your OCI IAM identity domain (chapter 14).</p>
+  <div class="sticky"><strong>Test the connection.</strong> OIC connections have a <b>Test</b> button. For OAuth it actually fetches a token, so a failure there points straight at the client ID, secret, token URL or scope, before you build anything.</div>
+</section>
+
+<!-- 18 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">18</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>JSON body for the token request</b>The token URL wants <code>application/x-www-form-urlencoded</code>.</div></li>
+    <li><span class="dot">2</span><div><b>Client secret in the wrong place</b>Basic header vs form body: the docs decide. Wrong choice → <code>invalid_client</code>.</div></li>
+    <li><span class="dot">3</span><div><b>Wrong scope or audience</b>The token is valid, but for another API → 401 or 403.</div></li>
+    <li><span class="dot">4</span><div><b>“It worked yesterday”</b>Expired password, expired secret, or a revoked app. Check dates first.</div></li>
+    <li><span class="dot">5</span><div><b>Putting secrets in a JWT</b>Anyone can read the payload.</div></li>
+    <li><span class="dot">6</span><div><b>Sharing tokens in screenshots or chats</b>A bearer token works for whoever holds it.</div></li>
+    <li><span class="dot">7</span><div><b>401 vs 403 confusion</b>401: fix the credentials. 403: fix the roles or scopes.</div></li>
+  </ol>
+</section>
+
+<!-- 19 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">19</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. What does a 401 response’s WWW-Authenticate header tell you?</summary><p>Which kind of credentials the server wants (for example Basic or Bearer).</p></details>
+    <details><summary>2. Why is an API key safer in a header than in the query string?</summary><p>URLs, including query strings, get written into logs and histories.</p></details>
+    <details><summary>3. Name OAuth’s four roles.</summary><p>Resource owner, client, authorization server, resource server.</p></details>
+    <details><summary>4. In client credentials, what’s the token request’s Content-Type and grant_type?</summary><p><code>application/x-www-form-urlencoded</code> and <code>grant_type=client_credentials</code>.</p></details>
+    <details><summary>5. What three fields come back in a token response?</summary><p>access_token, token_type (Bearer) and expires_in (plus sometimes scope and refresh_token).</p></details>
+    <details><summary>6. Why does the authorization code flow use a code instead of returning the token to the browser?</summary><p>The browser is public; only the app, with its secret in a server-to-server call, can turn the code into a token.</p></details>
+    <details><summary>7. What do <code>aud</code> and <code>exp</code> mean in a JWT?</summary><p>aud: which API the token is for. exp: when it stops being valid.</p></details>
+    <details><summary>8. HS256 vs RS256?</summary><p>HS256: one shared secret signs and verifies. RS256: a private key signs; a public key verifies.</p></details>
+    <details><summary>9. You change one letter of a JWT’s payload. What happens?</summary><p>The signature no longer matches, so verification fails.</p></details>
+    <details><summary>10. Which OIC security policy fits system-to-system OAuth?</summary><p>OAuth Client Credentials.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final">APIs ask <b>who are you</b> (401) and <b>are you allowed</b> (403); <b>Basic Auth</b> and <b>API keys</b> send a fixed secret every time, while <b>OAuth</b> swaps it once at the <b>token URL</b> for a short-lived <b>Bearer</b> token with <b>scopes</b>, often a signed <b>JWT</b> whose claims anyone can read but nobody can change; and OIC’s <b>security policies</b> do all of this for you.</p>
+  <p>Next: <a href="../phase-03-4-real-world-apis/index.html">Part 3.4 · Real-world APIs →</a></p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 3.3 · API security in depth · by @devwithprabir</footer>
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p33-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p33-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>

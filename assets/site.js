@@ -24,7 +24,7 @@
     return '<li><a class="note-card" href="' + href + '">' +
       '<span class="tape" aria-hidden="true"></span>' +
       '<span class="top"><span class="pn" aria-label="Phase ' + esc(n.phase) + '">' + esc(n.phase) + '</span>' +
-      '<span><span class="meta">Phase ' + esc(n.phase) + (isNew(n.date) ? ' · <span class="new">New</span>' : '') + '</span>' +
+      '<span><span class="meta">Phase ' + esc(n.phase) + (n.part ? ' · Part ' + esc(n.part) : '') + (isNew(n.date) ? ' · <span class="new">New</span>' : '') + '</span>' +
       '<h3>' + esc(n.title) + '</h3></span></span>' +
       '<p>' + esc(n.summary) + '</p>' +
       '<ul class="chips">' + chips + '</ul>' +
@@ -33,13 +33,13 @@
   }
   function published(data) {
     return (data.notes || []).filter(function (n) { return n.status === 'published'; })
-      .sort(function (a, b) { return (b.date || '').localeCompare(a.date || '') || b.phase - a.phase; });
+      .sort(function (a, b) { return (b.date || '').localeCompare(a.date || '') || b.phase - a.phase || (a.part || 0) - (b.part || 0); });
   }
 
   function renderLatest(data) {
     var el = document.getElementById('latest');
     if (!el) return;
-    var list = published(data).slice(0, 3);
+    var list = published(data).slice(0, 4);
     el.innerHTML = list.length ? list.map(card).join('')
       : '<li class="empty">The first notes are on their way.</li>';
     var first = published(data).sort(function (a, b) { return a.phase - b.phase; })[0];
@@ -51,7 +51,10 @@
     var el = document.getElementById('roadmap');
     if (!el) return;
     var byPhase = {};
-    published(data).forEach(function (n) { if (!byPhase[n.phase]) byPhase[n.phase] = n; });
+    published(data).forEach(function (n) {
+      var cur = byPhase[n.phase];
+      if (!cur || (n.part || 0) < (cur.part || 0)) byPhase[n.phase] = n;
+    });
     var road = data.roadmap || [];
     var ready = road.filter(function (r) { return byPhase[r.phase]; });
     var here = ready.length ? ready[ready.length - 1].phase : null;
@@ -92,7 +95,7 @@
     var search = document.getElementById('q');
     var filters = document.getElementById('filters');
     var count = document.getElementById('count');
-    var all = published(data).sort(function (a, b) { return a.phase - b.phase; });
+    var all = published(data).sort(function (a, b) { return a.phase - b.phase || (a.part || 0) - (b.part || 0); });
     var phase = 'all';
 
     var phases = [];

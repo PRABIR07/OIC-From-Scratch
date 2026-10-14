@@ -1,0 +1,592 @@
+<title>Phase 3.4 · Real-world APIs | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 3 · Part 4 of 4</p>
+  <h1>Real-world APIs</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 3: <a href="../phase-03-1-rest/index.html">3.1 REST</a> · <a href="../phase-03-2-soap-wsdl/index.html">3.2 SOAP &amp; WSDL</a> · <a href="../phase-03-3-api-security/index.html">3.3 API security</a> · <b>3.4 Real-world APIs</b>. Textbook APIs return 5 records and never fail. Real ones return 50,000 records, throttle you, time out and change. This part is about <mark>surviving real APIs</mark>, with Oracle Fusion as the main example.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#docs">1 · Reading API docs</a><a href="#paging">2 · Pagination, properly</a><a href="#query">3 · Filter, sort, choose fields</a><a href="#fusion">4 · Oracle Fusion REST, anatomy</a>
+    <a href="#fusion-q">5 · Fusion query parameters</a><a href="#fusion-write">6 · Writing to Fusion</a><a href="#limits">7 · Rate limits</a><a href="#retry">8 · Retries &amp; backoff</a>
+    <a href="#idem">9 · Retrying safely</a><a href="#timeouts">10 · Timeouts</a><a href="#async">11 · 202: come back later</a><a href="#postman">12 · Postman like a pro</a>
+    <a href="#tools">13 · Hands-on</a><a href="#oic">14 · In OIC</a><a href="#mistakes">15 · Mistakes</a><a href="#quiz">16 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="docs">
+  <div class="ch-head"><h2><span class="num">1</span>Reading API docs like a pro</h2><label class="got"><input type="checkbox" id="got-docs"> Got it</label></div>
+  <div class="story"><b class="lbl">Reading a recipe before cooking</b>A good cook reads the whole recipe first: ingredients, oven temperature, timings, “what can go wrong”. <mark>Before building any integration, read the API docs with a checklist</mark>, and you’ll avoid most surprises.</div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Base URL &amp; environments</b>Test and production addresses are usually different.</div></li>
+    <li><span class="dot">2</span><div><b>Authentication</b>Basic, API key or OAuth? Which grant, token URL, scopes? (3.3)</div></li>
+    <li><span class="dot">3</span><div><b>The endpoints you need</b>Method, path, required parameters, sample request and response.</div></li>
+    <li><span class="dot">4</span><div><b>Pagination</b>Default and maximum page size, and how to ask for the next page.</div></li>
+    <li><span class="dot">5</span><div><b>Limits</b>Calls per minute/hour/day, and what happens when you cross them.</div></li>
+    <li><span class="dot">6</span><div><b>Errors</b>The error body’s shape and the codes the API really uses.</div></li>
+    <li><span class="dot">7</span><div><b>Versioning &amp; changes</b>Which version you’re on, and where changes are announced.</div></li>
+    <li><span class="dot">8</span><div><b>Sync or async</b>Does a call finish now, or return a job ID to check later (ch. 11)?</div></li>
+  </ol>
+  <p>Then <mark>prove it in Postman</mark> before touching OIC: one successful call with real credentials removes half the risk of any integration.</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="paging">
+  <div class="ch-head"><h2><span class="num">2</span>Pagination, properly</h2><label class="got"><input type="checkbox" id="got-paging"> Got it</label></div>
+  <div class="story"><b class="lbl">Photocopying a thick file</b>The copier takes 25 sheets at a time. You feed a batch, note where you stopped, feed the next, and stop when the file is empty. <mark>Paging is a loop: ask for a batch, remember your place, repeat until the API says there’s no more.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="Pagination loop flowchart: set offset to zero, call with offset and limit, process items, check hasMore; if true add limit to offset and loop; if false stop">
+      <g class="rough">
+        <rect class="box f-grey" x="20" y="120" width="140" height="60" rx="12"/>
+        <rect class="box f-blue" x="200" y="120" width="170" height="60" rx="12"/>
+        <rect class="box f-green" x="410" y="120" width="130" height="60" rx="12"/>
+        <path class="box f-yellow" d="M620 100 L 700 150 L 620 200 L 540 150 Z" style="stroke-width:2.5"/>
+        <rect class="box f-orange" x="560" y="240" width="120" height="50" rx="12"/>
+        <path class="ln" d="M162 150 L 194 150" marker-end="url(#ah)"/><path class="ln" d="M372 150 L 404 150" marker-end="url(#ah)"/><path class="ln" d="M542 150 L 544 150"/>
+        <path class="lr" d="M620 100 C 620 40, 285 40, 285 112" marker-end="url(#ahr)"/>
+        <path class="lb" d="M620 202 L 620 234" marker-end="url(#ahb)"/>
+      </g>
+      <text class="t" x="90" y="146" text-anchor="middle">offset = 0</text><text class="ts" x="90" y="166" text-anchor="middle">start</text>
+      <text class="t" x="285" y="146" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">GET ?offset&amp;limit=500</text><text class="ts" x="285" y="166" text-anchor="middle">fetch one page</text>
+      <text class="t" x="475" y="146" text-anchor="middle">process</text><text class="ts" x="475" y="166" text-anchor="middle">the items</text>
+      <text class="t" x="620" y="155" text-anchor="middle">hasMore?</text>
+      <text class="tr" x="450" y="36" text-anchor="middle">true → offset = offset + 500, go again</text>
+      <text class="t" x="620" y="270" text-anchor="middle">false → stop</text>
+    </svg></div>
+    <figcaption>The same loop in curl, Postman, Python or OIC. Only the parameter names change between APIs.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">Style</th><th style="width:30%">Ask for next page with</th><th style="width:30%">Know you’re done when</th><th style="width:22%">Seen in</th></tr>
+    <tr><td>Offset</td><td><code>offset += limit</code></td><td><code>hasMore: false</code> or fewer items than limit</td><td>Oracle Fusion</td></tr>
+    <tr><td>Page number</td><td><code>page += 1</code></td><td>An empty page, or <code>page &gt; totalPages</code></td><td>Many APIs</td></tr>
+    <tr><td>Cursor</td><td>The <code>next</code> token from the last answer</td><td>No <code>next</code> token</td><td>Large modern APIs</td></tr>
+    <tr><td>Link header</td><td>The URL in <code>Link: &lt;…&gt;; rel="next"</code></td><td>No <code>rel="next"</code></td><td>GitHub, JSONPlaceholder</td></tr>
+  </table></div>
+  <div class="sticky"><strong>Three real-world traps.</strong> ① The API has a <b>maximum</b> page size: asking for 10,000 quietly gives you 500. ② Records added or deleted <b>while you page</b> can shift offsets, so you skip or repeat a record. Sort by a stable field (like ID or last-updated date) to reduce this. ③ <b>Never assume one page is everything</b>: always check the “more” signal.</div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="query">
+  <div class="ch-head"><h2><span class="num">3</span>Filter, sort and choose fields</h2><label class="got"><input type="checkbox" id="got-query"> Got it</label></div>
+  <div class="story"><b class="lbl">Ordering at a buffet</b>You don’t carry the whole buffet to your table and pick there. You take only what you’ll eat. <mark>Ask the API for only the records and fields you need. It’s faster, cheaper, and kinder to rate limits.</mark></div>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">You want</th><th style="width:40%">Typical query parameter</th><th style="width:36%">Why it matters</th></tr>
+    <tr><td>Only some records</td><td><code>?dept=HR</code>, <code>?status=active</code></td><td>Fewer pages, fewer calls</td></tr>
+    <tr><td>Only changed records</td><td><code>?updatedSince=2026-10-13T00:00:00Z</code></td><td>The key to daily “delta” syncs</td></tr>
+    <tr><td>A fixed order</td><td><code>?sort=id</code>, <code>?orderBy=LastUpdateDate</code></td><td>Stable paging (ch. 2)</td></tr>
+    <tr><td>Only some fields</td><td><code>?fields=id,name,email</code></td><td>Much smaller responses</td></tr>
+    <tr><td>Related data in one go</td><td><code>?expand=addresses</code></td><td>One call instead of many</td></tr>
+  </table></div>
+  <p>The idea of fetching <b>only what changed since the last run</b> is called a <mark>delta</mark> or incremental sync. Almost every scheduled OIC integration does this: it remembers the last run time and asks only for newer changes.</p>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="fusion">
+  <div class="ch-head"><h2><span class="num">4</span>Oracle Fusion REST: anatomy</h2><label class="got"><input type="checkbox" id="got-fusion"> Got it</label></div>
+  <p>Oracle Fusion’s REST APIs all follow one pattern. Learn it once and you can read any of them.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="Fusion REST URL split into host, product family API, resources, version and resource name, then a query string">
+      <text class="t" x="360" y="50" text-anchor="middle" style="font-family:var(--f-mono);font-size:14.5px"><tspan style="fill:var(--ink-soft)">https://&lt;host&gt;</tspan>/<tspan style="fill:var(--red)">hcmRestApi</tspan>/resources/<tspan style="fill:var(--blue)">11.13.18.05</tspan>/<tspan style="fill:#2E8B6A">workers</tspan>?<tspan style="fill:#B88A00">q=…&amp;limit=100</tspan></text>
+      <g class="rough">
+        <rect class="box f-grey" x="15" y="90" width="130" height="110" rx="10"/><rect class="box f-pink" x="160" y="90" width="140" height="110" rx="10"/>
+        <rect class="box f-blue" x="315" y="90" width="120" height="110" rx="10"/><rect class="box f-green" x="450" y="90" width="120" height="110" rx="10"/><rect class="box f-yellow" x="585" y="90" width="120" height="110" rx="10"/>
+      </g>
+      <text class="th" x="80" y="122" text-anchor="middle">Host</text><text class="ts" x="80" y="148" text-anchor="middle">your Fusion</text><text class="ts" x="80" y="168" text-anchor="middle">instance</text>
+      <text class="th" x="230" y="122" text-anchor="middle">Product API</text><text class="ts" x="230" y="148" text-anchor="middle">hcmRestApi · HR</text><text class="ts" x="230" y="168" text-anchor="middle">fscmRestApi · ERP/SCM</text><text class="ts" x="230" y="188" text-anchor="middle">crmRestApi · Sales</text>
+      <text class="th" x="375" y="122" text-anchor="middle">Version</text><text class="ts" x="375" y="148" text-anchor="middle">11.13.18.05</text><text class="ts" x="375" y="168" text-anchor="middle">or “latest”</text>
+      <text class="th" x="510" y="122" text-anchor="middle">Resource</text><text class="ts" x="510" y="148" text-anchor="middle">workers,</text><text class="ts" x="510" y="168" text-anchor="middle">invoices, …</text>
+      <text class="th" x="645" y="122" text-anchor="middle">Query</text><text class="ts" x="645" y="148" text-anchor="middle">filters, paging,</text><text class="ts" x="645" y="168" text-anchor="middle">fields (ch. 5)</text>
+    </svg></div>
+  </figure>
+  <h3>A collection response, shortened</h3>
+  <figure><pre>{
+  "<span class="a">items</span>": [                                     <span class="c">← the records on this page</span>
+    {
+      "PersonId": 300000047123456,
+      "PersonNumber": "101",
+      "DisplayName": "Ravi Kumar",
+      "links": [ { "rel": "self", "href": "https://&lt;host&gt;/hcmRestApi/resources/11.13.18.05/workers/00020000…" } ]
+    }
+    <span class="c">… more items …</span>
+  ],
+  "<span class="a">count</span>": 25,                                    <span class="c">← items on THIS page</span>
+  "<span class="a">hasMore</span>": true,                                 <span class="c">← is there another page?</span>
+  "<span class="a">limit</span>": 25,                                    <span class="c">← page size used</span>
+  "<span class="a">offset</span>": 0,                                    <span class="c">← where this page started</span>
+  "links": [ … ]
+}</pre><figcaption>Every Fusion collection answer has this frame: <code>items</code>, <code>count</code>, <code>hasMore</code>, <code>limit</code>, <code>offset</code>. Add <code>totalResults=true</code> to also get <code>totalResults</code>.</figcaption></figure>
+  <p>Each item has a <code>links</code> array with a <code>self</code> link: the exact URL to read or update that one record. Fusion item IDs in URLs can be long encoded keys (<code>00020000…</code>), so <b>use the self link</b> instead of building the URL yourself. Child data (like a worker’s addresses) lives in <b>child resources</b> under the item.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="fusion-q">
+  <div class="ch-head"><h2><span class="num">5</span>Fusion query parameters</h2><label class="got"><input type="checkbox" id="got-fusion-q"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:22%">Parameter</th><th style="width:44%">Example</th><th style="width:34%">Does</th></tr>
+    <tr><td><b>q</b></td><td><code>q=PersonNumber='101'</code><br><code>q=LastUpdateDate&gt;'2026-10-13T00:00:00Z'</code></td><td>Filter. Combine with <code>and</code> / <code>or</code>.</td></tr>
+    <tr><td><b>fields</b></td><td><code>fields=PersonNumber,DisplayName</code></td><td>Only these fields</td></tr>
+    <tr><td><b>onlyData</b></td><td><code>onlyData=true</code></td><td>Drops the <code>links</code> clutter</td></tr>
+    <tr><td><b>expand</b></td><td><code>expand=addresses</code></td><td>Include a child resource</td></tr>
+    <tr><td><b>limit</b> / <b>offset</b></td><td><code>limit=500&amp;offset=1000</code></td><td>Paging (ch. 2)</td></tr>
+    <tr><td><b>totalResults</b></td><td><code>totalResults=true</code></td><td>Adds the total count (slower on big data)</td></tr>
+    <tr><td><b>orderBy</b></td><td><code>orderBy=PersonNumber:asc</code></td><td>Sort</td></tr>
+    <tr><td><b>finder</b></td><td><code>finder=findByWorkEmail;Email=ravi@company.com</code></td><td>A ready-made, named search the resource offers</td></tr>
+  </table></div>
+  <figure><pre><span class="c"># All workers updated since yesterday, 500 at a time, only 3 fields, no links:</span>
+GET /hcmRestApi/resources/11.13.18.05/workers
+    ?q=LastUpdateDate&gt;'2026-10-13T00:00:00Z'
+    &amp;fields=PersonNumber,DisplayName,LastUpdateDate
+    &amp;onlyData=true
+    &amp;orderBy=LastUpdateDate:asc
+    &amp;limit=500&amp;offset=0</pre><figcaption>Shown on several lines for reading; in a real URL it’s one line, and spaces and quotes get URL-encoded (Phase 1).</figcaption></figure>
+  <p>Which fields, finders and children a resource has is listed in Oracle’s REST API documentation for your Fusion release. Search for the resource name (for example “workers REST API”) and use the version that matches your instance.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="fusion-write">
+  <div class="ch-head"><h2><span class="num">6</span>Writing to Fusion</h2><label class="got"><input type="checkbox" id="got-fusion-write"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">Action</th><th style="width:40%">Request</th><th style="width:42%">Note</th></tr>
+    <tr><td>Create</td><td><code>POST</code> to the collection</td><td>Fusion often wants its own Content-Type, like <code>application/vnd.oracle.adf.resourceitem+json</code></td></tr>
+    <tr><td>Update</td><td><code>PATCH</code> on the item’s self link</td><td>Send only the fields you change (Phase 1’s PUT vs PATCH)</td></tr>
+    <tr><td>Delete</td><td><code>DELETE</code> on the self link</td><td>Many HR records can’t be deleted, only ended</td></tr>
+    <tr><td>Date-effective change</td><td>PATCH with an <code>Effective-Of</code> header</td><td>HCM records have history; this header says from which date the change applies</td></tr>
+  </table></div>
+  <div class="story"><b class="lbl">Date-effective data</b>An employee’s salary history is like a diary: Pune until March, Mumbai from April. You don’t erase the old entry; you add a new one <b>from a date</b>. <mark>Much of Oracle HCM is date-effective, so updates need to say from when.</mark> You’ll go deeper in Phase 8.</div>
+  <p>For <b>thousands</b> of records, Fusion’s REST APIs aren’t the right tool. You’d use bulk loads instead (FBDI and HCM Data Loader, Phase 8), often through the SOAP service from Part 3.2.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="limits">
+  <div class="ch-head"><h2><span class="num">7</span>Rate limits</h2><label class="got"><input type="checkbox" id="got-limits"> Got it</label></div>
+  <div class="story"><b class="lbl">The bank token machine</b>A busy bank hands out token numbers so the counters aren’t mobbed. If you push in, you’re sent back. <mark>A rate limit caps how many calls you may make in a time window. Cross it and you get 429 Too Many Requests.</mark></div>
+  <figure><pre>HTTP/1.1 <span class="b">429 Too Many Requests</span>
+<span class="a">Retry-After: 30</span>                     <span class="c">← wait 30 seconds before trying again</span>
+x-ratelimit-limit: 60               <span class="c">← your allowance per window</span>
+x-ratelimit-remaining: 0            <span class="c">← what's left</span>
+x-ratelimit-reset: 1760435400       <span class="c">← when the window resets (epoch seconds)</span></pre></figure>
+  <div class="tbl"><table>
+    <tr><th style="width:32%">Do</th><th style="width:68%">Because</th></tr>
+    <tr><td>Filter and choose fields</td><td>Fewer, smaller calls (ch. 3)</td></tr>
+    <tr><td>Use bigger pages (within the max)</td><td>2,000 records in 4 calls beats 80 calls</td></tr>
+    <tr><td>Respect <code>Retry-After</code></td><td>Retrying early just gets another 429</td></tr>
+    <tr><td>Spread scheduled jobs</td><td>Ten integrations at exactly 00:00 compete for the same allowance</td></tr>
+  </table></div>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="retry">
+  <div class="ch-head"><h2><span class="num">8</span>Retries and backoff</h2><label class="got"><input type="checkbox" id="got-retry"> Got it</label></div>
+  <div class="story"><b class="lbl">A busy phone line</b>If a number is busy, you don’t redial every second; you wait a minute, then a few minutes, then longer. <mark>Exponential backoff waits longer after each failure: 1s, 2s, 4s, 8s… and gives up after a few tries.</mark> Adding a little randomness (<b>jitter</b>) stops a thousand clients from all retrying at the same instant.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="Timeline of retries with growing waits: call fails, wait 1 second, fails, wait 2, fails, wait 4, succeeds">
+      <g class="rough"><path class="ln" d="M30 120 L 700 120"/>
+      <circle class="box f-orange" cx="50" cy="120" r="14"/><circle class="box f-orange" cx="120" cy="120" r="14"/><circle class="box f-orange" cx="250" cy="120" r="14"/><circle class="box f-green" cx="510" cy="120" r="14"/>
+      <path class="lr" d="M64 90 Q 85 70 106 90"/><path class="lr" d="M134 90 Q 192 50 236 90"/><path class="lr" d="M264 90 Q 387 30 496 90"/></g>
+      <text class="ts" x="50" y="160" text-anchor="middle">try 1 ✗</text><text class="ts" x="120" y="160" text-anchor="middle">try 2 ✗</text><text class="ts" x="250" y="160" text-anchor="middle">try 3 ✗</text><text class="t" x="510" y="160" text-anchor="middle">try 4 ✓</text>
+      <text class="tr" x="85" y="62" text-anchor="middle">1s</text><text class="tr" x="188" y="48" text-anchor="middle">2s</text><text class="tr" x="380" y="40" text-anchor="middle">4s</text>
+      <text class="ts" x="360" y="205" text-anchor="middle">each wait doubles (plus a little random jitter); stop after 3–5 tries and raise an alert</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:34%">Answer</th><th style="width:20%">Retry?</th><th style="width:46%">Why</th></tr>
+    <tr><td>Timeout, connection reset</td><td><b>Yes</b></td><td>Likely a blip (but see ch. 9 for POST)</td></tr>
+    <tr><td>429</td><td><b>Yes</b>, after Retry-After</td><td>You were too fast</td></tr>
+    <tr><td>502, 503, 504</td><td><b>Yes</b>, with backoff</td><td>Usually temporary</td></tr>
+    <tr><td>500</td><td>Maybe once</td><td>Could be a real bug; don’t hammer it</td></tr>
+    <tr><td>400, 401, 403, 404, 409, 422</td><td><b>No</b></td><td>The same request will fail the same way. Fix it.</td></tr>
+  </table></div>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="idem">
+  <div class="ch-head"><h2><span class="num">9</span>Retrying safely: idempotency</h2><label class="got"><input type="checkbox" id="got-idem"> Got it</label></div>
+  <div class="story"><b class="lbl">Did my payment go through?</b>Your UPI app spins, then times out. Did the money go? If you simply pay again, you might pay twice. <mark>A timeout doesn’t mean “failed”: it means “I don’t know”.</mark> The request may have succeeded and only the answer got lost.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 260" role="img" aria-label="POST creates invoice 5001, the response is lost, a blind retry creates duplicate invoice 5002; with an idempotency key the server recognises the retry and returns 5001 again">
+      <g class="rough"><rect class="box f-yellow" x="20" y="20" width="120" height="220" rx="12"/><rect class="box f-green" x="580" y="20" width="120" height="220" rx="12"/>
+      <path class="lr" d="M144 55 L 574 55" marker-end="url(#ahr)"/><path class="lb dash" d="M574 85 L 360 85"/>
+      <path class="lr" d="M144 125 L 574 125" marker-end="url(#ahr)"/>
+      <path class="lr" d="M144 185 L 574 185" marker-end="url(#ahr)"/><path class="lb" d="M574 215 L 148 215" marker-end="url(#ahb)"/></g>
+      <text class="th" x="80" y="135" text-anchor="middle">OIC</text><text class="th" x="640" y="135" text-anchor="middle">API</text>
+      <text class="ts" x="360" y="47" text-anchor="middle">POST invoice → created #5001</text>
+      <text class="tr" x="300" y="90" text-anchor="middle">answer lost ✗ (timeout)</text>
+      <text class="ts" x="360" y="117" text-anchor="middle">blind retry → creates #5002 · DUPLICATE</text>
+      <text class="ts" x="360" y="177" text-anchor="middle">retry WITH Idempotency-Key: inv-2026-10-14-0042</text>
+      <text class="ts" x="360" y="236" text-anchor="middle">“seen this key” → returns #5001 again, nothing new created</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:36%">Technique</th><th style="width:64%">How</th></tr>
+    <tr><td><b>Idempotency key</b></td><td>Send a unique header (e.g. <code>Idempotency-Key</code>) per business action. Payment APIs commonly support this.</td></tr>
+    <tr><td><b>Check before create</b></td><td>Search by a business reference (invoice number) first; create only if not found.</td></tr>
+    <tr><td><b>Upsert</b></td><td>Use an endpoint that creates-or-updates by a unique key.</td></tr>
+    <tr><td><b>Use the right method</b></td><td>PUT and DELETE are naturally safe to repeat; POST isn’t (Phase 1).</td></tr>
+  </table></div>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="timeouts">
+  <div class="ch-head"><h2><span class="num">10</span>Timeouts</h2><label class="got"><input type="checkbox" id="got-timeouts"> Got it</label></div>
+  <div class="two">
+    <div class="card t1 tilt-a"><h4>Connection timeout</h4><p>How long to wait for the other side to <b>pick up the phone</b>. Fails fast when the server is down or a firewall blocks the port (Phase 1’s <code>nc</code> check).</p></div>
+    <div class="card t2 tilt-b"><h4>Read timeout</h4><p>How long to wait for the <b>answer</b> after they picked up. Fails when the server is slow, like a huge report or a heavy query.</p></div>
+  </div>
+  <p>Synchronous calls in OIC can’t wait forever: if the target is slow, OIC eventually stops waiting and raises a fault, and the caller of your integration has its own limit too. The fix for slow work isn’t a longer timeout; it’s an <b>asynchronous</b> design (next chapter).</p>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="async">
+  <div class="ch-head"><h2><span class="num">11</span>202 Accepted: come back later</h2><label class="got"><input type="checkbox" id="got-async"> Got it</label></div>
+  <div class="story"><b class="lbl">The dry cleaner</b>You hand over a suit. They don’t make you wait in the shop: they give you a <b>token slip</b> and say “come back on Friday”. <mark>For long jobs, an API answers 202 Accepted with a job ID, and you check the job’s status later.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="Async job: POST starts a job and returns 202 with a Location status URL; client polls the status URL, gets RUNNING twice then SUCCEEDED with a link to the result">
+      <g class="rough"><rect class="box f-yellow" x="20" y="10" width="120" height="44" rx="10"/><rect class="box f-green" x="580" y="10" width="120" height="44" rx="10"/>
+      <path class="ln dash" d="M80 56 L 80 290"/><path class="ln dash" d="M640 56 L 640 290"/>
+      <path class="lr" d="M84 85 L 632 85" marker-end="url(#ahr)"/><path class="lb" d="M636 120 L 88 120" marker-end="url(#ahb)"/>
+      <path class="lr" d="M84 165 L 632 165" marker-end="url(#ahr)"/><path class="lb" d="M636 190 L 88 190" marker-end="url(#ahb)"/>
+      <path class="lr" d="M84 235 L 632 235" marker-end="url(#ahr)"/><path class="lb" d="M636 265 L 88 265" marker-end="url(#ahb)"/></g>
+      <text class="th" x="80" y="38" text-anchor="middle">OIC</text><text class="th" x="640" y="38" text-anchor="middle">API</text>
+      <text class="t" x="360" y="77" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">POST /imports  (upload 20,000 invoices)</text>
+      <text class="t" x="360" y="112" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">202 Accepted · Location: /imports/88731</text>
+      <text class="t" x="360" y="157" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">GET /imports/88731   (a few minutes later)</text>
+      <text class="t" x="360" y="183" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">200 · { "status": "RUNNING" }</text>
+      <text class="t" x="360" y="227" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">GET /imports/88731   (later)</text>
+      <text class="t" x="360" y="258" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">200 · { "status": "SUCCEEDED", "resultUrl": … }</text>
+    </svg></div>
+  </figure>
+  <p>Oracle Fusion works exactly like this for bulk loads: you submit a job, get a <b>request ID</b>, then check its status with operations like <code>getESSJobStatus</code> (Part 3.2), or receive a <b>callback</b> when it finishes (a webhook, from Part 3.1). In OIC, the checking part is a <b>While loop with a Wait</b> (Phase 7).</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="postman">
+  <div class="ch-head"><h2><span class="num">12</span>Postman like a pro</h2><label class="got"><input type="checkbox" id="got-postman"> Got it</label></div>
+  <div class="story"><b class="lbl">From tasting to a test kitchen</b>Sending one request is tasting a dish. A professional test kitchen <b>checks</b> every dish automatically, passes results from one station to the next, and runs the whole menu with one button. <mark>Postman’s scripts, variables and Collection Runner turn single requests into repeatable tests.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 260" role="img" aria-label="Postman request lifecycle: pre-request script runs, the request is sent, the response arrives, the tests script runs and can save values into variables for the next request">
+      <g class="rough"><rect class="box f-purple" x="20" y="70" width="140" height="90" rx="12"/><rect class="box f-blue" x="200" y="70" width="140" height="90" rx="12"/><rect class="box f-green" x="380" y="70" width="140" height="90" rx="12"/><rect class="box f-yellow" x="560" y="70" width="140" height="90" rx="12"/>
+      <path class="ln" d="M162 115 L 194 115" marker-end="url(#ah)"/><path class="ln" d="M342 115 L 374 115" marker-end="url(#ah)"/><path class="ln" d="M522 115 L 554 115" marker-end="url(#ah)"/>
+      <path class="lr dash" d="M630 162 C 630 230, 90 230, 90 168" marker-end="url(#ahr)"/></g>
+      <text class="th" x="90" y="106" text-anchor="middle">Pre-request</text><text class="ts" x="90" y="130" text-anchor="middle">set a timestamp,</text><text class="ts" x="90" y="148" text-anchor="middle">fetch a token</text>
+      <text class="th" x="270" y="106" text-anchor="middle">Send</text><text class="ts" x="270" y="130" text-anchor="middle">{{variables}}</text><text class="ts" x="270" y="148" text-anchor="middle">filled in</text>
+      <text class="th" x="450" y="106" text-anchor="middle">Response</text><text class="ts" x="450" y="130" text-anchor="middle">status, headers,</text><text class="ts" x="450" y="148" text-anchor="middle">body, time</text>
+      <text class="th" x="630" y="106" text-anchor="middle">Tests</text><text class="ts" x="630" y="130" text-anchor="middle">check results,</text><text class="ts" x="630" y="148" text-anchor="middle">save values</text>
+      <text class="tr" x="360" y="248" text-anchor="middle">saved values feed the NEXT request (chaining)</text>
+    </svg></div>
+  </figure>
+  <h3>Tests: automatic checks</h3>
+  <figure><pre><span class="c">// Tests tab: runs AFTER the response arrives</span>
+pm.test(<span class="b">'status is 200'</span>, () =&gt; pm.response.to.have.status(200));
+pm.test(<span class="b">'answers in under 2 seconds'</span>, () =&gt; pm.expect(pm.response.responseTime).to.be.below(2000));
+const body = pm.response.json();
+pm.test(<span class="b">'has an id'</span>, () =&gt; pm.expect(body).to.have.property('id'));</pre></figure>
+  <h3>Chaining: pass a value to the next request</h3>
+  <figure><pre><span class="c">// Tests tab of "Find user by username"</span>
+const users = pm.response.json();
+pm.environment.set(<span class="a">'userId'</span>, users[0].id);      <span class="c">← save it</span>
+
+<span class="c">// URL of the next request</span>
+{{baseUrl}}/posts?userId=<span class="a">{{userId}}</span>             <span class="c">← use it</span></pre></figure>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">Variable scope</th><th style="width:72%">Lives in, and wins over</th></tr>
+    <tr><td>Global</td><td>Your whole workspace (weakest)</td></tr>
+    <tr><td>Collection</td><td>One collection: good for <code>baseUrl</code> defaults</td></tr>
+    <tr><td>Environment</td><td>Test / Production values: switch with one click</td></tr>
+    <tr><td>Local / data</td><td>One run only (strongest)</td></tr>
+  </table></div>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Collection Runner</h4><p>Runs a whole folder in order and shows every test result. Loops with <code>postman.setNextRequest()</code>.</p></div>
+    <div class="card t2 tilt-b"><h4>Console</h4><p>View → Show Postman Console: the raw request, headers and your <code>console.log</code> lines.</p></div>
+    <div class="card t3 tilt-a"><h4>Code snippet</h4><p>The <code>&lt;/&gt;</code> button turns any request into curl, Python and more.</p></div>
+    <div class="card t4 tilt-b"><h4>Secrets</h4><p>Mark sensitive environment values as <b>secret</b>, and never export real ones.</p></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">13</span>Try it yourself</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <h3>A · Postman: tests, chaining and a pagination loop</h3>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Import</b><a href="../phase-03-apis/practice/phase3-4-real-world.postman_collection.json">phase3-4-real-world.postman_collection.json</a> and, if you haven’t already, <a href="../phase-03-apis/practice/practice.postman_environment.json">practice.postman_environment.json</a>. Pick the <b>OIC from Scratch · Practice</b> environment.</div></li>
+    <li><span class="dot">2</span><div><b>1 · Tests</b>Send each request and open the <b>Test Results</b> tab under the response: green passes.</div></li>
+    <li><span class="dot">3</span><div><b>2 · Chaining</b>Send “Find user by username”, then “Get that user’s posts”. Open the environment: <code>userId</code> was saved automatically.</div></li>
+    <li><span class="dot">4</span><div><b>3 · Pagination loop</b>Right-click the folder → <b>Run</b>. Open the Console: page 1 to 4 with 25 posts each, then “done: 100 posts in 4 pages”.</div></li>
+    <li><span class="dot">5</span><div><b>4 · Errors and retries</b>Send each: 404 (don’t retry), 429 and 503 (retry later), and a 3-second slow answer.</div></li>
+  </ol>
+  <h3>B · Terminal</h3>
+  <div class="cmd"><p class="what">A pagination loop in 6 lines</p><pre><span class="a">page=1; total=0
+while true; do
+  n=$(curl -s "https://jsonplaceholder.typicode.com/posts?_page=$page&amp;_limit=25" | python3 -c "import sys,json;print(len(json.load(sys.stdin)))")
+  [ "$n" -eq 0 ] &amp;&amp; break
+  total=$((total+n)); echo "page $page: $n posts (total $total)"; page=$((page+1))
+done; echo "done: $total posts"</span>
+<span class="b">page 1: 25 posts (total 25)
+page 2: 25 posts (total 50)
+page 3: 25 posts (total 75)
+page 4: 25 posts (total 100)
+done: 100 posts</span></pre></div>
+  <div class="cmd"><p class="what">Read the Link header (next page’s address)</p><pre><span class="a">curl -sI "https://jsonplaceholder.typicode.com/posts?_page=1&amp;_limit=25" | grep -iE "^link|x-total-count"</span>
+<span class="c">x-total-count: 100 and a link: header with rel="next" and rel="last"</span></pre></div>
+  <div class="cmd"><p class="what">Choose fields, sort, filter</p><pre><span class="a">curl -s "https://jsonplaceholder.typicode.com/posts?userId=1&amp;_sort=id&amp;_order=desc&amp;_limit=3" | python3 -m json.tool</span>
+<span class="c">user 1's three newest posts: ids 10, 9, 8</span></pre></div>
+  <div class="cmd"><p class="what">Feel a timeout</p><pre><span class="a">curl -s -o /dev/null -w "%{http_code} in %{time_total}s\n" https://httpbin.org/delay/3</span>   <span class="b">200 in ~3s</span>
+<span class="a">curl -s -m 2 https://httpbin.org/delay/3; echo "exit code $?"</span>      <span class="b">exit code 28</span>  <span class="c">← 28 = curl gave up: timeout</span></pre></div>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="oic">
+  <div class="ch-head"><h2><span class="num">14</span>Where this shows up in OIC</h2><label class="got"><input type="checkbox" id="got-oic"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">This part</th><th style="width:72%">In OIC</th></tr>
+    <tr><td>Pagination</td><td>A <b>While</b> loop around the invoke: map <code>offset</code> in, check <code>hasMore</code> out (Phase 7)</td></tr>
+    <tr><td>Delta sync</td><td>A scheduled integration with a <b>schedule parameter</b> holding the last run time, used in <code>q=LastUpdateDate&gt;…</code></td></tr>
+    <tr><td>Fusion REST</td><td>The REST adapter with your Fusion host, or the dedicated <b>Oracle ERP Cloud / HCM</b> adapters that list Fusion’s resources for you (Phase 8)</td></tr>
+    <tr><td>Retries &amp; errors</td><td><b>Scope + fault handler</b>, a retry loop with a <b>Wait</b>, and notifications when retries run out (Phase 7)</td></tr>
+    <tr><td>Async jobs</td><td>Submit, then poll the status in a While + Wait loop, or receive a callback</td></tr>
+    <tr><td>Postman</td><td>Prove the target API first, then call <b>your</b> OIC integration’s endpoint from Postman to test it</td></tr>
+  </table></div>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">15</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Only the first page</b>Your test data fit in one page; production didn’t. Always loop on hasMore.</div></li>
+    <li><span class="dot">2</span><div><b>Downloading everything, then filtering</b>Filter with <code>q=</code> or query parameters on the server.</div></li>
+    <li><span class="dot">3</span><div><b>Retrying a 400</b>It will fail the same way, and may count against your rate limit.</div></li>
+    <li><span class="dot">4</span><div><b>Blindly retrying a POST after a timeout</b>Check first, or use an idempotency key.</div></li>
+    <li><span class="dot">5</span><div><b>Building Fusion item URLs by hand</b>Use the item’s <code>self</code> link.</div></li>
+    <li><span class="dot">6</span><div><b>All jobs at 00:00</b>Spread schedules to stay under rate limits.</div></li>
+    <li><span class="dot">7</span><div><b>Testing only the happy path</b>Try 404, 429, 503 and slow answers in Postman before go-live.</div></li>
+  </ol>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">16</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. Name 4 things to check in API docs before building.</summary><p>Any four of: base URL, authentication, endpoints, pagination, limits, errors, versioning, sync vs async.</p></details>
+    <details><summary>2. A Fusion response says <code>"hasMore": true, "offset": 0, "limit": 500</code>. What’s your next call?</summary><p>The same call with offset=500.</p></details>
+    <details><summary>3. What is a delta sync?</summary><p>Fetching only records changed since the last run, e.g. with q=LastUpdateDate&gt;'…'.</p></details>
+    <details><summary>4. What do <code>fields</code> and <code>onlyData=true</code> do in Fusion?</summary><p>Return only the listed fields, and drop the links clutter.</p></details>
+    <details><summary>5. Which answers should you retry?</summary><p>Timeouts, 429 (after Retry-After), and 502/503/504 with backoff. Not 4xx like 400, 401, 403, 404.</p></details>
+    <details><summary>6. What is exponential backoff with jitter?</summary><p>Waiting longer after each failure (1s, 2s, 4s…) plus a little randomness, and stopping after a few tries.</p></details>
+    <details><summary>7. A POST timed out. Why not just retry?</summary><p>It may have succeeded; a retry could create a duplicate. Check first or use an idempotency key.</p></details>
+    <details><summary>8. What does 202 Accepted mean?</summary><p>The job was accepted and will finish later; check its status (often via the Location URL).</p></details>
+    <details><summary>9. How do you pass a value from one Postman request to the next?</summary><p>Save it in the Tests tab with pm.environment.set(), then use {{name}} in the next request.</p></details>
+    <details><summary>10. Connection timeout vs read timeout?</summary><p>Connection: waiting for the server to pick up. Read: waiting for the answer after that.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final">Real APIs need you to <b>read the docs</b>, <b>page</b> until there’s no more, <b>filter</b> on the server, respect <b>rate limits</b>, <b>retry</b> only what’s temporary (with backoff, and safely for POST), design long jobs <b>asynchronously</b>, and prove it all in <b>Postman</b> with tests before OIC; and Oracle Fusion follows these rules with <code>items</code>, <code>hasMore</code>, <code>q</code> and <code>limit</code>/<code>offset</code>.</p>
+  <p>That completes Phase 3. Next up, Phase 4: SQL &amp; Databases.</p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 3.4 · Real-world APIs · by @devwithprabir</footer>
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p34-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p34-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>

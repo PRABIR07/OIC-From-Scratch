@@ -1,0 +1,243 @@
+{
+  "info": {
+    "name": "OIC from Scratch · Phase 3.4 · Real-world APIs",
+    "description": "Practice for Phase 3.4 by @devwithprabir: tests, variables, chaining and a pagination loop. Import, pick the 'OIC from Scratch · Practice' environment, then run the folders with the Collection Runner.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1 · Tests",
+      "item": [
+        {
+          "name": "Status, time and shape",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/posts/1",
+            "description": "Three automatic checks run after the response arrives."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('answers in under 2 seconds', () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+                  "const body = pm.response.json();",
+                  "pm.test('has id, title and userId', () => {",
+                  "  pm.expect(body).to.have.property('id', 1);",
+                  "  pm.expect(body.title).to.be.a('string');",
+                  "  pm.expect(body).to.have.property('userId');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create and check 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/posts",
+            "description": "Checks the created status and that the server returned what we sent.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Created at {{now}}\",\n  \"body\": \"Phase 3.4\",\n  \"userId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// runs BEFORE sending: make a unique title with the current time",
+                  "pm.variables.set('now', new Date().toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('server gave it an id', () => pm.expect(body.id).to.be.a('number'));",
+                  "pm.test('title came back unchanged', () => pm.expect(body.title).to.include('Created at'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2 · Chaining",
+      "item": [
+        {
+          "name": "Find user by username",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/users?username=Bret",
+            "description": "Finds a user and SAVES its id into the environment for the next request."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const users = pm.response.json();",
+                  "pm.test('exactly one user found', () => pm.expect(users.length).to.eql(1));",
+                  "pm.environment.set('userId', users[0].id);",
+                  "console.log('Saved userId =', users[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get that user's posts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/posts?userId={{userId}}",
+            "description": "Uses {{userId}} saved by the previous request."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const posts = pm.response.json();",
+                  "pm.test('10 posts for this user', () => pm.expect(posts.length).to.eql(10));",
+                  "pm.test('all belong to the saved user', () => posts.forEach(p => pm.expect(p.userId).to.eql(Number(pm.environment.get('userId')))));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3 · Pagination loop (run with Collection Runner)",
+      "item": [
+        {
+          "name": "Read every page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/posts?_page={{page}}&_limit=25",
+            "description": "Run this folder in the Collection Runner. It repeats until a page comes back empty."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('page')) { pm.environment.set('page', 1); pm.environment.set('total', 0); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const items = pm.response.json();",
+                  "const page = Number(pm.environment.get('page'));",
+                  "if (items.length > 0) {",
+                  "  const total = Number(pm.environment.get('total')) + items.length;",
+                  "  pm.environment.set('total', total);",
+                  "  console.log(`page ${page}: ${items.length} posts (running total ${total})`);",
+                  "  pm.environment.set('page', page + 1);",
+                  "  postman.setNextRequest('Read every page');   // loop: run me again",
+                  "} else {",
+                  "  console.log(`done: ${pm.environment.get('total')} posts in ${page - 1} pages`);",
+                  "  pm.test('read all 100 posts', () => pm.expect(Number(pm.environment.get('total'))).to.eql(100));",
+                  "  pm.environment.unset('page'); pm.environment.unset('total');",
+                  "  postman.setNextRequest(null);                  // stop",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4 · Errors and retries",
+      "item": [
+        {
+          "name": "Not found (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/posts/9999",
+            "description": "A 4xx: retrying won't help."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404, so fix the request', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Too many requests (429)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://httpbin.org/status/429",
+            "description": "A 429: wait, then retry."
+          }
+        },
+        {
+          "name": "Service unavailable (503)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://httpbin.org/status/503",
+            "description": "A 5xx: retry later with backoff."
+          }
+        },
+        {
+          "name": "Slow answer (3 seconds)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://httpbin.org/delay/3",
+            "description": "Watch the response time. Set Postman's request timeout lower to see a timeout."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://jsonplaceholder.typicode.com"
+    }
+  ]
+}

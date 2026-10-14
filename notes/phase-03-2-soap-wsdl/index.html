@@ -1,0 +1,581 @@
+<title>Phase 3.2 · SOAP &amp; WSDL in depth | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 3 · Part 2 of 4</p>
+  <h1>SOAP &amp; WSDL in depth</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 3: <a href="../phase-03-1-rest/index.html">3.1 REST</a> · <b>3.2 SOAP &amp; WSDL</b> · <a href="../phase-03-3-api-security/index.html">3.3 API security</a> · <a href="../phase-03-4-real-world-apis/index.html">3.4 Real-world APIs</a>. Oracle Fusion, banks and older ERPs still run on SOAP. Here we take a real WSDL apart <mark>line by line</mark>, so you can read any SOAP service on your first day.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#why">1 · Why SOAP still matters</a><a href="#envelope">2 · The envelope, part by part</a><a href="#versions">3 · SOAP 1.1 vs 1.2</a><a href="#wsdl">4 · WSDL: the 5 sections</a>
+    <a href="#chain">5 · Following the chain</a><a href="#styles">6 · document/literal</a><a href="#action">7 · SOAPAction</a><a href="#faults">8 · Faults</a>
+    <a href="#wssec">9 · WS-Security</a><a href="#attach">10 · Big files: MTOM</a><a href="#fusion">11 · SOAP in Oracle Fusion</a><a href="#tools">12 · Hands-on</a>
+    <a href="#oic">13 · In OIC</a><a href="#mistakes">14 · Mistakes</a><a href="#quiz">15 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="why">
+  <div class="ch-head"><h2><span class="num">1</span>Why SOAP still matters</h2><label class="got"><input type="checkbox" id="got-why"> Got it</label></div>
+  <div class="story"><b class="lbl">Registered post</b>For a birthday wish you send a WhatsApp. For a <b>legal notice</b> you send registered post: a fixed format, a signature, proof of delivery. <mark>SOAP (Simple Object Access Protocol) is the registered post of APIs</mark>: strict, formal, and built for enterprises that care about contracts more than convenience.</div>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>A strict contract</h4><p>The WSDL defines every field and type. Both sides can generate code from it and validate every message.</p></div>
+    <div class="card t2 tilt-b"><h4>Built-in standards</h4><p>Security (WS-Security), reliable delivery, attachments: all defined as add-on standards.</p></div>
+    <div class="card t3 tilt-a"><h4>Still everywhere</h4><p>Oracle Fusion’s bulk loads, banking gateways, government systems, SAP and older ERPs.</p></div>
+  </div>
+  <p>In OIC you’ll use SOAP mostly to <b>call</b> these systems, for example Oracle Fusion’s <code>ErpIntegrationService</code> to load thousands of invoices at once (Phase 8).</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="envelope">
+  <div class="ch-head"><h2><span class="num">2</span>The envelope, part by part</h2><label class="got"><input type="checkbox" id="got-envelope"> Got it</label></div>
+  <div class="story"><b class="lbl">An official letter</b>An official letter has an <b>outer envelope</b>, a <b>cover sheet</b> with reference numbers and stamps, and the <b>letter itself</b>. If something’s wrong, you get back a formal <b>rejection slip</b>. <mark>A SOAP message has exactly these four parts.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 400" role="img" aria-label="Nested boxes: HTTP POST outside, then soap Envelope, containing an optional Header with security and a required Body with the operation element and its fields; a Fault replaces the body content on errors">
+      <g class="rough">
+        <rect class="box f-grey" x="10" y="10" width="480" height="380" rx="16"/>
+        <rect class="box f-orange" x="35" y="70" width="430" height="300" rx="14"/>
+        <rect class="box f-card" x="60" y="120" width="380" height="80" rx="10"/>
+        <rect class="box f-card" x="60" y="215" width="380" height="140" rx="10"/>
+        <rect class="box f-blue" x="85" y="255" width="330" height="85" rx="8"/>
+        <rect class="box f-pink dash" x="525" y="215" width="185" height="140" rx="10"/>
+        <path class="lr dash" d="M444 285 L 517 285" marker-end="url(#ahr)"/>
+      </g>
+      <text class="t" x="30" y="38" style="font-family:var(--f-mono);font-size:14px">POST /soap/EmployeeService · Content-Type: text/xml</text>
+      <text class="ts" x="30" y="58">the HTTP request that carries it</text>
+      <text class="th" x="250" y="102" text-anchor="middle">soapenv:Envelope</text>
+      <text class="t" x="80" y="150">soapenv:Header · optional</text>
+      <text class="ts" x="80" y="176">security token, message IDs, routing</text>
+      <text class="t" x="80" y="243">soapenv:Body · required</text>
+      <text class="t" x="105" y="283" style="font-family:var(--f-mono);font-size:14px">&lt;emp:GetEmployeeRequest&gt;</text>
+      <text class="t" x="125" y="307" style="font-family:var(--f-mono);font-size:14px">&lt;emp:employeeId&gt;101&lt;/…&gt;</text>
+      <text class="ts" x="105" y="330">ONE element: the operation’s data</text>
+      <text class="th" x="617" y="252" text-anchor="middle">soapenv:Fault</text>
+      <text class="ts" x="617" y="278" text-anchor="middle">on error, the Body</text><text class="ts" x="617" y="298" text-anchor="middle">holds a Fault instead</text><text class="ts" x="617" y="318" text-anchor="middle">(HTTP 500)</text>
+    </svg></div>
+  </figure>
+  <figure><pre><span class="c">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="a">&lt;soapenv:Envelope</span> xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"   <span class="c">← ① the envelope + SOAP's namespace</span>
+                  xmlns:emp="http://company.com/hr/employee"&gt;            <span class="c">← ② the service's own namespace</span>
+  <span class="a">&lt;soapenv:Header/&gt;</span>                                                   <span class="c">← ③ empty header: allowed</span>
+  <span class="a">&lt;soapenv:Body&gt;</span>
+    <span class="b">&lt;emp:GetEmployeeRequest&gt;</span>                                           <span class="c">← ④ which operation's input</span>
+      <span class="b">&lt;emp:employeeId&gt;101&lt;/emp:employeeId&gt;</span>                            <span class="c">← ⑤ the data</span>
+    <span class="b">&lt;/emp:GetEmployeeRequest&gt;</span>
+  <span class="a">&lt;/soapenv:Body&gt;</span>
+<span class="a">&lt;/soapenv:Envelope&gt;</span></pre>
+  <figcaption>Two namespaces always appear: SOAP’s own (for Envelope, Header, Body) and the service’s (for the data). Phase 2’s “surnames” in action.</figcaption></figure>
+  <div class="sticky"><strong>Where does the request element’s name come from?</strong> Not from your imagination: the WSDL says exactly what to put inside the Body. That’s chapter 4.</div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="versions">
+  <div class="ch-head"><h2><span class="num">3</span>SOAP 1.1 vs SOAP 1.2</h2><label class="got"><input type="checkbox" id="got-versions"> Got it</label></div>
+  <p>There are two versions in use. They look almost the same, but mixing them up gives confusing errors, so check which one a service uses.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:24%"></th><th style="width:38%">SOAP 1.1</th><th style="width:38%">SOAP 1.2</th></tr>
+    <tr><td>Envelope namespace</td><td><code>http://schemas.xmlsoap.org/soap/envelope/</code></td><td><code>http://www.w3.org/2003/05/soap-envelope</code></td></tr>
+    <tr><td>Content-Type</td><td><code>text/xml; charset=utf-8</code></td><td><code>application/soap+xml; charset=utf-8</code></td></tr>
+    <tr><td>Operation hint</td><td>Separate <code>SOAPAction</code> header</td><td><code>action=</code> inside the Content-Type</td></tr>
+    <tr><td>Fault fields</td><td><code>faultcode</code>, <code>faultstring</code>, <code>detail</code></td><td><code>Code</code>, <code>Reason</code>, <code>Detail</code></td></tr>
+    <tr><td>How common</td><td>Very common, including many Oracle services</td><td>Common in newer services</td></tr>
+  </table></div>
+  <p>Quick tell: look at the envelope’s namespace. <code>xmlsoap.org</code> means 1.1; <code>w3.org/2003/05</code> means 1.2. A WSDL can offer both versions as two separate bindings.</p>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="wsdl">
+  <div class="ch-head"><h2><span class="num">4</span>A WSDL, section by section</h2><label class="got"><input type="checkbox" id="got-wsdl"> Got it</label></div>
+  <div class="story"><b class="lbl">The full restaurant file</b>Imagine the restaurant gave you its whole file: the <b>ingredient list</b>, each <b>dish’s order slip</b>, the <b>menu</b>, <b>how to order</b> (phone or counter) and the <b>address</b>. <mark>A WSDL (Web Services Description Language, “wiz-dull”) is that file, in five sections.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 420" role="img" aria-label="A WSDL document drawn as five stacked sections: types, message, portType, binding, service, each with its question and a snippet">
+      <g class="rough">
+        <rect class="box f-card" x="10" y="10" width="700" height="400" rx="16"/>
+        <rect class="box f-green" x="30" y="40" width="660" height="62" rx="10"/>
+        <rect class="box f-green" x="30" y="112" width="660" height="62" rx="10"/>
+        <rect class="box f-yellow" x="30" y="184" width="660" height="62" rx="10"/>
+        <rect class="box f-blue" x="30" y="256" width="660" height="62" rx="10"/>
+        <rect class="box f-orange" x="30" y="328" width="660" height="62" rx="10"/>
+      </g>
+      <text class="th" x="50" y="70">① types</text><text class="ts" x="50" y="92">WHAT shape is the data? → an XSD</text>
+      <text class="t" x="360" y="80" style="font-family:var(--f-mono);font-size:13px">&lt;xsd:element name="GetEmployeeRequest"&gt;…</text>
+      <text class="th" x="50" y="142">② message</text><text class="ts" x="50" y="164">WHAT goes in / out of each call?</text>
+      <text class="t" x="360" y="152" style="font-family:var(--f-mono);font-size:13px">&lt;message name="GetEmployeeInput"&gt;</text>
+      <text class="th" x="50" y="214">③ portType</text><text class="ts" x="50" y="236">WHICH operations exist? (the menu)</text>
+      <text class="t" x="360" y="224" style="font-family:var(--f-mono);font-size:13px">&lt;operation name="GetEmployee"&gt;</text>
+      <text class="th" x="50" y="286">④ binding</text><text class="ts" x="50" y="308">HOW to call them? SOAP 1.1, style</text>
+      <text class="t" x="360" y="296" style="font-family:var(--f-mono);font-size:13px">&lt;soap:binding style="document"…&gt;</text>
+      <text class="th" x="50" y="358">⑤ service</text><text class="ts" x="50" y="380">WHERE does it live? the URL</text>
+      <text class="t" x="360" y="368" style="font-family:var(--f-mono);font-size:13px">&lt;soap:address location="https://…"/&gt;</text>
+    </svg></div>
+    <figcaption>Every WSDL has these five sections, in this order. The practice file <a href="../phase-03-apis/practice/EmployeeService.wsdl">EmployeeService.wsdl</a> has comments marking each one.</figcaption>
+  </figure>
+  <h3>Section by section, in our practice WSDL</h3>
+  <figure><pre><span class="c">&lt;!-- ① TYPES: an XSD inside the WSDL --&gt;</span>
+&lt;types&gt;
+  &lt;xsd:schema targetNamespace="http://company.com/hr/employee"&gt;
+    &lt;xsd:element name=<span class="a">"GetEmployeeRequest"</span>&gt;          <span class="c">← the Body's root element</span>
+      … employeeId: integer …
+    &lt;xsd:element name=<span class="a">"GetEmployeeResponse"</span>&gt;
+      … employeeId, name, dept, email (optional: minOccurs="0") …
+  &lt;/xsd:schema&gt;
+&lt;/types&gt;
+
+<span class="c">&lt;!-- ② MESSAGES: wrap an element for sending --&gt;</span>
+&lt;message name=<span class="b">"GetEmployeeInput"</span>&gt;
+  &lt;part name="parameters" element=<span class="a">"tns:GetEmployeeRequest"</span>/&gt;   <span class="c">← points back to ①</span>
+&lt;/message&gt;
+
+<span class="c">&lt;!-- ③ PORT TYPE: the list of operations --&gt;</span>
+&lt;portType name=<span class="b">"EmployeePortType"</span>&gt;
+  &lt;operation name="GetEmployee"&gt;
+    &lt;input  message=<span class="b">"tns:GetEmployeeInput"</span>/&gt;                  <span class="c">← points back to ②</span>
+    &lt;output message="tns:GetEmployeeOutput"/&gt;
+  &lt;/operation&gt;
+&lt;/portType&gt;
+
+<span class="c">&lt;!-- ④ BINDING: how to send it on the wire --&gt;</span>
+&lt;binding name=<span class="b">"EmployeeBinding"</span> type=<span class="b">"tns:EmployeePortType"</span>&gt;   <span class="c">← points back to ③</span>
+  &lt;soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/&gt;
+  &lt;operation name="GetEmployee"&gt;
+    &lt;soap:operation soapAction="http://company.com/hr/employee/GetEmployee"/&gt;
+    &lt;input&gt;&lt;soap:body use="literal"/&gt;&lt;/input&gt; …
+
+<span class="c">&lt;!-- ⑤ SERVICE: the address --&gt;</span>
+&lt;service name="EmployeeService"&gt;
+  &lt;port name="EmployeePort" binding=<span class="b">"tns:EmployeeBinding"</span>&gt;         <span class="c">← points back to ④</span>
+    &lt;soap:address location="https://hr.company.com/soap/EmployeeService"/&gt;
+  &lt;/port&gt;
+&lt;/service&gt;</pre></figure>
+  <p><code>tns:</code> means “this namespace”, the WSDL’s own <code>targetNamespace</code>. It’s how one section points at a name defined in another section.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="chain">
+  <div class="ch-head"><h2><span class="num">5</span>Following the chain</h2><label class="got"><input type="checkbox" id="got-chain"> Got it</label></div>
+  <div class="story"><b class="lbl">A treasure hunt</b>Each clue points to the next one. <mark>A WSDL is read as a chain of references: start at the address and follow the names until you reach the actual XML you must send.</mark> Once you can follow this chain, you can read any WSDL, however big.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 470" role="img" aria-label="Reference chain: service port points to binding, binding points to portType, portType operation points to input message, message part points to the GetEmployeeRequest element in types, which is what goes inside the SOAP Body">
+      <g class="rough">
+        <rect class="box f-orange" x="20" y="20" width="300" height="62" rx="10"/>
+        <rect class="box f-blue" x="400" y="20" width="300" height="62" rx="10"/>
+        <rect class="box f-yellow" x="400" y="130" width="300" height="62" rx="10"/>
+        <rect class="box f-green" x="400" y="240" width="300" height="62" rx="10"/>
+        <rect class="box f-green" x="400" y="350" width="300" height="62" rx="10"/>
+        <rect class="box f-card" x="20" y="300" width="300" height="140" rx="12"/>
+        <path class="lr" d="M322 51 L 393 51" marker-end="url(#ahr)"/>
+        <path class="lr" d="M550 84 L 550 123" marker-end="url(#ahr)"/>
+        <path class="lr" d="M550 194 L 550 233" marker-end="url(#ahr)"/>
+        <path class="lr" d="M550 304 L 550 343" marker-end="url(#ahr)"/>
+        <path class="lb" d="M398 381 C 360 381, 350 370, 326 370" marker-end="url(#ahb)"/>
+      </g>
+      <text class="t" x="35" y="46" style="font-family:var(--f-mono);font-size:13px">⑤ port binding="tns:EmployeeBinding"</text><text class="ts" x="35" y="68">+ address: where to POST</text>
+      <text class="t" x="415" y="46" style="font-family:var(--f-mono);font-size:13px">④ binding type="tns:EmployeePortType"</text><text class="ts" x="415" y="68">+ soapAction, SOAP version, style</text>
+      <text class="t" x="415" y="156" style="font-family:var(--f-mono);font-size:13px">③ operation GetEmployee</text><text class="ts" x="415" y="178">input message="tns:GetEmployeeInput"</text>
+      <text class="t" x="415" y="266" style="font-family:var(--f-mono);font-size:13px">② message GetEmployeeInput</text><text class="ts" x="415" y="288">part element="tns:GetEmployeeRequest"</text>
+      <text class="t" x="415" y="376" style="font-family:var(--f-mono);font-size:13px">① element GetEmployeeRequest</text><text class="ts" x="415" y="398">sequence: employeeId (integer)</text>
+      <text class="th" x="170" y="335" text-anchor="middle">Your SOAP Body</text>
+      <text class="t" x="40" y="370" style="font-family:var(--f-mono);font-size:13px">&lt;emp:GetEmployeeRequest&gt;</text>
+      <text class="t" x="55" y="394" style="font-family:var(--f-mono);font-size:13px">&lt;emp:employeeId&gt;101&lt;/…&gt;</text>
+      <text class="t" x="40" y="418" style="font-family:var(--f-mono);font-size:13px">&lt;/emp:GetEmployeeRequest&gt;</text>
+    </svg></div>
+    <figcaption>Five hops from “where” to “what”. Tools like OIC and SoapUI do this walk for you, but when an error says <i>“operation not found”</i> or <i>“element not expected”</i>, this is the chain you check.</figcaption>
+  </figure>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="styles">
+  <div class="ch-head"><h2><span class="num">6</span>document/literal (and the others)</h2><label class="got"><input type="checkbox" id="got-styles"> Got it</label></div>
+  <p>The binding’s <code>style</code> and <code>use</code> decide how the Body looks. You’ll see these words in WSDLs and in OIC’s SOAP adapter.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">Combination</th><th style="width:44%">The Body contains</th><th style="width:28%">How common</th></tr>
+    <tr><td><b>document / literal</b></td><td>Exactly the XML element defined in <code>types</code>, nothing extra</td><td>The modern standard; easy to validate</td></tr>
+    <tr><td>document / literal <b>wrapped</b></td><td>The same, where the element is named after the operation (<code>GetEmployee…</code>)</td><td>Very common, including our practice WSDL</td></tr>
+    <tr><td>rpc / literal</td><td>An element named after the operation, wrapping each <code>part</code></td><td>Older services</td></tr>
+    <tr><td>rpc / encoded</td><td>Extra type labels on every value</td><td>Legacy; avoid</td></tr>
+  </table></div>
+  <p>Rule of thumb: you’ll almost always meet <b>document/literal</b>. Literal means “the Body is literally what the XSD describes”, which is why you can validate a request with the XSD from the <code>types</code> section, exactly like Phase 2.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="action">
+  <div class="ch-head"><h2><span class="num">7</span>The SOAPAction header</h2><label class="got"><input type="checkbox" id="got-action"> Got it</label></div>
+  <div class="story"><b class="lbl">The department name on the envelope</b>One office address can receive letters for many departments. Writing “<b>Attn: Payroll</b>” on the envelope gets it to the right desk without opening it. <mark>In SOAP 1.1, the SOAPAction header tells the server which operation you’re calling</mark>, before it reads the Body.</div>
+  <figure><pre>POST /soap/EmployeeService HTTP/1.1
+Host: hr.company.com
+Content-Type: text/xml; charset=utf-8
+<span class="a">SOAPAction: "http://company.com/hr/employee/GetEmployee"</span>     <span class="c">← copied from the binding</span>
+
+&lt;soapenv:Envelope …&gt; … &lt;/soapenv:Envelope&gt;</pre></figure>
+  <p>Its exact value comes from the binding’s <code>&lt;soap:operation soapAction="…"/&gt;</code>. Some services ignore it, some require it exactly, and some want an empty <code>""</code>. A wrong SOAPAction is a common cause of “operation not found” faults. In SOAP 1.2 the same value moves into the Content-Type: <code>application/soap+xml; action="…"</code>.</p>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="faults">
+  <div class="ch-head"><h2><span class="num">8</span>Faults: how SOAP says “no”</h2><label class="got"><input type="checkbox" id="got-faults"> Got it</label></div>
+  <div class="story"><b class="lbl">The rejection slip</b>When an office rejects your application, you get a formal slip: a <b>category</b> (your mistake or ours), a <b>reason</b> in words, and <b>details</b> like a reference code. <mark>A SOAP Fault is that slip, delivered inside the Body, usually with HTTP status 500.</mark></div>
+  <figure><pre><span class="b">HTTP/1.1 500 Internal Server Error</span>
+Content-Type: text/xml; charset=utf-8
+
+&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+  &lt;soapenv:Body&gt;
+    &lt;soapenv:Fault&gt;
+      &lt;faultcode&gt;<span class="a">soapenv:Client</span>&lt;/faultcode&gt;                 <span class="c">← whose fault: Client (you) or Server (them)</span>
+      &lt;faultstring&gt;<span class="a">Employee 999 does not exist</span>&lt;/faultstring&gt;  <span class="c">← the human-readable reason</span>
+      &lt;detail&gt;
+        &lt;errorCode&gt;HR-404&lt;/errorCode&gt;                      <span class="c">← the service's own details</span>
+      &lt;/detail&gt;
+    &lt;/soapenv:Fault&gt;
+  &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</pre></figure>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">faultcode</th><th style="width:70%">Means</th></tr>
+    <tr><td><code>Client</code> (1.2: <code>Sender</code>)</td><td>Your message was wrong: fix the request (like a 4xx)</td></tr>
+    <tr><td><code>Server</code> (1.2: <code>Receiver</code>)</td><td>Their side failed: retry later or contact them (like a 5xx)</td></tr>
+    <tr><td><code>VersionMismatch</code></td><td>Wrong SOAP envelope namespace (1.1 vs 1.2)</td></tr>
+    <tr><td><code>MustUnderstand</code></td><td>A Header element marked mandatory wasn’t understood</td></tr>
+  </table></div>
+  <div class="sticky"><strong>The trap:</strong> the HTTP code is 500 even when it’s <i>your</i> mistake. So with SOAP, never judge by the HTTP code alone: read the <code>faultcode</code> and <code>faultstring</code>.</div>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="wssec">
+  <div class="ch-head"><h2><span class="num">9</span>WS-Security: credentials in the Header</h2><label class="got"><input type="checkbox" id="got-wssec"> Got it</label></div>
+  <div class="story"><b class="lbl">The signed cover sheet</b>Instead of showing ID at the gate, the letter’s <b>cover sheet</b> carries the sender’s name, a signature and a date stamp, so the letter proves itself wherever it goes. <mark>WS-Security puts credentials inside the SOAP Header</mark> instead of (or as well as) the HTTP headers.</div>
+  <figure><pre>&lt;soapenv:Header&gt;
+  &lt;wsse:Security soapenv:mustUnderstand="1"
+     xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+     xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"&gt;
+    <span class="a">&lt;wsu:Timestamp&gt;</span>                                        <span class="c">← valid only for a short window</span>
+      &lt;wsu:Created&gt;2026-10-14T09:00:00Z&lt;/wsu:Created&gt;
+      &lt;wsu:Expires&gt;2026-10-14T09:05:00Z&lt;/wsu:Expires&gt;
+    &lt;/wsu:Timestamp&gt;
+    <span class="a">&lt;wsse:UsernameToken&gt;</span>                                   <span class="c">← who is calling</span>
+      &lt;wsse:Username&gt;oic.integration.user&lt;/wsse:Username&gt;
+      &lt;wsse:Password Type="…#PasswordText"&gt;••••••••&lt;/wsse:Password&gt;
+    &lt;/wsse:UsernameToken&gt;
+  &lt;/wsse:Security&gt;
+&lt;/soapenv:Header&gt;</pre><figcaption><code>mustUnderstand="1"</code> means “if you can’t process this security block, reject the whole message”.</figcaption></figure>
+  <p>WS-Security can also <b>sign</b> parts of the message (proving nothing changed) and <b>encrypt</b> them. In practice, most services you’ll meet use either HTTP Basic Auth over HTTPS, or a <b>UsernameToken</b> like the one above. OIC can add either for you.</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="attach">
+  <div class="ch-head"><h2><span class="num">10</span>Big files: MTOM</h2><label class="got"><input type="checkbox" id="got-attach"> Got it</label></div>
+  <p>XML can only hold text, so a file inside a SOAP message must be converted to text with <b>Base64</b>, which makes it about a third bigger. For large files, <b>MTOM</b> sends the file as a separate part next to the XML (like a parcel with a letter taped to it) and the XML just points to it.</p>
+  <p>You’ll meet this in Oracle Fusion bulk loads: the data file (a zipped CSV) goes up as Base64 content inside a SOAP call. That’s why Phase 2’s CSV and Base64 both matter here.</p>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="fusion">
+  <div class="ch-head"><h2><span class="num">11</span>SOAP in Oracle Fusion</h2><label class="got"><input type="checkbox" id="got-fusion"> Got it</label></div>
+  <p>Oracle Fusion Applications publish many SOAP services. Their WSDLs live on your Fusion host, and you open one by adding <code>?WSDL</code>:</p>
+  <figure><pre><span class="a">https://&lt;your-fusion-host&gt;/fscmService/ErpIntegrationService?WSDL</span>
+<span class="c">fscmService = Financials &amp; Supply Chain services · ErpIntegrationService = bulk data loads and jobs</span></pre></figure>
+  <div class="tbl"><table>
+    <tr><th style="width:36%">Operation (examples)</th><th style="width:64%">Used for</th></tr>
+    <tr><td><code>importBulkData</code></td><td>Upload a zipped data file and start the import in one call (FBDI, Phase 8)</td></tr>
+    <tr><td><code>getESSJobStatus</code></td><td>Check whether a background job finished</td></tr>
+    <tr><td><code>downloadESSJobExecutionDetails</code></td><td>Download a finished job’s log and output files</td></tr>
+  </table></div>
+  <p>Exact operations change between Fusion releases, so <b>always open your own instance’s WSDL</b> rather than copying a list from the internet. You’ll practise reading it with the same chain from chapter 5.</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">12</span>Try it yourself</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <div class="cmd"><p class="what">Download the practice files</p><pre><span class="a">mkdir oic-phase3-2 &amp;&amp; cd oic-phase3-2
+for f in EmployeeService.wsdl get-employee-request.xml soap-fault-example.xml soap-request.xml number-to-dollars-request.xml; do
+  curl -sO https://prabir07.github.io/OIC-From-Scratch/notes/phase-03-apis/practice/$f
+done</span></pre></div>
+  <div class="cmd"><p class="what">1 · Follow the chain with XPath (Phase 2 skills)</p><pre><span class="c"># which operations exist? (portType)</span>
+<span class="a">xmllint --xpath "//*[local-name()='portType']/*[local-name()='operation']/@name" EmployeeService.wsdl</span>
+<span class="b"> name="GetEmployee"
+ name="CreateEmployee"</span>
+<span class="c"># where do I send it? (service)</span>
+<span class="a">xmllint --xpath "string(//*[local-name()='address']/@location)" EmployeeService.wsdl</span>
+<span class="b">https://hr.company.com/soap/EmployeeService</span>
+<span class="c"># which SOAPAction for each? (binding)</span>
+<span class="a">xmllint --xpath "//*[local-name()='operation']/@soapAction" EmployeeService.wsdl</span>
+<span class="b"> soapAction="http://company.com/hr/employee/GetEmployee"
+ soapAction="http://company.com/hr/employee/CreateEmployee"</span></pre></div>
+  <div class="cmd"><p class="what">2 · Read a fault like OIC does</p><pre><span class="a">xmllint --xpath "string(//faultstring)" soap-fault-example.xml</span>
+<span class="b">Employee 999 does not exist</span></pre></div>
+  <div class="cmd"><p class="what">3 · Call a real public SOAP service, two operations</p><pre><span class="c"># see its WSDL first: open this in a browser
+https://www.dataaccess.com/webservicesserver/NumberConversion.wso?WSDL</span>
+<span class="a">curl -s -X POST https://www.dataaccess.com/webservicesserver/NumberConversion.wso \
+  -H "Content-Type: text/xml; charset=utf-8" -d @soap-request.xml</span>
+<span class="b">… &lt;m:NumberToWordsResult&gt;one hundred and one &lt;/m:NumberToWordsResult&gt; …</span>
+<span class="a">curl -s -X POST https://www.dataaccess.com/webservicesserver/NumberConversion.wso \
+  -H "Content-Type: text/xml; charset=utf-8" -d @number-to-dollars-request.xml</span>
+<span class="b">… &lt;m:NumberToDollarsResult&gt;one thousand two hundred and fifty dollars and fifty cents&lt;/…&gt; …</span></pre></div>
+  <div class="cmd"><p class="what">4 · In Postman or SoapUI</p><pre><span class="c">Postman: Import → paste the WSDL URL. Postman creates a request for each
+operation with a sample envelope. Fill in the values and Send.
+SoapUI (free): New SOAP Project → paste the WSDL URL. It does the same,
+and is the classic tool for SOAP testing in enterprise teams.</span></pre></div>
+  <p>Try breaking it on purpose: remove the <code>&lt;soap:Body&gt;</code> tags from <code>soap-request.xml</code>, or change the namespace, and send again. Read the fault that comes back.</p>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="oic">
+  <div class="ch-head"><h2><span class="num">13</span>Where this shows up in OIC</h2><label class="got"><input type="checkbox" id="got-oic"> Got it</label></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 240" role="img" aria-label="OIC SOAP adapter: connection holds the WSDL URL and security policy; the invoke lets you pick an operation; the mapper shows the Body element; faults go to the fault handler">
+      <g class="rough"><rect class="box f-purple" x="20" y="40" width="200" height="110" rx="14"/><rect class="box f-yellow" x="260" y="40" width="200" height="110" rx="14"/><rect class="box f-green" x="500" y="40" width="200" height="110" rx="14"/>
+      <path class="ln" d="M222 95 L 254 95" marker-end="url(#ah)"/><path class="ln" d="M462 95 L 494 95" marker-end="url(#ah)"/></g>
+      <text class="th" x="120" y="78" text-anchor="middle">Connection</text><text class="ts" x="120" y="104" text-anchor="middle">WSDL URL</text><text class="ts" x="120" y="126" text-anchor="middle">+ security policy</text>
+      <text class="th" x="360" y="78" text-anchor="middle">Invoke</text><text class="ts" x="360" y="104" text-anchor="middle">pick the port type</text><text class="ts" x="360" y="126" text-anchor="middle">and the operation</text>
+      <text class="th" x="600" y="78" text-anchor="middle">Mapper</text><text class="ts" x="600" y="104" text-anchor="middle">map into the Body</text><text class="ts" x="600" y="126" text-anchor="middle">element’s fields</text>
+      <text class="tr" x="360" y="200" text-anchor="middle">OIC builds the envelope, Header and SOAPAction for you</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">This part</th><th style="width:72%">In OIC</th></tr>
+    <tr><td>WSDL</td><td>The SOAP adapter connection takes the WSDL URL (or an uploaded file)</td></tr>
+    <tr><td>Operations</td><td>The invoke wizard lists the WSDL’s operations to choose from</td></tr>
+    <tr><td>Body &amp; types</td><td>The mapper shows the request element’s fields, built from <code>types</code></td></tr>
+    <tr><td>Security</td><td>Connection security policies such as <b>Basic Authentication</b> or <b>Username Password Token</b> (WS-Security)</td></tr>
+    <tr><td>Faults</td><td>Arrive in OIC’s fault handler with <code>faultcode</code>, <code>faultstring</code> and <code>detail</code> (Phase 7)</td></tr>
+    <tr><td>Your own SOAP service</td><td>An integration can also start with a SOAP trigger, using a WSDL you provide</td></tr>
+  </table></div>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">14</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Mixing SOAP 1.1 and 1.2</b>A 1.2 envelope with <code>text/xml</code>, or the other way round, gives a VersionMismatch or 415.</div></li>
+    <li><span class="dot">2</span><div><b>Wrong or missing SOAPAction</b>Copy it exactly from the binding.</div></li>
+    <li><span class="dot">3</span><div><b>Wrong namespace on the Body element</b>Right names, wrong surname: the server says the element is unexpected.</div></li>
+    <li><span class="dot">4</span><div><b>Judging by HTTP 500 alone</b>Read the faultcode: it may be your mistake.</div></li>
+    <li><span class="dot">5</span><div><b>Using a WSDL from the internet</b>Use your own instance’s WSDL: versions differ.</div></li>
+    <li><span class="dot">6</span><div><b>Element order</b>XSD <code>sequence</code> means order matters. Swapping two fields makes the message invalid.</div></li>
+  </ol>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">15</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. Name the four parts of a SOAP message.</summary><p>Envelope, Header (optional), Body (required), and Fault (inside the Body, on errors).</p></details>
+    <details><summary>2. How do you tell SOAP 1.1 from 1.2 at a glance?</summary><p>The envelope namespace: xmlsoap.org is 1.1; w3.org/2003/05 is 1.2.</p></details>
+    <details><summary>3. Name the five WSDL sections and the question each answers.</summary><p>types (data shapes), message (in/out), portType (which operations), binding (how), service (where).</p></details>
+    <details><summary>4. Starting from the service, what’s the chain to the Body element?</summary><p>service/port → binding → portType operation → input message → part element → the element in types.</p></details>
+    <details><summary>5. Where does the SOAPAction value come from?</summary><p>The binding’s soap:operation soapAction attribute.</p></details>
+    <details><summary>6. A fault arrives with HTTP 500 and faultcode Client. Whose problem?</summary><p>Yours: the request was wrong. The 500 is just how SOAP returns faults.</p></details>
+    <details><summary>7. What does document/literal mean for the Body?</summary><p>The Body contains exactly the element defined in types, so it can be validated with that XSD.</p></details>
+    <details><summary>8. Where does WS-Security put the username?</summary><p>In the SOAP Header, inside wsse:Security / wsse:UsernameToken.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final">A SOAP call POSTs an XML <b>Envelope</b> with an optional <b>Header</b> and one element in the <b>Body</b>; its shape, operations, binding and address all come from the <b>WSDL</b>, which you read as a chain from <b>service</b> back to <b>types</b>; errors return as a <b>Fault</b>, and credentials can travel in the Header with <b>WS-Security</b>.</p>
+  <p>Next: <a href="../phase-03-3-api-security/index.html">Part 3.3 · API security in depth →</a></p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 3.2 · SOAP &amp; WSDL in depth · by @devwithprabir</footer>
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p32-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p32-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>

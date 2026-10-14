@@ -16,7 +16,16 @@
       "phase": 1,
       "title": "How Systems Talk",
       "summary": "How one system talks to another: the restaurant, the contact list, the postal address, the bank and the hotel, all the way to how OIC uses them.",
-      "topics": ["Client & server", "DNS", "URLs", "Ports", "HTTP methods", "Status codes", "Headers & body", "HTTPS"],
+      "topics": [
+        "Client & server",
+        "DNS",
+        "URLs",
+        "Ports",
+        "HTTP methods",
+        "Status codes",
+        "Headers & body",
+        "HTTPS"
+      ],
       "date": "2026-10-10",
       "readMinutes": 25,
       "video": "",
@@ -27,54 +36,277 @@
       "phase": 2,
       "title": "Data Formats",
       "summary": "Open the parcel: JSON and XML explained with contact cards, labelled jars and bank forms, then XSD rules, XPath paths and XSLT recipes, the things OIC’s mapper runs on.",
-      "topics": ["JSON", "XML", "Namespaces", "XSD", "XPath", "XSLT", "JSON ↔ XML", "CSV"],
+      "topics": [
+        "JSON",
+        "XML",
+        "Namespaces",
+        "XSD",
+        "XPath",
+        "XSLT",
+        "JSON ↔ XML",
+        "CSV"
+      ],
       "date": "2026-10-10",
       "readMinutes": 35,
       "video": "",
       "status": "published"
     },
     {
-      "slug": "phase-03-apis",
+      "slug": "phase-03-1-rest",
       "phase": 3,
-      "title": "APIs",
-      "summary": "The menu and the waiter of every system: REST and endpoints, SOAP envelopes and WSDL, Basic Auth, API keys, OAuth 2.0 and JWT, pagination and rate limits, with a ready-made Postman collection.",
-      "topics": ["What an API is", "REST", "Endpoints", "SOAP", "WSDL", "Basic Auth", "API keys", "OAuth 2.0", "JWT", "Pagination", "Rate limits", "Postman"],
-      "date": "2026-10-11",
+      "part": 1,
+      "title": "3.1 · REST in depth",
+      "summary": "A REST call read line by line: raw HTTP, address design, methods and their answers, the four places for data, headers, Content-Type vs Accept, error bodies, statelessness, ETags, versioning, OpenAPI and webhooks.",
+      "topics": [
+        "Raw HTTP",
+        "URI design",
+        "Methods",
+        "Headers",
+        "Content negotiation",
+        "Errors",
+        "Stateless",
+        "ETags",
+        "Versioning",
+        "OpenAPI",
+        "Webhooks"
+      ],
+      "date": "2026-10-14",
+      "readMinutes": 45,
+      "video": "",
+      "status": "published"
+    },
+    {
+      "slug": "phase-03-2-soap-wsdl",
+      "phase": 3,
+      "part": 2,
+      "title": "3.2 · SOAP & WSDL in depth",
+      "summary": "Take a real WSDL apart section by section, follow its reference chain to the Body, and master SOAP 1.1 vs 1.2, SOAPAction, faults, WS-Security and Oracle Fusion’s SOAP services.",
+      "topics": [
+        "SOAP envelope",
+        "SOAP 1.1 vs 1.2",
+        "WSDL",
+        "document/literal",
+        "SOAPAction",
+        "Faults",
+        "WS-Security",
+        "Fusion SOAP"
+      ],
+      "date": "2026-10-14",
       "readMinutes": 40,
+      "video": "",
+      "status": "published"
+    },
+    {
+      "slug": "phase-03-3-api-security",
+      "phase": 3,
+      "part": 3,
+      "title": "3.3 · API security in depth",
+      "summary": "The exact requests behind Basic Auth, API keys, OAuth 2.0 client credentials and authorization code, refresh tokens, scopes, JWT claims and signatures, OCI IAM, and OIC’s security policies.",
+      "topics": [
+        "Basic Auth",
+        "API keys",
+        "OAuth 2.0",
+        "Client credentials",
+        "Authorization code",
+        "Refresh tokens",
+        "Scopes",
+        "JWT",
+        "OCI IAM"
+      ],
+      "date": "2026-10-14",
+      "readMinutes": 50,
+      "video": "",
+      "status": "published"
+    },
+    {
+      "slug": "phase-03-4-real-world-apis",
+      "phase": 3,
+      "part": 4,
+      "title": "3.4 · Real-world APIs",
+      "summary": "Survive real APIs: reading docs, pagination, filtering, Oracle Fusion REST anatomy and query parameters, rate limits, retries with backoff, idempotency, timeouts, async jobs, and Postman tests and runners.",
+      "topics": [
+        "API docs",
+        "Pagination",
+        "Fusion REST",
+        "Rate limits",
+        "Retries",
+        "Idempotency",
+        "Timeouts",
+        "Async 202",
+        "Postman tests"
+      ],
+      "date": "2026-10-14",
+      "readMinutes": 45,
       "video": "",
       "status": "published"
     }
   ],
   "roadmap": [
-    { "phase": 1, "title": "How Systems Talk", "weeks": "1 week", "stage": "Foundations",
+    {
+      "phase": 1,
+      "title": "How Systems Talk",
+      "weeks": "1 week",
+      "stage": "Foundations",
       "topics": "Client & server · DNS · URLs · methods · status codes · HTTPS",
-      "list": ["Client-server model, request and response", "DNS: names to IP addresses", "URLs: protocol, domain, port, path, parameters", "Ports", "HTTP methods: GET, POST, PUT, PATCH, DELETE", "Status codes: 2xx to 5xx", "Headers and body", "HTTP vs HTTPS and TLS", "Hands-on: DevTools, nslookup, nc, curl"] },
-    { "phase": 2, "title": "Data Formats", "weeks": "2 weeks", "stage": "Foundations",
+      "list": [
+        "Client-server model, request and response",
+        "DNS: names to IP addresses",
+        "URLs: protocol, domain, port, path, parameters",
+        "Ports",
+        "HTTP methods: GET, POST, PUT, PATCH, DELETE",
+        "Status codes: 2xx to 5xx",
+        "Headers and body",
+        "HTTP vs HTTPS and TLS",
+        "Hands-on: DevTools, nslookup, nc, curl"
+      ]
+    },
+    {
+      "phase": 2,
+      "title": "Data Formats",
+      "weeks": "2 weeks",
+      "stage": "Foundations",
       "topics": "JSON · XML · XSD · XPath · XSLT",
-      "list": ["JSON: objects, arrays, nesting", "XML: elements, attributes, namespaces", "XSD: types and occurrences", "XPath: selecting values", "XSLT: templates, for-each, choose", "JSON ↔ XML conversion", "CSV and delimited files"] },
-    { "phase": 3, "title": "APIs", "weeks": "2 weeks", "stage": "Foundations",
-      "topics": "REST · SOAP · authentication · Postman",
-      "list": ["What an API is", "REST principles and endpoints", "SOAP: envelope and WSDL", "REST vs SOAP", "Auth: Basic, API keys, OAuth 2.0, JWT", "Pagination, filtering, rate limits", "Hands-on with Postman"] },
-    { "phase": 4, "title": "SQL & Databases", "weeks": "1–2 weeks", "stage": "Foundations",
+      "list": [
+        "JSON: objects, arrays, nesting",
+        "XML: elements, attributes, namespaces",
+        "XSD: types and occurrences",
+        "XPath: selecting values",
+        "XSLT: templates, for-each, choose",
+        "JSON ↔ XML conversion",
+        "CSV and delimited files"
+      ]
+    },
+    {
+      "phase": 3,
+      "title": "APIs",
+      "weeks": "2–3 weeks",
+      "stage": "Foundations",
+      "topics": "4 parts · REST · SOAP & WSDL · API security · real-world APIs",
+      "list": [
+        "3.1 REST in depth: raw HTTP, URI design, headers, errors, ETags, OpenAPI, webhooks",
+        "3.2 SOAP & WSDL in depth: envelope, WSDL chain, SOAPAction, faults, WS-Security",
+        "3.3 API security: Basic Auth, API keys, OAuth 2.0 flows, JWT, OCI IAM",
+        "3.4 Real-world APIs: pagination, Fusion REST, rate limits, retries, async jobs, Postman tests"
+      ]
+    },
+    {
+      "phase": 4,
+      "title": "SQL & Databases",
+      "weeks": "1–2 weeks",
+      "stage": "Foundations",
       "topics": "Queries · joins · PL/SQL basics",
-      "list": ["Tables, keys and relationships", "SELECT, WHERE, ORDER BY, GROUP BY", "Joins", "INSERT, UPDATE, DELETE, MERGE", "PL/SQL procedures and functions", "Hands-on with Oracle Live SQL"] },
-    { "phase": 5, "title": "Integration Concepts", "weeks": "1 week", "stage": "Foundations",
+      "list": [
+        "Tables, keys and relationships",
+        "SELECT, WHERE, ORDER BY, GROUP BY",
+        "Joins",
+        "INSERT, UPDATE, DELETE, MERGE",
+        "PL/SQL procedures and functions",
+        "Hands-on with Oracle Live SQL"
+      ]
+    },
+    {
+      "phase": 5,
+      "title": "Integration Concepts",
+      "weeks": "1 week",
+      "stage": "Foundations",
       "topics": "Sync vs async · events · files · patterns",
-      "list": ["Why companies need integration", "Point-to-point vs middleware", "Sync vs async", "Request-reply vs fire-and-forget", "Event-driven, scheduled and file-based", "Publish-subscribe", "Failures, retries and error handling", "Integration vs ETL"] },
-    { "phase": 6, "title": "OIC Basics", "weeks": "3 weeks", "stage": "Oracle Integration Cloud",
+      "list": [
+        "Why companies need integration",
+        "Point-to-point vs middleware",
+        "Sync vs async",
+        "Request-reply vs fire-and-forget",
+        "Event-driven, scheduled and file-based",
+        "Publish-subscribe",
+        "Failures, retries and error handling",
+        "Integration vs ETL"
+      ]
+    },
+    {
+      "phase": 6,
+      "title": "OIC Basics",
+      "weeks": "3 weeks",
+      "stage": "Oracle Integration Cloud",
       "topics": "Connections · adapters · mapper · monitoring",
-      "list": ["What OIC is (Oracle Integration 3)", "Console tour", "Connections and adapters: REST, SOAP, FTP, DB", "App-driven and scheduled integrations", "Trigger vs invoke", "The mapper", "Assign, Switch, Logger, Notification", "Activate, trace and test", "Monitoring", "Your first REST-to-REST integration"] },
-    { "phase": 7, "title": "OIC Intermediate", "weeks": "3 weeks", "stage": "Oracle Integration Cloud",
+      "list": [
+        "What OIC is (Oracle Integration 3)",
+        "Console tour",
+        "Connections and adapters: REST, SOAP, FTP, DB",
+        "App-driven and scheduled integrations",
+        "Trigger vs invoke",
+        "The mapper",
+        "Assign, Switch, Logger, Notification",
+        "Activate, trace and test",
+        "Monitoring",
+        "Your first REST-to-REST integration"
+      ]
+    },
+    {
+      "phase": 7,
+      "title": "OIC Intermediate",
+      "weeks": "3 weeks",
+      "stage": "Oracle Integration Cloud",
       "topics": "Loops · fault handling · stage file · lookups",
-      "list": ["For-Each and While loops", "Scope and fault handlers", "Stage File: read, write, zip", "FTP/SFTP file integrations", "Lookups", "JavaScript libraries", "Parallel processing", "Schedule parameters", "Calling one integration from another", "Resubmitting failed instances", "Connectivity Agent", "Import, export and versioning"] },
-    { "phase": 8, "title": "Oracle Fusion Applications", "weeks": "3 weeks", "stage": "Oracle Integration Cloud",
+      "list": [
+        "For-Each and While loops",
+        "Scope and fault handlers",
+        "Stage File: read, write, zip",
+        "FTP/SFTP file integrations",
+        "Lookups",
+        "JavaScript libraries",
+        "Parallel processing",
+        "Schedule parameters",
+        "Calling one integration from another",
+        "Resubmitting failed instances",
+        "Connectivity Agent",
+        "Import, export and versioning"
+      ]
+    },
+    {
+      "phase": 8,
+      "title": "Oracle Fusion Applications",
+      "weeks": "3 weeks",
+      "stage": "Oracle Integration Cloud",
       "topics": "BIP reports · FBDI · HDL · business events",
-      "list": ["Fusion overview: ERP, HCM, SCM", "Fusion REST and SOAP services", "BIP reports", "ERP Cloud adapter and business events", "FBDI bulk loads", "HCM adapter: HDL and Extracts", "Integration users and roles", "Real-world patterns"] },
-    { "phase": 9, "title": "Advanced & Related Tools", "weeks": "2 weeks", "stage": "Oracle Integration Cloud",
+      "list": [
+        "Fusion overview: ERP, HCM, SCM",
+        "Fusion REST and SOAP services",
+        "BIP reports",
+        "ERP Cloud adapter and business events",
+        "FBDI bulk loads",
+        "HCM adapter: HDL and Extracts",
+        "Integration users and roles",
+        "Real-world patterns"
+      ]
+    },
+    {
+      "phase": 9,
+      "title": "Advanced & Related Tools",
+      "weeks": "2 weeks",
+      "stage": "Oracle Integration Cloud",
       "topics": "VBCS · Process Automation · OCI basics",
-      "list": ["Visual Builder (VBCS) basics", "Process Automation: approvals", "OCI basics: Vault, Object Storage, API Gateway", "Security best practices", "Design best practices", "Performance and large volumes", "Logging and alerting"] },
-    { "phase": 10, "title": "Certification & Job Prep", "weeks": "3 weeks", "stage": "Career",
+      "list": [
+        "Visual Builder (VBCS) basics",
+        "Process Automation: approvals",
+        "OCI basics: Vault, Object Storage, API Gateway",
+        "Security best practices",
+        "Design best practices",
+        "Performance and large volumes",
+        "Logging and alerting"
+      ]
+    },
+    {
+      "phase": 10,
+      "title": "Certification & Job Prep",
+      "weeks": "3 weeks",
+      "stage": "Career",
       "topics": "Exam prep · portfolio projects · interviews",
-      "list": ["Oracle University learning path", "OCI Application Integration Professional exam", "Three portfolio projects", "Resume and LinkedIn", "Scenario-based interview questions"] }
+      "list": [
+        "Oracle University learning path",
+        "OCI Application Integration Professional exam",
+        "Three portfolio projects",
+        "Resume and LinkedIn",
+        "Scenario-based interview questions"
+      ]
+    }
   ]
 }

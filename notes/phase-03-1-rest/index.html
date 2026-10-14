@@ -1,0 +1,661 @@
+<title>Phase 3.1 · REST in depth | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 3 · Part 1 of 4</p>
+  <h1>REST in depth</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 3 is in four parts: <b>3.1 REST</b> · <a href="../phase-03-2-soap-wsdl/index.html">3.2 SOAP &amp; WSDL</a> · <a href="../phase-03-3-api-security/index.html">3.3 API security</a> · <a href="../phase-03-4-real-world-apis/index.html">3.4 Real-world APIs</a>. In this part we read a REST call <mark>line by line</mark>, and learn every rule that decides whether it works.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#what">1 · What an API is</a><a href="#raw">2 · A call, line by line</a><a href="#uri">3 · Designing addresses</a><a href="#methods">4 · Methods &amp; their answers</a>
+    <a href="#params">5 · Four places for data</a><a href="#headers">6 · Headers that matter</a><a href="#negotiation">7 · Content-Type vs Accept</a><a href="#errors">8 · Errors done right</a>
+    <a href="#stateless">9 · Stateless</a><a href="#cache">10 · Caching &amp; ETags</a><a href="#versions">11 · Versioning</a><a href="#openapi">12 · OpenAPI docs</a>
+    <a href="#webhooks">13 · Polling vs webhooks</a><a href="#tools">14 · Hands-on</a><a href="#oic">15 · In OIC</a><a href="#mistakes">16 · Mistakes</a><a href="#quiz">17 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="what">
+  <div class="ch-head"><h2><span class="num">1</span>What an API really is</h2><label class="got"><input type="checkbox" id="got-what"> Got it</label></div>
+  <div class="story"><b class="lbl">The menu and the waiter</b>In a restaurant you never enter the kitchen. You read the <b>menu</b> (what you may order, and how to ask), and the <b>waiter</b> carries orders in and food out. <mark>An API (Application Programming Interface) is a system’s menu and waiter.</mark> The kitchen (database, code, rules) stays hidden, and can be rebuilt without changing the menu.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="A website returns a page for people; an API returns data for programs; both can sit on the same server">
+      <g class="rough"><rect class="box f-card" x="250" y="90" width="220" height="80" rx="14"/>
+      <rect class="box f-blue" x="20" y="20" width="170" height="90" rx="14"/><rect class="box f-green" x="20" y="150" width="170" height="90" rx="14"/>
+      <rect class="box f-orange" x="530" y="20" width="170" height="90" rx="14"/><rect class="box f-purple" x="530" y="150" width="170" height="90" rx="14"/>
+      <path class="ln" d="M192 65 C 220 70, 230 100, 246 115" marker-end="url(#ah)"/><path class="ln" d="M192 195 C 220 190, 230 160, 246 150" marker-end="url(#ah)"/>
+      <path class="ln" d="M472 115 C 490 100, 500 70, 524 65" marker-end="url(#ah)"/><path class="ln" d="M472 150 C 490 160, 500 190, 524 195" marker-end="url(#ah)"/></g>
+      <text class="th" x="360" y="127" text-anchor="middle">Server</text><text class="ts" x="360" y="152" text-anchor="middle">same data inside</text>
+      <text class="th" x="105" y="60" text-anchor="middle">You, in Chrome</text><text class="ts" x="105" y="86" text-anchor="middle">GET /employees/101</text>
+      <text class="th" x="105" y="190" text-anchor="middle">OIC</text><text class="ts" x="105" y="216" text-anchor="middle">GET /api/employees/101</text>
+      <text class="th" x="615" y="60" text-anchor="middle">Web page</text><text class="ts" x="615" y="86" text-anchor="middle">HTML, for eyes</text>
+      <text class="th" x="615" y="190" text-anchor="middle">JSON</text><text class="ts" x="615" y="216" text-anchor="middle">data, for programs</text>
+    </svg></div>
+    <figcaption>A website and an API can share the same server and data. The website answers <b>people</b> with a page; the API answers <b>programs</b> with data.</figcaption>
+  </figure>
+  <p>An API is a <b>contract</b>: “send me exactly this, and I promise to answer with exactly that.” Every rule in this part exists so both sides can keep that promise without ever talking to each other.</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="raw">
+  <div class="ch-head"><h2><span class="num">2</span>One REST call, line by line</h2><label class="got"><input type="checkbox" id="got-raw"> Got it</label></div>
+  <div class="story"><b class="lbl">X-ray vision</b>Tools like Postman and OIC hide the raw message behind nice screens. But on the wire, every request and response is <b>just lines of text</b> in a fixed order. <mark>Once you can read these lines, no API error can confuse you.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 470" role="img" aria-label="A raw HTTP request: request line, headers, blank line, body; then a raw response: status line, headers, blank line, body, each labelled">
+      <g class="rough"><rect class="box f-card" x="20" y="15" width="430" height="215" rx="12"/><rect class="box f-card" x="20" y="245" width="430" height="210" rx="12"/></g>
+      <text class="t" x="35" y="48" style="font-family:var(--f-mono);font-size:14px"><tspan style="fill:var(--red)">POST</tspan> <tspan style="fill:var(--blue)">/api/v1/employees</tspan> HTTP/1.1</text>
+      <text class="t" x="35" y="78" style="font-family:var(--f-mono);font-size:14px">Host: hr.company.com</text>
+      <text class="t" x="35" y="100" style="font-family:var(--f-mono);font-size:14px">Content-Type: application/json</text>
+      <text class="t" x="35" y="122" style="font-family:var(--f-mono);font-size:14px">Accept: application/json</text>
+      <text class="t" x="35" y="144" style="font-family:var(--f-mono);font-size:14px">Authorization: Bearer eyJhbGci…</text>
+      <text class="ts" x="35" y="168">(empty line)</text>
+      <text class="t" x="35" y="196" style="font-family:var(--f-mono);font-size:14px">{"name": "Priya", "dept": "HR"}</text>
+      <text class="t" x="35" y="278" style="font-family:var(--f-mono);font-size:14px">HTTP/1.1 <tspan style="fill:var(--blue)">201 Created</tspan></text>
+      <text class="t" x="35" y="308" style="font-family:var(--f-mono);font-size:14px">Content-Type: application/json</text>
+      <text class="t" x="35" y="330" style="font-family:var(--f-mono);font-size:14px">Location: /api/v1/employees/102</text>
+      <text class="t" x="35" y="352" style="font-family:var(--f-mono);font-size:14px">X-Request-Id: 7f3a-91c2</text>
+      <text class="ts" x="35" y="376">(empty line)</text>
+      <text class="t" x="35" y="404" style="font-family:var(--f-mono);font-size:14px">{"id": 102, "name": "Priya",</text>
+      <text class="t" x="35" y="426" style="font-family:var(--f-mono);font-size:14px"> "dept": "HR"}</text>
+      <g class="rough"><path class="lr" d="M455 44 L 480 44"/><path class="lr" d="M455 78 Q 470 78 470 110 Q 470 144 455 144"/><path class="lr" d="M455 166 L 480 166"/><path class="lr" d="M455 196 L 480 196"/>
+      <path class="lb" d="M455 274 L 480 274"/><path class="lb" d="M455 304 Q 470 304 470 328 Q 470 352 455 352"/><path class="lb" d="M455 374 L 480 374"/><path class="lb" d="M455 414 L 480 414"/></g>
+      <text class="tr" x="488" y="50">request line</text><text class="ts" x="488" y="68">method · path · version</text>
+      <text class="tr" x="488" y="116">headers</text><text class="ts" x="488" y="134">Name: value, one per line</text>
+      <text class="tr" x="488" y="172">blank line</text><text class="ts" x="488" y="186">“headers end here”</text>
+      <text class="tr" x="488" y="202">body (optional)</text>
+      <text class="tb" x="488" y="280">status line</text><text class="ts" x="488" y="298">version · code · reason</text>
+      <text class="tb" x="488" y="334">headers</text>
+      <text class="tb" x="488" y="380">blank line</text>
+      <text class="tb" x="488" y="420">body</text>
+    </svg></div>
+    <figcaption>Top: the request. Bottom: the response. The blank line is how the receiver knows where the headers stop and the body starts.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Line</th><th style="width:70%">What it tells the other side</th></tr>
+    <tr><td><code>POST /api/v1/employees HTTP/1.1</code></td><td>Do a <b>POST</b> (create) on the resource <b>/api/v1/employees</b>, speaking HTTP version 1.1</td></tr>
+    <tr><td><code>Host:</code></td><td>Which website on that server (one server can host many)</td></tr>
+    <tr><td><code>Content-Type:</code></td><td>The body I’m sending is JSON</td></tr>
+    <tr><td><code>Accept:</code></td><td>Please answer in JSON</td></tr>
+    <tr><td><code>Authorization:</code></td><td>My proof of identity (part 3.3)</td></tr>
+    <tr><td><code>201 Created</code></td><td>It worked, and something new exists now</td></tr>
+    <tr><td><code>Location:</code></td><td>Here is the address of the new thing: employee <b>102</b></td></tr>
+    <tr><td><code>X-Request-Id:</code></td><td>A tracking number for this call. Quote it when you raise a support ticket.</td></tr>
+  </table></div>
+  <p>HTTP/2 (which you saw in Phase 1’s curl output) sends the <b>same information</b> in a faster binary form, so tools still show it to you as these lines.</p>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="uri">
+  <div class="ch-head"><h2><span class="num">3</span>Designing good addresses</h2><label class="got"><input type="checkbox" id="got-uri"> Got it</label></div>
+  <div class="story"><b class="lbl">A well-run library</b>Shelves are labelled with <b>what they hold</b> (“Fiction”, “History”), never with what you do there (“Borrow-books-shelf”). Inside a shelf, each book has a number; inside a book, chapters. <mark>REST addresses are labelled with nouns; the HTTP method supplies the verb.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="Address levels: collection /employees, item /employees/101, sub-collection /employees/101/payslips, sub-item /employees/101/payslips/2026-09">
+      <g class="rough"><rect class="box f-green" x="20" y="40" width="150" height="70" rx="12"/><rect class="box f-blue" x="195" y="40" width="160" height="70" rx="12"/><rect class="box f-yellow" x="380" y="40" width="160" height="70" rx="12"/><rect class="box f-orange" x="565" y="40" width="140" height="70" rx="12"/>
+      <path class="ln" d="M172 75 L 189 75" marker-end="url(#ah)"/><path class="ln" d="M357 75 L 374 75" marker-end="url(#ah)"/><path class="ln" d="M542 75 L 559 75" marker-end="url(#ah)"/></g>
+      <text class="th" x="95" y="72" text-anchor="middle">collection</text><text class="ts" x="95" y="96" text-anchor="middle" style="font-family:var(--f-mono)">/employees</text>
+      <text class="th" x="275" y="72" text-anchor="middle">one item</text><text class="ts" x="275" y="96" text-anchor="middle" style="font-family:var(--f-mono)">/employees/101</text>
+      <text class="th" x="460" y="72" text-anchor="middle">its collection</text><text class="ts" x="460" y="96" text-anchor="middle" style="font-family:var(--f-mono)">…/101/payslips</text>
+      <text class="th" x="635" y="72" text-anchor="middle">one of them</text><text class="ts" x="635" y="96" text-anchor="middle" style="font-family:var(--f-mono)">…/2026-09</text>
+      <text class="tr" x="360" y="170" text-anchor="middle">/employees/101/payslips/2026-09</text>
+      <text class="ts" x="360" y="198" text-anchor="middle">“employee 101’s payslip for September 2026”: you can read the address aloud</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:38%">Avoid</th><th style="width:38%">Prefer</th><th style="width:24%">Rule</th></tr>
+    <tr><td><code>GET /getEmployee?id=101</code></td><td><code>GET /employees/101</code></td><td>Nouns, not verbs</td></tr>
+    <tr><td><code>POST /createEmployee</code></td><td><code>POST /employees</code></td><td>Method is the verb</td></tr>
+    <tr><td><code>/Employee</code>, <code>/employee</code></td><td><code>/employees</code></td><td>Plural, lowercase</td></tr>
+    <tr><td><code>/pay_slips</code>, <code>/paySlips</code></td><td><code>/pay-slips</code> or <code>/payslips</code></td><td>Hyphens, consistent</td></tr>
+    <tr><td><code>/employees/101/delete</code></td><td><code>DELETE /employees/101</code></td><td>No actions in the path</td></tr>
+  </table></div>
+  <p>Real APIs bend these rules sometimes. When an action truly isn’t create/read/update/delete, many APIs use a POST to an action address, like <code>POST /orders/501/cancel</code>. Oracle Fusion has these too. Recognise the pattern; don’t be surprised by it.</p>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="methods">
+  <div class="ch-head"><h2><span class="num">4</span>Methods and the answers they expect</h2><label class="got"><input type="checkbox" id="got-methods"> Got it</label></div>
+  <p>Phase 1 introduced the methods. In practice you also need to know <b>what a good API answers</b> for each one, because OIC checks those answers.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:12%">Method</th><th style="width:28%">On</th><th style="width:30%">Success answer</th><th style="width:15%">Body?</th><th style="width:15%">Repeat-safe</th></tr>
+    <tr><td><b>GET</b></td><td><code>/employees</code> or <code>/employees/101</code></td><td><b>200</b> + the data</td><td>No</td><td>Yes</td></tr>
+    <tr><td><b>POST</b></td><td><code>/employees</code></td><td><b>201</b> + <code>Location</code> header + new item</td><td>Yes</td><td>No</td></tr>
+    <tr><td><b>PUT</b></td><td><code>/employees/101</code></td><td><b>200</b> + item, or <b>204</b></td><td>Yes, complete</td><td>Yes</td></tr>
+    <tr><td><b>PATCH</b></td><td><code>/employees/101</code></td><td><b>200</b> + item, or <b>204</b></td><td>Yes, partial</td><td>Not always</td></tr>
+    <tr><td><b>DELETE</b></td><td><code>/employees/101</code></td><td><b>204</b> (or 200)</td><td>Usually no</td><td>Yes</td></tr>
+    <tr><td><b>HEAD</b></td><td>any</td><td>Same headers as GET, <b>no body</b></td><td>No</td><td>Yes</td></tr>
+    <tr><td><b>OPTIONS</b></td><td>any</td><td>Which methods are allowed (<code>Allow</code> header)</td><td>No</td><td>Yes</td></tr>
+  </table></div>
+  <div class="sticky"><strong>Two extra methods worth knowing.</strong> <b>HEAD</b> is “just show me the label, not the parcel”: useful to check a file’s size or whether something exists, without downloading it. <b>OPTIONS</b> asks “what am I allowed to do here?”, and browsers send it automatically before some cross-site calls.</div>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="params">
+  <div class="ch-head"><h2><span class="num">5</span>Four places to put data</h2><label class="got"><input type="checkbox" id="got-params"> Got it</label></div>
+  <div class="story"><b class="lbl">A courier booking</b>The <b>address</b> says which house (path). Stickers on the box say “fragile, deliver after 6 pm” (query and headers). The <b>parcel</b> holds the goods (body). <mark>Every value in a REST call lives in one of four places, and each place has a job.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 260" role="img" aria-label="One request with its four data places highlighted: path parameter, query parameter, header and body">
+      <text class="t" x="30" y="50" style="font-family:var(--f-mono);font-size:16px">PATCH /employees/<tspan style="fill:var(--red)">101</tspan>?<tspan style="fill:var(--blue)">notify=true</tspan></text>
+      <text class="t" x="30" y="90" style="font-family:var(--f-mono);font-size:16px"><tspan style="fill:var(--ink-soft)">Authorization: Bearer eyJ…</tspan></text>
+      <text class="t" x="30" y="130" style="font-family:var(--f-mono);font-size:16px"><tspan style="fill:#2E8B6A">{ "city": "Mumbai" }</tspan></text>
+      <g class="rough"><rect class="box f-pink" x="400" y="20" width="140" height="56" rx="10"/><rect class="box f-blue" x="560" y="20" width="145" height="56" rx="10"/><rect class="box f-grey" x="400" y="100" width="140" height="56" rx="10"/><rect class="box f-green" x="560" y="100" width="145" height="56" rx="10"/>
+      <path class="lr dash" d="M215 40 C 300 30, 340 40, 395 46" marker-end="url(#ahr)"/><path class="lb dash" d="M330 38 C 420 0, 520 0, 600 16" marker-end="url(#ahb)"/>
+      <path class="ln dash" d="M290 84 L 395 120" marker-end="url(#ah)"/><path class="ln dash" d="M215 124 C 350 170, 500 170, 600 160" marker-end="url(#ah)"/></g>
+      <text class="th" x="470" y="45" text-anchor="middle">Path</text><text class="ts" x="470" y="66" text-anchor="middle">which one</text>
+      <text class="th" x="632" y="45" text-anchor="middle">Query</text><text class="ts" x="632" y="66" text-anchor="middle">how / filters</text>
+      <text class="th" x="470" y="125" text-anchor="middle">Header</text><text class="ts" x="470" y="146" text-anchor="middle">about the call</text>
+      <text class="th" x="632" y="125" text-anchor="middle">Body</text><text class="ts" x="632" y="146" text-anchor="middle">the data itself</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:14%">Place</th><th style="width:34%">Use it for</th><th style="width:26%">Example</th><th style="width:26%">OIC name</th></tr>
+    <tr><td>Path</td><td>Identifying one resource</td><td><code>/employees/101</code></td><td>Template parameter</td></tr>
+    <tr><td>Query</td><td>Filters, sorting, paging, options</td><td><code>?dept=HR&amp;limit=50</code></td><td>Query parameter</td></tr>
+    <tr><td>Header</td><td>Information <i>about</i> the call: auth, format, tracking</td><td><code>Accept-Language: hi</code></td><td>Standard / custom header</td></tr>
+    <tr><td>Body</td><td>The data you create or change</td><td><code>{"city":"Mumbai"}</code></td><td>Request payload</td></tr>
+  </table></div>
+  <p><mark class="p">Never put secrets in the path or query.</mark> Full URLs get saved in server logs, browser history and proxies. Passwords and tokens belong in headers.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="headers">
+  <div class="ch-head"><h2><span class="num">6</span>Headers that matter</h2><label class="got"><input type="checkbox" id="got-headers"> Got it</label></div>
+  <div class="two">
+    <div class="tbl"><table>
+      <tr><th style="width:40%">Request header</th><th style="width:60%">Means</th></tr>
+      <tr><td><b>Content-Type</b></td><td>Format of the body I send</td></tr>
+      <tr><td><b>Accept</b></td><td>Format I want back</td></tr>
+      <tr><td><b>Authorization</b></td><td>Who I am (3.3)</td></tr>
+      <tr><td><b>User-Agent</b></td><td>Which program is calling</td></tr>
+      <tr><td><b>If-None-Match</b></td><td>“Only send it if changed” (ch. 10)</td></tr>
+      <tr><td><b>Idempotency-Key</b></td><td>“If you’ve seen this key, don’t create twice” (3.4)</td></tr>
+    </table></div>
+    <div class="tbl"><table>
+      <tr><th style="width:40%">Response header</th><th style="width:60%">Means</th></tr>
+      <tr><td><b>Content-Type</b></td><td>Format of the body I return</td></tr>
+      <tr><td><b>Location</b></td><td>Address of the new item, or redirect</td></tr>
+      <tr><td><b>ETag</b></td><td>A fingerprint of this version (ch. 10)</td></tr>
+      <tr><td><b>Cache-Control</b></td><td>How long you may reuse this</td></tr>
+      <tr><td><b>Retry-After</b></td><td>Seconds to wait before retrying</td></tr>
+      <tr><td><b>X-Request-Id</b></td><td>Tracking number for support</td></tr>
+    </table></div>
+  </div>
+  <p>Header names are <b>not case-sensitive</b>: <code>content-type</code> and <code>Content-Type</code> are the same (HTTP/2 always shows them lowercase). Headers starting with <code>X-</code> are custom ones invented by that API.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="negotiation">
+  <div class="ch-head"><h2><span class="num">7</span>Content-Type vs Accept</h2><label class="got"><input type="checkbox" id="got-negotiation"> Got it</label></div>
+  <div class="story"><b class="lbl">Speaking with a translator</b>You tell the translator two things: “<b>I am speaking</b> Hindi” and “<b>please answer me</b> in English”. <mark>Content-Type is “the language I’m sending”; Accept is “the language I want back”.</mark> They’re different questions, and mixing them up is a classic bug.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 270" role="img" aria-label="Client sends JSON with Content-Type JSON and asks for XML with Accept; server checks both; 415 if it cannot read the body, 406 if it cannot answer in the requested format">
+      <g class="rough"><rect class="box f-blue" x="20" y="70" width="170" height="110" rx="14"/><rect class="box f-green" x="530" y="70" width="170" height="110" rx="14"/>
+      <path class="lr" d="M194 100 L 524 100" marker-end="url(#ahr)"/><path class="lb" d="M524 160 L 194 160" marker-end="url(#ahb)"/>
+      <rect class="box f-orange" x="235" y="200" width="250" height="60" rx="10"/></g>
+      <text class="th" x="105" y="118" text-anchor="middle">Client</text><text class="ts" x="105" y="144" text-anchor="middle">OIC / Postman</text>
+      <text class="th" x="615" y="118" text-anchor="middle">Server</text>
+      <text class="t" x="360" y="84" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">Content-Type: application/json</text>
+      <text class="ts" x="360" y="120" text-anchor="middle">“my body is JSON”</text>
+      <text class="t" x="360" y="150" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">Accept: application/xml</text>
+      <text class="ts" x="360" y="182" text-anchor="middle">“answer me in XML”</text>
+      <text class="t" x="360" y="224" text-anchor="middle"><b>415</b> can’t read your body’s format</text>
+      <text class="t" x="360" y="248" text-anchor="middle"><b>406</b> can’t answer in the format you asked</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:40%">Media type</th><th style="width:60%">Means</th></tr>
+    <tr><td><code>application/json</code></td><td>JSON</td></tr>
+    <tr><td><code>application/xml</code> or <code>text/xml</code></td><td>XML (SOAP 1.1 uses <code>text/xml</code>)</td></tr>
+    <tr><td><code>application/x-www-form-urlencoded</code></td><td><code>key=value&amp;key2=value2</code>, like a web form. OAuth token requests use it (3.3)</td></tr>
+    <tr><td><code>multipart/form-data</code></td><td>Several parts in one body, e.g. a form with a file upload</td></tr>
+    <tr><td><code>application/octet-stream</code></td><td>Raw bytes: a file</td></tr>
+    <tr><td><code>application/vnd.oracle.adf.resourceitem+json</code></td><td>A vendor-specific JSON flavour. Oracle Fusion uses names like this.</td></tr>
+  </table></div>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="errors">
+  <div class="ch-head"><h2><span class="num">8</span>Errors done right</h2><label class="got"><input type="checkbox" id="got-errors"> Got it</label></div>
+  <div class="story"><b class="lbl">A good doctor</b>A bad doctor says “you’re sick”. A good doctor says <b>what</b> is wrong, <b>where</b>, and <b>what to do</b>. <mark>A good API returns the right status code AND a body that explains the problem.</mark></div>
+  <div class="tbl"><table>
+    <tr><th style="width:44%">Situation</th><th style="width:16%">Code</th><th style="width:40%">Who fixes it</th></tr>
+    <tr><td>Created something</td><td>201</td><td>Nobody: success</td></tr>
+    <tr><td>Accepted, will finish later</td><td>202</td><td>Check back later (3.4)</td></tr>
+    <tr><td>Broken JSON, wrong type, missing field</td><td>400</td><td>You: fix the request</td></tr>
+    <tr><td>Valid JSON but breaks a business rule (end date before start date)</td><td>422</td><td>You: fix the data</td></tr>
+    <tr><td>No or bad credentials / not allowed</td><td>401 / 403</td><td>You: credentials or roles</td></tr>
+    <tr><td>No such resource</td><td>404</td><td>You: URL or ID</td></tr>
+    <tr><td>Already exists / clashes</td><td>409</td><td>You: check before creating</td></tr>
+    <tr><td>Wrong body format</td><td>415</td><td>You: Content-Type</td></tr>
+    <tr><td>Too many calls</td><td>429</td><td>Wait, then retry</td></tr>
+    <tr><td>Their bug / down / slow</td><td>500 / 503 / 504</td><td>Them; retry later</td></tr>
+  </table></div>
+  <figure><pre><span class="b">HTTP/1.1 422 Unprocessable Content</span>
+Content-Type: application/problem+json
+
+{
+  "type":   "https://hr.company.com/errors/invalid-dates",
+  "title":  "End date is before start date",
+  "status": 422,
+  "detail": "endDate 2026-01-01 is earlier than startDate 2026-03-01",
+  "instance": "/api/v1/employees/101/contracts",
+  "requestId": "7f3a-91c2"
+}</pre><figcaption>A well-written error body, in the standard “problem details” shape. Many APIs use their own shape, but good ones always tell you what, where and why.</figcaption></figure>
+  <div class="sticky l"><strong>Always read the error body, not just the code.</strong> In OIC, the fault details in monitoring include the response body the other system sent. The answer to “why did it fail?” is usually written right there.</div>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="stateless">
+  <div class="ch-head"><h2><span class="num">9</span>Stateless, and why it matters</h2><label class="got"><input type="checkbox" id="got-stateless"> Got it</label></div>
+  <div class="story"><b class="lbl">The call centre</b>When you call a bank, you might reach a different agent every time. So you repeat your <b>account number</b> on every call. If agents relied on remembering you, the bank couldn’t simply add more agents on a busy day. <mark>Stateless means every request carries everything needed, so ANY server can answer it.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 270" role="img" aria-label="Three requests from one client go through a load balancer to three different servers; each request carries its own token, so every server can answer">
+      <g class="rough"><rect class="box f-blue" x="20" y="100" width="150" height="80" rx="14"/><rect class="box f-yellow" x="250" y="100" width="150" height="80" rx="14"/>
+      <rect class="box f-green" x="500" y="20" width="200" height="60" rx="12"/><rect class="box f-green" x="500" y="110" width="200" height="60" rx="12"/><rect class="box f-green" x="500" y="200" width="200" height="60" rx="12"/>
+      <path class="ln" d="M172 140 L 244 140" marker-end="url(#ah)"/>
+      <path class="ln" d="M402 125 C 440 100, 460 60, 494 52" marker-end="url(#ah)"/><path class="ln" d="M402 140 L 494 140" marker-end="url(#ah)"/><path class="ln" d="M402 155 C 440 180, 460 220, 494 228" marker-end="url(#ah)"/></g>
+      <text class="th" x="95" y="138" text-anchor="middle">OIC</text><text class="ts" x="95" y="162" text-anchor="middle">3 calls, each with token</text>
+      <text class="th" x="325" y="138" text-anchor="middle">Load</text><text class="th" x="325" y="164" text-anchor="middle">balancer</text>
+      <text class="t" x="600" y="56" text-anchor="middle">Server A · call 1 ✓</text><text class="t" x="600" y="146" text-anchor="middle">Server B · call 2 ✓</text><text class="t" x="600" y="236" text-anchor="middle">Server C · call 3 ✓</text>
+    </svg></div>
+    <figcaption>A <b>load balancer</b> spreads calls across many servers. That only works because no server needs to remember the previous call.</figcaption>
+  </figure>
+  <p>So in REST, <b>the token goes on every call</b>, and “page 3” is asked for explicitly (<code>?offset=200</code>), never “give me the next one”. The server doesn’t keep your place.</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="cache">
+  <div class="ch-head"><h2><span class="num">10</span>Caching &amp; ETags</h2><label class="got"><input type="checkbox" id="got-cache"> Got it</label></div>
+  <div class="story"><b class="lbl">The newspaper boy</b>You ask: “Is there a new edition? I have <b>edition 412</b>.” If nothing changed, he says “<b>no change</b>” and gives you nothing to carry. <mark>An ETag is the edition number of a resource; If-None-Match asks “only send it if it’s not edition 412”.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 290" role="img" aria-label="First call returns 200 with an ETag; second call sends If-None-Match with that ETag and gets 304 Not Modified with no body">
+      <g class="rough"><rect class="box f-blue" x="20" y="20" width="140" height="250" rx="14"/><rect class="box f-green" x="560" y="20" width="140" height="250" rx="14"/>
+      <path class="lr" d="M164 60 L 554 60" marker-end="url(#ahr)"/><path class="lb" d="M554 100 L 164 100" marker-end="url(#ahb)"/>
+      <path class="lr" d="M164 175 L 554 175" marker-end="url(#ahr)"/><path class="lb" d="M554 220 L 164 220" marker-end="url(#ahb)"/></g>
+      <text class="th" x="90" y="150" text-anchor="middle">Client</text><text class="th" x="630" y="150" text-anchor="middle">Server</text>
+      <text class="t" x="360" y="50" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">GET /employees/101</text>
+      <text class="t" x="360" y="92" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">200 OK · ETag: "v412" · full body</text>
+      <text class="t" x="360" y="165" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">GET /employees/101 · If-None-Match: "v412"</text>
+      <text class="t" x="360" y="212" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">304 Not Modified · no body</text>
+      <text class="ts" x="360" y="252" text-anchor="middle">nothing changed, so nothing was sent again</text>
+    </svg></div>
+  </figure>
+  <p>The same fingerprint also protects updates. Send <code>If-Match: "v412"</code> with a PATCH, and if someone else changed the record meanwhile, the server answers <b>412 Precondition Failed</b> instead of silently overwriting their change. Oracle Fusion REST supports this kind of check too.</p>
+  <p><code>Cache-Control: max-age=60</code> says “you may reuse this answer for 60 seconds without asking again”. <code>no-store</code> says “never save this”, which is common for personal or financial data.</p>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="versions">
+  <div class="ch-head"><h2><span class="num">11</span>Versioning</h2><label class="got"><input type="checkbox" id="got-versions"> Got it</label></div>
+  <div class="story"><b class="lbl">Changing a bus route</b>If a city suddenly changes bus route 12, everyone who relied on it ends up in the wrong place. Smart cities launch <b>route 12A</b> and keep route 12 running for a while. <mark>APIs keep the old version alive and publish the new one beside it.</mark></div>
+  <div class="two">
+    <div class="tbl"><table>
+      <tr><th style="width:46%">Breaking change</th><th style="width:54%">Safe change</th></tr>
+      <tr><td>Renaming a field</td><td>Adding a new optional field</td></tr>
+      <tr><td>Removing a field</td><td>Adding a new endpoint</td></tr>
+      <tr><td>Changing a field’s type</td><td>Adding a new optional query parameter</td></tr>
+      <tr><td>Making an optional field required</td><td>Accepting more values than before</td></tr>
+    </table></div>
+    <div class="tbl"><table>
+      <tr><th style="width:40%">Where the version goes</th><th style="width:60%">Example</th></tr>
+      <tr><td>In the path</td><td><code>/api/v2/employees</code></td></tr>
+      <tr><td>In a header</td><td><code>Api-Version: 2</code></td></tr>
+      <tr><td>Oracle Fusion</td><td><code>/hcmRestApi/resources/11.13.18.05/workers</code></td></tr>
+    </table></div>
+  </div>
+  <p>A breaking change is anything that would make an existing caller fail. That’s why OIC integrations pin the version in the <b>Relative Resource URI</b>: an upgrade on the other side can’t break you without notice.</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="openapi">
+  <div class="ch-head"><h2><span class="num">12</span>OpenAPI: the menu card in a standard format</h2><label class="got"><input type="checkbox" id="got-openapi"> Got it</label></div>
+  <div class="story"><b class="lbl">A printed menu vs a chalkboard</b>Some restaurants scribble today’s dishes on a chalkboard; others print a proper menu with prices, sizes and allergens. <mark>OpenAPI (once called Swagger) is a standard printed menu for REST APIs</mark>, written in YAML or JSON, that people and tools can both read.</div>
+  <figure><pre><span class="a">openapi:</span> 3.0.3
+<span class="a">info:</span> { title: HR API, version: "1.0" }
+<span class="a">servers:</span> [ { url: https://hr.company.com/api/v1 } ]   <span class="c">← base URL</span>
+<span class="a">paths:</span>
+  /employees/{id}:                                   <span class="c">← endpoint</span>
+    get:
+      parameters:
+        - name: id
+          in: path                                   <span class="c">← path parameter</span>
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: One employee
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Employee" }
+        "404": { description: No such employee }
+<span class="a">components:</span>
+  schemas:
+    Employee:                                        <span class="c">← like an XSD, for JSON</span>
+      type: object
+      required: [id, name]
+      properties:
+        id:   { type: integer }
+        name: { type: string }
+        city: { type: string }</pre>
+  <figcaption>Read it top down: where the API lives, which endpoints exist, what each one needs, what it returns, and the shape of the data.</figcaption></figure>
+  <p>Every idea from Phases 1–2 has a slot: servers = base URL, paths = endpoints, <code>in: path / query / header</code> = the four places, responses = status codes, schemas = the rule book. Websites like <b>editor.swagger.io</b> turn this into a clickable page where you can try each call.</p>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="webhooks">
+  <div class="ch-head"><h2><span class="num">13</span>Polling vs webhooks</h2><label class="got"><input type="checkbox" id="got-webhooks"> Got it</label></div>
+  <div class="story"><b class="lbl">The birthday cake</b>You can phone the bakery every 10 minutes: “Is my cake ready?” (<b>polling</b>). Or you leave your number and they call you when it’s ready (<b>webhook</b>). <mark>A webhook is an API call made BY the other system TO you, when something happens.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 260" role="img" aria-label="Polling: OIC asks repeatedly and mostly hears not yet. Webhook: the system calls OIC once when the event happens">
+      <g class="rough"><rect class="box f-yellow" x="20" y="30" width="120" height="80" rx="12"/><rect class="box f-green" x="300" y="30" width="120" height="80" rx="12"/>
+      <path class="ln" d="M142 45 L 294 45" marker-end="url(#ah)"/><path class="ln" d="M142 70 L 294 70" marker-end="url(#ah)"/><path class="ln" d="M142 95 L 294 95" marker-end="url(#ah)"/>
+      <rect class="box f-yellow" x="20" y="160" width="120" height="80" rx="12"/><rect class="box f-green" x="300" y="160" width="120" height="80" rx="12"/>
+      <path class="lr" d="M294 200 L 146 200" marker-end="url(#ahr)"/></g>
+      <text class="th" x="80" y="78" text-anchor="middle">OIC</text><text class="th" x="360" y="78" text-anchor="middle">System</text>
+      <text class="ts" x="218" y="40" text-anchor="middle">ready? no</text><text class="ts" x="218" y="65" text-anchor="middle">ready? no</text><text class="ts" x="218" y="90" text-anchor="middle">ready? yes!</text>
+      <text class="th" x="80" y="208" text-anchor="middle">OIC</text><text class="th" x="360" y="208" text-anchor="middle">System</text>
+      <text class="tr" x="218" y="190" text-anchor="middle">“it’s ready”</text>
+      <text class="th" x="460" y="62">Polling</text><text class="ts" x="460" y="86">simple, but many wasted calls</text><text class="ts" x="460" y="106">and a delay until the next ask</text>
+      <text class="th" x="460" y="192">Webhook</text><text class="ts" x="460" y="216">instant, no wasted calls; you need</text><text class="ts" x="460" y="236">an endpoint they can reach</text>
+    </svg></div>
+  </figure>
+  <p>In OIC, a <b>scheduled</b> integration that checks for new records is polling. An integration with a <b>REST trigger</b> that another system calls when something happens is receiving a webhook. Oracle Fusion’s <b>business events</b> (Phase 8) are the same idea.</p>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">14</span>Try it yourself</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <div class="cmd"><p class="what">1 · See the raw request and response lines</p><pre><span class="a">curl -v https://jsonplaceholder.typicode.com/posts/1 -o /dev/null</span>
+<span class="c">&gt; lines = your request (request line, Host, User-Agent, Accept)
+&lt; lines = the response (status line, then headers)
+-o /dev/null hides the body so you can focus on the lines</span></pre></div>
+  <div class="cmd"><p class="what">2 · HEAD: the label without the parcel</p><pre><span class="a">curl -I https://jsonplaceholder.typicode.com/posts/1</span>
+<span class="c">only the status line and headers come back: no body</span></pre></div>
+  <div class="cmd"><p class="what">3 · POST and see 201</p><pre><span class="a">curl -i -X POST https://jsonplaceholder.typicode.com/posts \
+  -H "Content-Type: application/json" \
+  -d '{"title":"REST in depth","userId":1}'</span>
+<span class="b">HTTP/2 201</span>  <span class="c">… then the new item with "id": 101</span></pre></div>
+  <div class="cmd"><p class="what">4 · See exactly which headers you sent</p><pre><span class="a">curl -s https://httpbin.org/headers -H "Accept: application/json" -H "X-Request-Id: my-test-1"</span>
+<span class="c">httpbin echoes back the headers it received, including your custom one</span></pre></div>
+  <div class="cmd"><p class="what">5 · ETag and 304 Not Modified</p><pre><span class="a">curl -sI https://api.github.com/users/octocat | grep -i etag</span>
+<span class="b">etag: W/"abc123…"</span>    <span class="c">← copy the whole value inside the quotes</span>
+<span class="a">curl -sI https://api.github.com/users/octocat -H 'If-None-Match: W/"abc123…"' | head -1</span>
+<span class="b">HTTP/2 304</span>              <span class="c">← nothing changed, no body sent</span></pre></div>
+  <div class="cmd"><p class="what">6 · Read a real OpenAPI menu</p><pre><span class="c">Open https://petstore3.swagger.io in a browser. Expand GET /pet/{petId},
+click “Try it out”, enter 1, and Execute. It shows the curl command,
+the request URL, the response code and body: every piece from this part.</span></pre></div>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="oic">
+  <div class="ch-head"><h2><span class="num">15</span>Where this shows up in OIC</h2><label class="got"><input type="checkbox" id="got-oic"> Got it</label></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="The REST adapter wizard pages: resource URI and method, request parameters and headers, request payload, response payload, summary">
+      <g class="rough">
+        <rect class="box f-blue" x="20" y="20" width="220" height="70" rx="12"/><rect class="box f-green" x="250" y="20" width="220" height="70" rx="12"/><rect class="box f-yellow" x="480" y="20" width="220" height="70" rx="12"/>
+        <rect class="box f-orange" x="135" y="140" width="220" height="70" rx="12"/><rect class="box f-purple" x="365" y="140" width="220" height="70" rx="12"/>
+        <path class="ln" d="M242 55 L 246 55 M472 55 L 476 55"/><path class="ln" d="M590 92 C 590 120, 300 115, 250 136" marker-end="url(#ah)"/><path class="ln" d="M357 175 L 361 175"/>
+      </g>
+      <text class="th" x="130" y="50" text-anchor="middle">Resource &amp; method</text><text class="ts" x="130" y="74" text-anchor="middle">/employees/{id} · PATCH</text>
+      <text class="th" x="360" y="50" text-anchor="middle">Parameters</text><text class="ts" x="360" y="74" text-anchor="middle">template + query params</text>
+      <text class="th" x="590" y="50" text-anchor="middle">Headers</text><text class="ts" x="590" y="74" text-anchor="middle">standard + custom</text>
+      <text class="th" x="245" y="170" text-anchor="middle">Request payload</text><text class="ts" x="245" y="194" text-anchor="middle">sample JSON or schema</text>
+      <text class="th" x="475" y="170" text-anchor="middle">Response payload</text><text class="ts" x="475" y="194" text-anchor="middle">sample JSON or schema</text>
+      <text class="tr" x="360" y="250" text-anchor="middle">the REST adapter asks for exactly the pieces of this part</text>
+      <text class="ts" x="360" y="276" text-anchor="middle">(base URL + security live in the connection, not here)</text>
+    </svg></div>
+    <figcaption>The pages of the REST adapter wizard, in roughly the order it asks.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">This part</th><th style="width:72%">In OIC</th></tr>
+    <tr><td>Base URL</td><td>The REST connection’s <b>Connection URL</b>. The connection can also be created from a <b>Swagger / OpenAPI definition URL</b>, so OIC learns every endpoint from the menu card.</td></tr>
+    <tr><td>Resource &amp; method</td><td>Invoke wizard: Relative Resource URI + action (GET, POST, …)</td></tr>
+    <tr><td>Path / query parameters</td><td>Template parameters and query parameters, mapped in the mapper</td></tr>
+    <tr><td>Headers</td><td>Configure standard headers (Accept, Content-Type) or custom ones (X-Request-Id) and map their values</td></tr>
+    <tr><td>Body</td><td>Request/response payload from a sample JSON (or XML/schema) that you paste in</td></tr>
+    <tr><td>Status &amp; errors</td><td>Non-2xx answers become faults; the fault holds the code and the error body</td></tr>
+    <tr><td>Webhooks</td><td>A <b>REST trigger</b>: OIC gives your integration its own endpoint URL to receive calls</td></tr>
+  </table></div>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">16</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Accept vs Content-Type swapped</b>You get 415 or 406. Content-Type describes what you send; Accept what you want.</div></li>
+    <li><span class="dot">2</span><div><b>Reading only the status code</b>The error body usually says exactly what’s wrong.</div></li>
+    <li><span class="dot">3</span><div><b>A trailing or missing slash</b><code>/employees/</code> and <code>/employees</code> can be different to some servers. Copy the path exactly from the docs.</div></li>
+    <li><span class="dot">4</span><div><b>Wrong version in the path</b>Calling <code>/v1</code> when the docs you read describe <code>/v2</code>.</div></li>
+    <li><span class="dot">5</span><div><b>Secrets in the query string</b>They end up in logs. Use headers.</div></li>
+    <li><span class="dot">6</span><div><b>Ignoring the Location header</b>After a 201, the new item’s ID is often only there.</div></li>
+    <li><span class="dot">7</span><div><b>Sample JSON with empty values</b>OIC builds the structure from your sample: use realistic values and 2+ array items.</div></li>
+  </ol>
+</section>
+
+<!-- 17 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">17</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. What separates the headers from the body in a raw HTTP message?</summary><p>One empty line.</p></details>
+    <details><summary>2. Rewrite <code>POST /createEmployee</code> the REST way.</summary><p><code>POST /employees</code>. The method is the verb; the path is a noun.</p></details>
+    <details><summary>3. After a successful POST, which code and which header do you expect?</summary><p>201 Created, with a Location header pointing to the new item.</p></details>
+    <details><summary>4. Where do filters go? Where do tokens go?</summary><p>Filters in the query string; tokens in a header, never in the URL.</p></details>
+    <details><summary>5. You send JSON but the server answers 415. Why?</summary><p>It can’t read your body’s format: usually a missing or wrong Content-Type.</p></details>
+    <details><summary>6. 400 vs 422?</summary><p>400: the request itself is malformed. 422: it’s well-formed but breaks a business rule.</p></details>
+    <details><summary>7. Why does statelessness help big systems?</summary><p>Any server can answer any request, so a load balancer can spread calls across many servers.</p></details>
+    <details><summary>8. What does a 304 Not Modified mean?</summary><p>The resource hasn’t changed since the ETag you sent, so nothing was re-sent.</p></details>
+    <details><summary>9. Is adding a new optional field a breaking change?</summary><p>No. Removing or renaming a field is.</p></details>
+    <details><summary>10. Polling vs webhook, in one line each?</summary><p>Polling: you keep asking. Webhook: they call you when it happens.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final">A REST call is plain text: a <b>request line</b>, <b>headers</b>, a blank line and a <b>body</b>; good APIs use <b>noun addresses</b>, put each value in the right one of <b>four places</b>, answer with the right <b>status code and error body</b>, stay <b>stateless</b>, use <b>ETags</b> and <b>versions</b>, and describe themselves in <b>OpenAPI</b>.</p>
+  <p>Next: <a href="../phase-03-2-soap-wsdl/index.html">Part 3.2 · SOAP &amp; WSDL in depth →</a></p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 3.1 · REST in depth · by @devwithprabir</footer>
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p31-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p31-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>
