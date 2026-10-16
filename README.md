@@ -19,7 +19,9 @@ by **@devwithprabir**
 | 3.2 | **SOAP & WSDL in depth** | Envelope, SOAP 1.1 vs 1.2, WSDL section by section, SOAPAction, faults, WS-Security, Fusion SOAP | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-03-2-soap-wsdl/index.html) |
 | 3.3 | **API security in depth** | Basic Auth, API keys, OAuth 2.0 flows, refresh tokens, scopes, JWT claims and signatures, OCI IAM | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-03-3-api-security/index.html) |
 | 3.4 | **Real-world APIs** | API docs, pagination, Oracle Fusion REST, rate limits, retries, idempotency, timeouts, async jobs, Postman tests | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-03-4-real-world-apis/index.html) |
-| 4 | SQL & Databases | Queries, joins, PL/SQL basics | Coming soon |
+| 4.1 | **Databases & SELECT** | Tables, data types, keys & constraints, NULL, WHERE, ORDER BY, paging, functions, dates, CASE | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-04-1-sql-basics/index.html) |
+| 4.2 | **Joins, grouping & changing data** | Joins, GROUP BY & HAVING, subqueries, INSERT/UPDATE/DELETE, transactions, MERGE, views & indexes | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-04-2-joins-and-changes/index.html) |
+| 4.3 | **PL/SQL & databases in OIC** | Blocks, exceptions, procedures, functions, packages, staging loader, JSON, DB adapters, polling | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-04-3-plsql-and-oic/index.html) |
 | 5 | Integration Concepts | Sync vs async, events, files, patterns | Coming soon |
 | 6 | OIC Basics | Connections, adapters, mapper, monitoring | Coming soon |
 | 7 | OIC Intermediate | Loops, fault handling, stage file, lookups | Coming soon |

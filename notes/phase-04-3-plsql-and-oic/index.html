@@ -1,0 +1,798 @@
+<title>Phase 4.3 · PL/SQL &amp; databases in OIC | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 4 · Part 3 of 3</p>
+  <h1>PL/SQL &amp; databases in OIC</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 4: <a href="../phase-04-1-sql-basics/index.html">4.1 Databases &amp; SELECT</a> · <a href="../phase-04-2-joins-and-changes/index.html">4.2 Joins, grouping &amp; changing data</a> · <b>4.3 PL/SQL &amp; databases in OIC</b>. SQL asks one question at a time. <mark>PL/SQL</mark> lets the database follow a whole recipe: check, decide, loop, handle errors, and save everything at once. Then we see exactly how OIC connects to a database and calls all of this.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#why">1 · Why PL/SQL</a><a href="#block">2 · A block, part by part</a><a href="#vars">3 · Variables &amp; SELECT INTO</a><a href="#if">4 · IF and CASE</a>
+    <a href="#loops">5 · Loops &amp; cursors</a><a href="#exc">6 · Exceptions</a><a href="#proc">7 · Procedures</a><a href="#func">8 · Functions</a>
+    <a href="#pkg">9 · Packages</a><a href="#staging">10 · A real integration procedure</a><a href="#bulk">11 · Set-based thinking</a><a href="#json">12 · JSON in the database</a>
+    <a href="#connect">13 · How OIC connects</a><a href="#ops">14 · Adapter operations</a><a href="#binds">15 · Binds &amp; SQL injection</a><a href="#tools">16 · Hands-on</a>
+    <a href="#mistakes">17 · Mistakes</a><a href="#quiz">18 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="why">
+  <div class="ch-head"><h2><span class="num">1</span>Why PL/SQL</h2><label class="got"><input type="checkbox" id="got-why"> Got it</label></div>
+  <div class="story"><b class="lbl">One question vs a recipe</b>“How much rice is in the jar?” is one question: that’s SQL. “Check the rice; if there’s less than a cup, add it to the shopping list; then cook it for 15 minutes; if it burns, start again” is a <b>recipe</b>, with steps, decisions and what to do when something goes wrong. <mark>PL/SQL (Procedural Language/SQL) is Oracle’s recipe language, and it runs inside the database.</mark></div>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Steps &amp; decisions</h4><p>Variables, IF, loops: things plain SQL can’t do.</p></div>
+    <div class="card t2 tilt-b"><h4>All-or-nothing</h4><p>Several statements, one COMMIT. If any step fails, undo them all (Part 4.2, ch. 12).</p></div>
+    <div class="card t3 tilt-a"><h4>One call from OIC</h4><p>Instead of five adapter calls across the network, OIC calls one stored procedure that does all five next to the data.</p></div>
+  </div>
+  <p>On OIC projects you’ll mostly <b>call</b> procedures that a database developer wrote, and sometimes write small ones yourself for staging and logging. Either way, you must be able to read them.</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="block">
+  <div class="ch-head"><h2><span class="num">2</span>A PL/SQL block, part by part</h2><label class="got"><input type="checkbox" id="got-block"> Got it</label></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="A PL/SQL block has four sections: DECLARE for variables (optional), BEGIN for the steps (required), EXCEPTION for error handling (optional), and END followed by a slash that tells the tool to run it">
+      <g class="rough">
+        <rect class="box f-yellow" x="15" y="15" width="470" height="50" rx="8"/>
+        <rect class="box f-blue" x="15" y="72" width="470" height="70" rx="8"/>
+        <rect class="box f-orange" x="15" y="149" width="470" height="50" rx="8"/>
+        <rect class="box f-grey" x="15" y="206" width="470" height="34" rx="8"/>
+      </g>
+      <text class="t" x="28" y="36" style="font-family:var(--f-mono);font-size:13px">DECLARE</text><text class="t" x="28" y="56" style="font-family:var(--f-mono);font-size:13px">  v_count NUMBER;</text>
+      <text class="t" x="28" y="93" style="font-family:var(--f-mono);font-size:13px">BEGIN</text><text class="t" x="28" y="113" style="font-family:var(--f-mono);font-size:13px">  SELECT COUNT(*) INTO v_count FROM employees;</text><text class="t" x="28" y="133" style="font-family:var(--f-mono);font-size:13px">  DBMS_OUTPUT.PUT_LINE('Staff: ' || v_count);</text>
+      <text class="t" x="28" y="170" style="font-family:var(--f-mono);font-size:13px">EXCEPTION</text><text class="t" x="28" y="190" style="font-family:var(--f-mono);font-size:13px">  WHEN OTHERS THEN ... ;</text>
+      <text class="t" x="28" y="228" style="font-family:var(--f-mono);font-size:13px">END;  /</text>
+      <text class="t" x="500" y="36" style="font-weight:700">DECLARE</text><text class="ts" x="500" y="56">optional · the variables</text>
+      <text class="t" x="500" y="100" style="font-weight:700">BEGIN</text><text class="ts" x="500" y="120">required · the steps</text>
+      <text class="t" x="500" y="170" style="font-weight:700">EXCEPTION</text><text class="ts" x="500" y="190">optional · “if it burns”</text>
+      <text class="t" x="500" y="228" style="font-weight:700">END; then / runs it</text>
+    </svg></div>
+    <figcaption>A block with no name is an <b>anonymous block</b>: you run it once. Give it a name and save it, and it becomes a <b>procedure</b> or <b>function</b> (chapters 7–8).</figcaption>
+  </figure>
+  <div class="cmd"><p class="what">Hello, PL/SQL</p><pre><span class="a">BEGIN
+  DBMS_OUTPUT.PUT_LINE('Hello from inside the database');
+END;
+/</span>
+<span class="b">Hello from inside the database</span></pre></div>
+  <p><code>DBMS_OUTPUT.PUT_LINE</code> prints a line, like <code>console.log</code> or OIC’s Logger action. In FreeSQL, run blocks with <b>Run Script</b> (F5): the printed lines appear in the <b>Script Output</b>, followed by <code>PL/SQL procedure successfully completed.</code> In SQL*Plus or SQL Developer, run <code>SET SERVEROUTPUT ON</code> first. It’s only for testing: OIC never sees this output. The <code>/</code> on its own line tells the tool “the block ends here, run it”, because a block contains many semicolons.</p>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="vars">
+  <div class="ch-head"><h2><span class="num">3</span>Variables and SELECT INTO</h2><label class="got"><input type="checkbox" id="got-vars"> Got it</label></div>
+  <div class="story"><b class="lbl">Labelled bowls</b>Before cooking you set out bowls and label them: “chopped onion”, “2 cups water”. A <mark>variable</mark> is a labelled bowl that holds one value while the recipe runs.</div>
+  <div class="cmd"><pre><span class="a">DECLARE
+  v_name   employees.first_name%TYPE;     <span class="c">-- same type as the column</span>
+  v_salary employees.salary%TYPE;
+  c_bonus  CONSTANT NUMBER := 0.10;       <span class="c">-- a value that never changes</span>
+BEGIN
+  SELECT first_name, salary
+  INTO   v_name, v_salary                  <span class="c">-- put the answer in the bowls</span>
+  FROM   employees
+  WHERE  emp_id = 104;
+
+  DBMS_OUTPUT.PUT_LINE(v_name || ' earns ' || v_salary
+                       || ', bonus ' || v_salary * c_bonus);
+END;
+/</span>
+<span class="b">Sneha earns 85000, bonus 8500</span></pre></div>
+  <div class="tbl"><table>
+    <tr><th style="width:34%">Piece</th><th style="width:66%">Means</th></tr>
+    <tr><td><code>v_name VARCHAR2(30);</code></td><td>Declare a variable with a type. Prefix <code>v_</code> is a habit, so variables never clash with column names.</td></tr>
+    <tr><td><code>:=</code></td><td>Assign a value (<code>=</code> is only for comparing)</td></tr>
+    <tr><td><code>%TYPE</code></td><td>“The same type as this column”. If the column grows from 30 to 50 characters, your code adapts.</td></tr>
+    <tr><td><code>%ROWTYPE</code></td><td>A variable shaped like a whole row: <code>r employees%ROWTYPE;</code> then <code>r.first_name</code>, <code>r.salary</code>…</td></tr>
+    <tr><td><code>SELECT … INTO</code></td><td>Must return <b>exactly one row</b>. None: <code>NO_DATA_FOUND</code>. Two or more: <code>TOO_MANY_ROWS</code> (chapter 6)</td></tr>
+  </table></div>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="if">
+  <div class="ch-head"><h2><span class="num">4</span>IF and CASE</h2><label class="got"><input type="checkbox" id="got-if"> Got it</label></div>
+  <div class="cmd"><pre><span class="a">DECLARE
+  v_salary employees.salary%TYPE;
+  v_band   VARCHAR2(10);
+BEGIN
+  SELECT salary INTO v_salary FROM employees WHERE emp_id = 105;
+
+  IF v_salary &gt;= 100000 THEN
+    v_band := 'A';
+  ELSIF v_salary &gt;= 70000 THEN            <span class="c">-- ELSIF, not ELSEIF!</span>
+    v_band := 'B';
+  ELSE
+    v_band := 'C';
+  END IF;
+
+  DBMS_OUTPUT.PUT_LINE('Arjun is in band ' || v_band);
+END;
+/</span>
+<span class="b">Arjun is in band B</span></pre></div>
+  <p>It’s the same logic as SQL’s CASE (Part 4.1, ch. 14), but IF can run <b>whole statements</b> in each branch: update a table, call a procedure, raise an error. That’s exactly what OIC’s <b>Switch</b> action does inside an integration. PL/SQL also has a <code>CASE … END CASE;</code> statement for long lists of choices.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="loops">
+  <div class="ch-head"><h2><span class="num">5</span>Loops and cursors</h2><label class="got"><input type="checkbox" id="got-loops"> Got it</label></div>
+  <div class="story"><b class="lbl">Dealing cards</b>A dealer takes one card from the top, gives it to the next player, and repeats until the deck is empty. A <mark>cursor</mark> is a query whose rows you take one at a time; a <mark>cursor FOR loop</mark> does the taking for you.</div>
+  <div class="cmd"><p class="what">Cursor FOR loop: the one you’ll use most</p><pre><span class="a">BEGIN
+  FOR r IN (SELECT first_name, salary
+            FROM   employees
+            WHERE  dept_id = 30
+            ORDER  BY emp_id) LOOP
+    DBMS_OUTPUT.PUT_LINE(r.first_name || ': ' || r.salary);
+  END LOOP;
+END;
+/</span>
+<span class="b">Amit: 130000
+Sneha: 85000
+Arjun: 78000</span></pre></div>
+  <div class="two">
+    <div class="cmd"><p class="what">Counting loop</p><pre><span class="a">BEGIN
+  FOR i IN 1 .. 3 LOOP
+    DBMS_OUTPUT.PUT_LINE('Attempt ' || i);
+  END LOOP;
+END;
+/</span>
+<span class="b">Attempt 1
+Attempt 2
+Attempt 3</span></pre></div>
+    <div class="cmd"><p class="what">WHILE loop: backoff from Part 3.4</p><pre><span class="a">DECLARE
+  v_wait NUMBER := 1;
+BEGIN
+  WHILE v_wait &lt;= 8 LOOP
+    DBMS_OUTPUT.PUT_LINE('wait ' || v_wait || 's');
+    v_wait := v_wait * 2;
+  END LOOP;
+END;
+/</span>
+<span class="b">wait 1s
+wait 2s
+wait 4s
+wait 8s</span></pre></div>
+  </div>
+  <p>The cursor FOR loop opens the cursor, fetches each row into <code>r</code>, and closes it, all automatically. You may meet the long form in older code (<code>CURSOR c IS …; OPEN c; FETCH c INTO …; EXIT WHEN c%NOTFOUND; CLOSE c;</code>): it does the same thing by hand. And OIC’s <b>For-Each</b> and <b>While</b> actions are these loops, at the integration level.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="exc">
+  <div class="ch-head"><h2><span class="num">6</span>Exceptions: when something goes wrong</h2><label class="got"><input type="checkbox" id="got-exc"> Got it</label></div>
+  <div class="story"><b class="lbl">The kitchen fire drill</b>A good kitchen has a plan for each problem: the gas runs out → use the induction plate; the dish burns → start again; a fire → stop everything and call for help. <mark>The EXCEPTION section is that plan.</mark> When an error happens in BEGIN, Oracle jumps straight to EXCEPTION and looks for a matching handler.</div>
+  <div class="cmd"><pre><span class="a">DECLARE
+  v_name employees.first_name%TYPE;
+BEGIN
+  SELECT first_name INTO v_name FROM employees WHERE emp_id = 999;
+  DBMS_OUTPUT.PUT_LINE('Found ' || v_name);           <span class="c">-- never reached</span>
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No employee 999');
+  WHEN TOO_MANY_ROWS THEN
+    DBMS_OUTPUT.PUT_LINE('More than one row');
+END;
+/</span>
+<span class="b">No employee 999</span></pre></div>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Named exception</th><th style="width:20%">Error</th><th style="width:50%">Happens when</th></tr>
+    <tr><td><code>NO_DATA_FOUND</code></td><td>ORA-01403</td><td>SELECT INTO found no row</td></tr>
+    <tr><td><code>TOO_MANY_ROWS</code></td><td>ORA-01422</td><td>SELECT INTO found more than one row</td></tr>
+    <tr><td><code>DUP_VAL_ON_INDEX</code></td><td>ORA-00001</td><td>A primary key or unique value already exists</td></tr>
+    <tr><td><code>VALUE_ERROR</code></td><td>ORA-06502</td><td>A value doesn’t fit (too long, not a number)</td></tr>
+    <tr><td><code>ZERO_DIVIDE</code></td><td>ORA-01476</td><td>Division by zero</td></tr>
+    <tr><td><code>OTHERS</code></td><td>anything</td><td>Catches every error not handled above. Always last.</td></tr>
+  </table></div>
+  <h3>Raising your own errors</h3>
+  <div class="cmd"><pre><span class="a">IF p_percent &gt; 50 THEN
+  RAISE_APPLICATION_ERROR(-20002, 'Raise must be between 0 and 50 percent');
+END IF;</span>
+<span class="b">ORA-20002: Raise must be between 0 and 50 percent
+ORA-06512: at line 2</span>          <span class="c">← ORA-06512 says WHERE it happened</span></pre></div>
+  <p>Your own error numbers must be between <b>−20000 and −20999</b>. This is how a procedure tells OIC “this is a business error”: the code and message arrive in the integration’s fault, and the fault handler can decide what to do (Phase 7).</p>
+  <div class="sticky"><strong>The worst line in PL/SQL:</strong> <code>WHEN OTHERS THEN NULL;</code> It catches every error and does nothing, so the procedure “succeeds”, OIC reports success, and the data is silently wrong. If you catch OTHERS, <b>log it and re-raise</b> it with <code>RAISE;</code> (chapter 10). <code>SQLCODE</code> and <code>SQLERRM</code> give you the error number and message to log.</div>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="proc">
+  <div class="ch-head"><h2><span class="num">7</span>Stored procedures</h2><label class="got"><input type="checkbox" id="got-proc"> Got it</label></div>
+  <div class="story"><b class="lbl">The recipe card in the drawer</b>Once a recipe works, you write it on a card, give it a name, and keep it in the drawer. Anyone can say “make the dal” and pass in how many people to serve. A <mark>stored procedure</mark> is a named block saved in the database, with <b>parameters</b> going in and out.</div>
+  <div class="cmd"><pre><span class="a">CREATE OR REPLACE PROCEDURE give_raise (
+  p_emp_id     IN  employees.emp_id%TYPE,     <span class="c">-- IN: the caller gives it</span>
+  p_percent    IN  NUMBER,
+  p_new_salary OUT employees.salary%TYPE      <span class="c">-- OUT: we hand it back</span>
+) AS
+BEGIN
+  IF p_percent NOT BETWEEN 0 AND 50 THEN
+    RAISE_APPLICATION_ERROR(-20002, 'Raise must be between 0 and 50 percent');
+  END IF;
+
+  UPDATE employees
+  SET    salary = ROUND(salary * (1 + p_percent / 100), 2),
+         last_update_date = SYSTIMESTAMP
+  WHERE  emp_id = p_emp_id
+  RETURNING salary INTO p_new_salary;           <span class="c">-- read the new value back</span>
+
+  IF SQL%ROWCOUNT = 0 THEN                       <span class="c">-- how many rows did that touch?</span>
+    RAISE_APPLICATION_ERROR(-20001, 'Employee ' || p_emp_id || ' not found');
+  END IF;
+END give_raise;
+/</span>
+<span class="b">Procedure GIVE_RAISE compiled</span></pre></div>
+  <div class="cmd"><p class="what">Calling it from an anonymous block</p><pre><span class="a">DECLARE
+  v_new employees.salary%TYPE;
+BEGIN
+  give_raise(p_emp_id =&gt; 105, p_percent =&gt; 10, p_new_salary =&gt; v_new);
+  DBMS_OUTPUT.PUT_LINE('New salary: ' || v_new);
+  ROLLBACK;                                      <span class="c">-- just testing: undo it</span>
+END;
+/</span>
+<span class="b">New salary: 85800</span></pre></div>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">Mode</th><th style="width:42%">Means</th><th style="width:40%">In OIC’s mapper</th></tr>
+    <tr><td><code>IN</code></td><td>Value goes into the procedure (the default)</td><td>A field in the <b>request</b> you map into</td></tr>
+    <tr><td><code>OUT</code></td><td>Value comes back out</td><td>A field in the <b>response</b> you map from</td></tr>
+    <tr><td><code>IN OUT</code></td><td>Goes in, may come back changed</td><td>Both</td></tr>
+  </table></div>
+  <p>Notice what’s <b>not</b> in the procedure: a <code>COMMIT</code>. Small building-block procedures usually leave the commit to the caller, so they can be combined into bigger all-or-nothing work. The “main” procedure that OIC calls commits once at the end (chapter 10). <code>p_emp_id =&gt; 105</code> is <b>named notation</b>: clearer than relying on position. If a procedure doesn’t compile, run <code>SELECT * FROM user_errors;</code> to see why.</p>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="func">
+  <div class="ch-head"><h2><span class="num">8</span>Functions</h2><label class="got"><input type="checkbox" id="got-func"> Got it</label></div>
+  <p>A <b>function</b> is a procedure that <b>returns one value</b>, so you can use it anywhere a value fits, even inside a SELECT, just like <code>UPPER()</code>.</p>
+  <div class="cmd"><pre><span class="a">CREATE OR REPLACE FUNCTION get_dept_name (
+  p_dept_id IN departments.dept_id%TYPE
+) RETURN VARCHAR2 AS
+  v_name departments.dept_name%TYPE;
+BEGIN
+  SELECT dept_name INTO v_name FROM departments WHERE dept_id = p_dept_id;
+  RETURN v_name;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    RETURN 'Unknown';
+END get_dept_name;
+/
+
+SELECT first_name, get_dept_name(dept_id) AS dept
+FROM   employees WHERE emp_id IN (104, 109) ORDER BY emp_id;</span>
+<span class="b">FIRST_NAME DEPT
+---------- -------
+Sneha      IT
+Vikram     Unknown</span></pre></div>
+  <div class="tbl"><table>
+    <tr><th style="width:22%"></th><th style="width:39%">Procedure</th><th style="width:39%">Function</th></tr>
+    <tr><td>Returns</td><td>Zero or more values through OUT parameters</td><td>Exactly one value with RETURN</td></tr>
+    <tr><td>Used in a SELECT?</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Typical job</td><td>Do work: load, update, process</td><td>Calculate or look up a value</td></tr>
+  </table></div>
+  <p>A function that reads a table for every row can be slow on millions of rows: here a plain LEFT JOIN would be faster. Use functions for reusable logic, not as a replacement for joins.</p>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="pkg">
+  <div class="ch-head"><h2><span class="num">9</span>Packages: spec and body</h2><label class="got"><input type="checkbox" id="got-pkg"> Got it</label></div>
+  <div class="story"><b class="lbl">The restaurant menu and the kitchen</b>The menu tells customers what they can order. The kitchen behind the door holds the recipes, and some kitchen-only prep work customers never see. A <mark>package</mark> has a <b>spec</b> (the menu: what others can call) and a <b>body</b> (the kitchen: the code, including private helpers).</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 220" role="img" aria-label="The HR_INT package. Its spec lists two public items: the procedure load_staged_employees and the function get_dept_name. Its body contains the code for both, plus a private procedure log_run that outsiders like OIC cannot call.">
+      <g class="rough">
+        <rect class="box f-yellow" x="20" y="30" width="300" height="160" rx="12"/>
+        <rect class="box f-blue" x="400" y="30" width="300" height="160" rx="12"/>
+        <rect class="box f-pink dash" x="415" y="138" width="270" height="40" rx="8"/>
+        <path class="ln" d="M322 110 L 394 110" marker-end="url(#ah)"/>
+      </g>
+      <text class="th" x="170" y="58" text-anchor="middle">SPEC · the menu</text><text class="ts" x="170" y="80" text-anchor="middle">what OIC and others can call</text>
+      <text class="t" x="40" y="118" style="font-family:var(--f-mono);font-size:13px">load_staged_employees</text>
+      <text class="t" x="40" y="146" style="font-family:var(--f-mono);font-size:13px">get_dept_name</text>
+      <text class="th" x="550" y="58" text-anchor="middle">BODY · the kitchen</text><text class="ts" x="550" y="80" text-anchor="middle">the actual code</text>
+      <text class="t" x="420" y="108" style="font-family:var(--f-mono);font-size:13px">load_staged_employees … END;</text>
+      <text class="t" x="420" y="128" style="font-family:var(--f-mono);font-size:13px">get_dept_name … END;</text>
+      <text class="tr" x="425" y="164" style="font-family:var(--f-mono);font-size:13px">log_run   (private)</text>
+    </svg></div>
+  </figure>
+  <div class="cmd"><p class="what">The spec</p><pre><span class="a">CREATE OR REPLACE PACKAGE hr_int AS
+  PROCEDURE load_staged_employees (
+    p_run_name IN  VARCHAR2,
+    p_merged   OUT NUMBER,
+    p_errors   OUT NUMBER);
+
+  FUNCTION get_dept_name (p_dept_id IN NUMBER) RETURN VARCHAR2;
+END hr_int;
+/</span></pre></div>
+  <p>Call package members with a dot: <code>hr_int.get_dept_name(30)</code>. Real projects keep integration code in packages like this (often named <code>xx_…_pkg</code> or <code>…_int_pkg</code>). OIC’s <b>Invoke a Stored Procedure</b> lets you pick the schema, then the package, then the procedure inside it.</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="staging">
+  <div class="ch-head"><h2><span class="num">10</span>A real integration procedure</h2><label class="got"><input type="checkbox" id="got-staging"> Got it</label></div>
+  <div class="story"><b class="lbl">The goods-receiving bay</b>A warehouse doesn’t put deliveries straight onto shelves. They go to a receiving bay first, get <b>checked</b>, the good ones are <b>shelved</b>, damaged ones are <b>set aside with a note</b>, and the clerk <b>signs the register</b>. That’s the <mark>staging pattern</mark>, and it’s the most common way OIC and databases work together.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 270" role="img" aria-label="Staging pattern: OIC writes incoming rows into EMPLOYEE_STG with status NEW and calls hr_int.load_staged_employees. The procedure validates rows, marking bad ones ERROR, merges the good ones into EMPLOYEES, marks them PROCESSED, writes a row to INTEGRATION_LOG and commits once. OIC gets the merged and error counts back.">
+      <g class="rough">
+        <rect class="box f-blue" x="10" y="90" width="100" height="70" rx="12"/>
+        <rect class="box f-yellow" x="140" y="90" width="150" height="70" rx="12"/>
+        <rect class="box f-pink" x="320" y="15" width="215" height="215" rx="12"/>
+        <rect class="box f-green" x="565" y="20" width="145" height="56" rx="10"/>
+        <rect class="box f-orange" x="565" y="100" width="145" height="64" rx="10"/>
+        <rect class="box f-grey" x="565" y="186" width="145" height="50" rx="10"/>
+        <path class="ln" d="M112 125 L 134 125" marker-end="url(#ah)"/>
+        <path class="ln" d="M292 125 L 314 125" marker-end="url(#ah)"/>
+        <path class="ln" d="M537 48 L 559 48" marker-end="url(#ah)"/><path class="ln" d="M537 132 L 559 132" marker-end="url(#ah)"/><path class="ln" d="M537 211 L 559 211" marker-end="url(#ah)"/>
+        <path class="lb dash" d="M320 215 C 200 250, 80 240, 60 166" marker-end="url(#ahb)"/>
+      </g>
+      <text class="t" x="60" y="120" text-anchor="middle" style="font-weight:700">OIC</text><text class="ts" x="60" y="142" text-anchor="middle">writes rows</text>
+      <text class="t" x="215" y="120" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">EMPLOYEE_STG</text><text class="ts" x="215" y="142" text-anchor="middle">status NEW</text>
+      <text class="t" x="427" y="44" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">load_staged_employees</text>
+      <text class="ts" x="335" y="90">① validate → ERROR</text><text class="ts" x="335" y="117">② MERGE good rows</text><text class="ts" x="335" y="144">③ mark PROCESSED</text><text class="ts" x="335" y="171">④ log the run</text><text class="ts" x="335" y="198">⑤ COMMIT once</text>
+      <text class="t" x="637" y="53" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">EMPLOYEES</text>
+      <text class="t" x="637" y="127" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">STG status</text><text class="ts" x="637" y="150" text-anchor="middle" style="font-size:12px">PROCESSED / ERROR</text>
+      <text class="t" x="637" y="216" text-anchor="middle" style="font-family:var(--f-mono);font-size:11.5px">INTEGRATION_LOG</text>
+      <text class="ts" x="170" y="262" text-anchor="middle" style="fill:var(--blue);font-weight:700">OUT: p_merged, p_errors</text>
+    </svg></div>
+  </figure>
+  <div class="cmd"><p class="what">The package body (full version in the practice file)</p><pre><span class="a">CREATE OR REPLACE PACKAGE BODY hr_int AS
+
+  <span class="c">-- private: not in the spec, so only this package can call it</span>
+  PROCEDURE log_run (p_run_name IN VARCHAR2, p_status IN VARCHAR2, p_message IN VARCHAR2) IS
+  BEGIN
+    INSERT INTO integration_log (run_name, status, message)
+    VALUES (p_run_name, p_status, SUBSTR(p_message, 1, 400));
+  END log_run;
+
+  PROCEDURE load_staged_employees (p_run_name IN  VARCHAR2,
+                                   p_merged   OUT NUMBER,
+                                   p_errors   OUT NUMBER) IS
+  BEGIN
+    <span class="c">-- ① validate: the department must exist</span>
+    UPDATE employee_stg s
+    SET    s.process_status = 'ERROR',
+           s.error_message  = 'Unknown department ' || s.dept_id
+    WHERE  s.process_status = 'NEW'
+    AND    NOT EXISTS (SELECT 1 FROM departments d WHERE d.dept_id = s.dept_id);
+    p_errors := SQL%ROWCOUNT;
+
+    <span class="c">-- ② upsert the good rows (the MERGE from Part 4.2)</span>
+    MERGE INTO employees e
+    USING (SELECT * FROM employee_stg WHERE process_status = 'NEW') s
+    ON    (e.emp_id = s.emp_id)
+    WHEN MATCHED THEN UPDATE SET …
+    WHEN NOT MATCHED THEN INSERT …;
+    p_merged := SQL%ROWCOUNT;
+
+    <span class="c">-- ③ mark them done</span>
+    UPDATE employee_stg SET process_status = 'PROCESSED' WHERE process_status = 'NEW';
+
+    <span class="c">-- ④ + ⑤ log and save, all together</span>
+    log_run(p_run_name, 'SUCCESS', p_merged || ' merged, ' || p_errors || ' rejected');
+    COMMIT;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;                                 <span class="c">-- undo ①–③</span>
+      log_run(p_run_name, 'FAILED', SQLERRM);   <span class="c">-- remember why</span>
+      COMMIT;                                   <span class="c">-- keep the log row</span>
+      RAISE;                                    <span class="c">-- and tell OIC it failed!</span>
+  END load_staged_employees;
+
+  FUNCTION get_dept_name (p_dept_id IN NUMBER) RETURN VARCHAR2 IS … END;
+
+END hr_int;
+/</span></pre></div>
+  <div class="cmd"><p class="what">Run it with one bad row in staging (dept 99)</p><pre><span class="a">DECLARE
+  v_merged NUMBER; v_errors NUMBER;
+BEGIN
+  hr_int.load_staged_employees('manual-test-1', v_merged, v_errors);
+  DBMS_OUTPUT.PUT_LINE('Merged: ' || v_merged || ', errors: ' || v_errors);
+END;
+/</span>
+<span class="b">Merged: 3, errors: 1</span>
+<span class="a">SELECT emp_id, process_status, error_message FROM employee_stg ORDER BY emp_id;</span>
+<span class="b">EMP_ID PROCESS_STATUS ERROR_MESSAGE
+------ -------------- ---------------------
+   104 PROCESSED
+   108 PROCESSED
+   111 PROCESSED
+   113 ERROR          Unknown department 99</span></pre></div>
+  <p>Read the EXCEPTION section slowly, because it’s the whole lesson: if anything fails, <b>undo the data changes</b>, <b>record the failure</b>, <b>commit only the log</b>, then <b>re-raise</b> so OIC’s fault handler knows. And run it a second time: <code>Merged: 0, errors: 0</code>, because nothing is NEW any more. Safe to re-run, just like MERGE.</p>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="bulk">
+  <div class="ch-head"><h2><span class="num">11</span>Set-based thinking</h2><label class="got"><input type="checkbox" id="got-bulk"> Got it</label></div>
+  <div class="story"><b class="lbl">One trip or a thousand</b>To move 1,000 bricks you don’t carry them one at a time; you use a wheelbarrow. A loop that runs one UPDATE per row makes the database do 1,000 small trips. One UPDATE or MERGE with a WHERE does the same work in <b>one</b> trip. Oracle people call row-by-row processing <mark>“slow-by-slow”</mark>.</div>
+  <div class="two">
+    <div class="cmd"><p class="what">Slow-by-slow</p><pre><span class="a">FOR r IN (SELECT emp_id FROM employees
+          WHERE dept_id = 10) LOOP
+  UPDATE employees
+  SET    salary = salary * 1.10
+  WHERE  emp_id = r.emp_id;
+END LOOP;</span></pre></div>
+    <div class="cmd"><p class="what">Set-based</p><pre><span class="a">UPDATE employees
+SET    salary = salary * 1.10
+WHERE  dept_id = 10;</span>
+<span class="c">-- same result, one statement</span></pre></div>
+  </div>
+  <p>Our staging procedure is set-based: one UPDATE, one MERGE, one UPDATE, whether there are 3 rows or 300,000. The same rule applies one level up: <b>don’t make OIC loop over 10,000 records calling the database once per record</b> if one procedure call can process the whole batch. When row-by-row logic really is needed, PL/SQL has <code>BULK COLLECT</code> and <code>FORALL</code> to fetch and change rows in large batches.</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="json">
+  <div class="ch-head"><h2><span class="num">12</span>JSON inside the database</h2><label class="got"><input type="checkbox" id="got-json"> Got it</label></div>
+  <p>Integrations often store raw payloads in a CLOB column (“what exactly did we receive?”), or pass JSON into a procedure. Oracle can read and build JSON directly in SQL, using the same paths you learned in Phase 2.</p>
+  <div class="cmd"><p class="what">JSON_VALUE: pick one value</p><pre><span class="a">SELECT JSON_VALUE('{"emp":{"id":101,"name":"Ravi"}}', '$.emp.name') AS name FROM dual;</span>
+<span class="b">NAME
+----
+Ravi</span></pre></div>
+  <div class="cmd"><p class="what">JSON_TABLE: turn a JSON array into rows</p><pre><span class="a">SELECT jt.id, jt.name
+FROM   JSON_TABLE(
+         '{"employees":[{"id":201,"name":"Kiran"},{"id":202,"name":"Asha"}]}',
+         '$.employees[*]'                                 <span class="c">-- one row per array item</span>
+         COLUMNS (id   NUMBER       PATH '$.id',
+                  name VARCHAR2(30) PATH '$.name')) jt;</span>
+<span class="b">ID  NAME
+--- -----
+201 Kiran
+202 Asha</span></pre></div>
+  <div class="cmd"><p class="what">JSON_OBJECT: build JSON from a row</p><pre><span class="a">SELECT JSON_OBJECT('id' VALUE emp_id, 'name' VALUE first_name) AS payload
+FROM   employees WHERE emp_id = 104;</span>
+<span class="b">PAYLOAD
+-------------------------
+{"id":104,"name":"Sneha"}</span></pre></div>
+  <p><code>$</code> is the root, <code>.</code> goes into an object, <code>[*]</code> means every array item: the same idea as XPath in Phase 2, in JSON form. With JSON_TABLE, a procedure can accept one JSON CLOB from OIC holding hundreds of records and load them all with a single INSERT … SELECT: set-based again.</p>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="connect">
+  <div class="ch-head"><h2><span class="num">13</span>How OIC connects to a database</h2><label class="got"><input type="checkbox" id="got-connect"> Got it</label></div>
+  <div class="story"><b class="lbl">The courier and the gated society</b>A courier can deliver straight to a shop on the main road. But a flat inside a gated society needs someone <b>inside</b> to come to the gate and collect it. Cloud databases are the shop; <mark>a database inside a company’s own network needs the connectivity agent</mark>, a small program installed inside that network that collects OIC’s requests.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 280" role="img" aria-label="OIC in Oracle Cloud reaches Autonomous Database directly using a wallet and database user. To reach an on-premises database, OIC goes through the connectivity agent installed inside the company network; the agent connects outward to OIC, so no inbound firewall port is opened.">
+      <g class="rough">
+        <rect class="box f-blue dash" x="10" y="15" width="330" height="250" rx="16" style="fill:none"/>
+        <rect class="box f-blue" x="30" y="105" width="120" height="66" rx="12"/>
+        <rect class="box f-green" x="190" y="40" width="135" height="70" rx="12"/>
+        <rect class="box f-grey dash" x="380" y="15" width="330" height="250" rx="16" style="fill:none"/>
+        <rect class="box f-yellow" x="400" y="120" width="130" height="70" rx="12"/>
+        <rect class="box f-orange" x="575" y="120" width="120" height="70" rx="12"/>
+        <path class="ln" d="M152 120 C 168 100, 175 85, 184 80" marker-end="url(#ah)"/>
+        <path class="lb" d="M400 160 C 300 165, 220 160, 154 148" marker-end="url(#ahb)"/>
+        <path class="ln" d="M532 155 L 569 155" marker-end="url(#ah)"/>
+      </g>
+      <text class="ts" x="24" y="38">Oracle Cloud</text>
+      <text class="t" x="90" y="134" text-anchor="middle" style="font-weight:700">OIC</text><text class="ts" x="90" y="156" text-anchor="middle">adapter</text>
+      <text class="t" x="257" y="68" text-anchor="middle" style="font-weight:700">Autonomous DB</text><text class="ts" x="257" y="92" text-anchor="middle">wallet + DB user</text>
+      <text class="ts" x="394" y="38">Company network (on-premises)</text>
+      <text class="t" x="465" y="150" text-anchor="middle" style="font-weight:700">Connectivity</text><text class="t" x="465" y="172" text-anchor="middle" style="font-weight:700">agent</text>
+      <text class="t" x="635" y="150" text-anchor="middle" style="font-weight:700">Oracle DB</text><text class="ts" x="635" y="172" text-anchor="middle">/ SQL Server…</text>
+      <text class="ts" x="215" y="205" text-anchor="middle" style="fill:var(--blue);font-weight:700">the agent calls OUT to OIC:</text><text class="ts" x="215" y="225" text-anchor="middle" style="fill:var(--blue);font-weight:700">no inbound firewall hole</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:34%">Adapter</th><th style="width:66%">Connects to · with</th></tr>
+    <tr><td><b>Oracle Autonomous Transaction Processing</b> (ATP) / <b>Autonomous Data Warehouse</b> (ADW)</td><td>Oracle’s cloud databases · the database <b>wallet</b> (a zip file of connection certificates), a service name, and a database user</td></tr>
+    <tr><td><b>Oracle Database</b></td><td>Any Oracle database, typically on-premises · host, port, service name, user · usually through the <b>connectivity agent</b></td></tr>
+    <tr><td><b>MySQL</b>, <b>Microsoft SQL Server</b>, <b>PostgreSQL</b>, <b>IBM DB2</b> and others</td><td>The same ideas for other databases</td></tr>
+  </table></div>
+  <p>Security from Part 3.3 applies here too: OIC should connect as a <b>dedicated integration user</b> that has only the grants it needs (for example EXECUTE on one package and SELECT on one view), never as the schema owner or an admin. And the connection’s <b>Test</b> button checks the wallet, network path and password before you build anything.</p>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="ops">
+  <div class="ch-head"><h2><span class="num">14</span>What the database adapter can do</h2><label class="got"><input type="checkbox" id="got-ops"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Operation (invoke)</th><th style="width:42%">What you give it</th><th style="width:28%">Use it for</th></tr>
+    <tr><td><b>Run a SQL Statement</b></td><td>A SQL statement with parameters written as <code>#name</code>; OIC validates it and builds the request and response shapes</td><td>Simple queries and one-off DML</td></tr>
+    <tr><td><b>Invoke a Stored Procedure</b></td><td>Pick schema → package → procedure. IN parameters become request fields, OUT parameters become response fields</td><td>Anything multi-step or all-or-nothing</td></tr>
+    <tr><td><b>Perform an Operation On a Table</b></td><td>Pick tables and an operation (insert, update, merge, select); OIC generates the SQL</td><td>Plain table writes, no SQL to type</td></tr>
+  </table></div>
+  <div class="cmd"><p class="what">Run a SQL Statement with parameters</p><pre><span class="a">SELECT emp_id, first_name, last_name, job_title
+FROM   emp_details_v
+WHERE  dept_name = #deptName
+AND    last_update_date &gt; TO_TIMESTAMP(#lastRunTime, 'YYYY-MM-DD"T"HH24:MI:SS')</span>
+<span class="c">-- OIC shows deptName and lastRunTime as request fields to map,
+-- and the four columns as repeating response elements</span></pre></div>
+  <h3>Polling: the database as a trigger</h3>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 220" role="img" aria-label="Polling with a logical delete field. Every few seconds the adapter reads rows where process_status equals NEW, the unread value, starts an integration instance with them, and updates them to PROCESSED, the read value, so they are not picked up again.">
+      <g class="rough">
+        <rect class="box f-yellow" x="10" y="50" width="220" height="110" rx="12"/>
+        <rect class="box f-blue" x="300" y="65" width="140" height="80" rx="12"/>
+        <rect class="box f-green" x="500" y="65" width="210" height="80" rx="12"/>
+        <path class="ln" d="M232 90 L 294 90" marker-end="url(#ah)"/>
+        <path class="ln" d="M442 105 L 494 105" marker-end="url(#ah)"/>
+        <path class="lr" d="M370 147 C 370 200, 120 205, 120 164" marker-end="url(#ahr)"/>
+      </g>
+      <text class="t" x="120" y="78" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">EMPLOYEE_STG</text>
+      <text class="t" x="28" y="110" style="font-family:var(--f-mono);font-size:12.5px">111 … NEW</text><text class="t" x="28" y="134" style="font-family:var(--f-mono);font-size:12.5px">104 … PROCESSED</text>
+      <text class="t" x="370" y="98" text-anchor="middle" style="font-weight:700">DB adapter</text><text class="ts" x="370" y="122" text-anchor="middle">every N seconds</text>
+      <text class="t" x="605" y="98" text-anchor="middle" style="font-weight:700">integration run</text><text class="ts" x="605" y="122" text-anchor="middle">one per batch of rows</text>
+      <text class="ts" x="263" y="40" text-anchor="middle">① reads NEW</text><path class="ln" d="M263 46 L 263 82" style="stroke-dasharray:3 4"/>
+      <text class="ts" x="250" y="212" text-anchor="middle" style="fill:var(--red);font-weight:700">② sets them to PROCESSED</text>
+    </svg></div>
+  </figure>
+  <p>As a <b>trigger</b>, the adapter can <b>poll</b> a table for new rows. With the <b>logical delete</b> strategy you choose a status column (the <b>Logical Delete Field</b>), the value meaning “not yet read” (<b>Unread Value</b>, e.g. <code>NEW</code>), the value it writes after reading (<b>Read Value</b>, e.g. <code>PROCESSED</code>), and how often to check (<b>Polling Frequency</b>). That’s exactly our <code>process_status</code> column. Rows too big for one message can be marked with a <b>Rejected Value</b>: messages are limited to <b>10 MB</b>, so batch big data rather than pulling whole tables.</p>
+  <p>Database errors (constraint violations, your own <code>ORA-20001</code>) come back as <b>faults</b> with the ORA code and message, which you handle in Phase 7.</p>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="binds">
+  <div class="ch-head"><h2><span class="num">15</span>Bind variables and SQL injection</h2><label class="got"><input type="checkbox" id="got-binds"> Got it</label></div>
+  <div class="story"><b class="lbl">The fill-in-the-blank form</b>A bank form says “Pay ____ rupees to ____”. Whatever you write in the blanks is treated as an <b>amount</b> and a <b>name</b>, never as a new instruction. If instead the clerk copied your whole note into the instruction book, a note saying “…and also empty the vault” would be obeyed. <mark>Bind variables are the blanks on the form.</mark></div>
+  <div class="two">
+    <div class="cmd"><p class="what">Dangerous: gluing input into SQL text</p><pre><span class="a">v_sql := 'SELECT * FROM employees
+          WHERE last_name = ''' || p_input || '''';</span>
+<span class="c">-- p_input = x' OR '1'='1
+-- becomes: WHERE last_name = 'x' OR '1'='1'
+-- → every employee is returned</span></pre></div>
+    <div class="cmd"><p class="what">Safe: a bind variable</p><pre><span class="a">EXECUTE IMMEDIATE
+  'SELECT COUNT(*) FROM employees
+    WHERE last_name = :name'
+  INTO v_count
+  USING p_input;</span>
+<span class="c">-- the input is only ever a VALUE</span></pre></div>
+  </div>
+  <p>That attack is called <b>SQL injection</b>, and it’s one of the oldest security holes on the web. OIC’s <code>#parameters</code> are bind variables, so values you map in are always treated as data. Binds are also faster: Oracle reuses the same execution plan instead of re-planning a “new” statement for every different value. Rule: <b>never build SQL by joining strings with values from outside.</b></p>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">16</span>Try it yourself</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <p>Run <a href="../phase-04-sql/practice/phase4-setup.sql">phase4-setup.sql</a> again for clean data. Everything below is in <a href="../phase-04-sql/practice/phase4-3-plsql.sql">phase4-3-plsql.sql</a>. Paste one block at a time into the worksheet and run it with <b>Run Script</b> (F5); printed lines appear in the <b>Script Output</b>.</p>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Blocks and variables</b>Hello block, then the <code>%TYPE</code> block → <code>Sneha earns 85000, bonus 8500</code>.</div></li>
+    <li><span class="dot">2</span><div><b>Loops</b>The cursor FOR loop → Amit, Sneha, Arjun with salaries. The WHILE loop → wait 1s, 2s, 4s, 8s.</div></li>
+    <li><span class="dot">3</span><div><b>Exceptions</b>Employee 999 → <code>No employee 999</code>. Change the WHERE to <code>dept_id = 30</code> → <code>More than one row</code>.</div></li>
+    <li><span class="dot">4</span><div><b>Procedure</b>Create <code>give_raise</code> → <code>Procedure GIVE_RAISE compiled</code>. Call it for 105 at 10% → <code>New salary: 85800</code>. Call it for 999 → <code>ORA-20001: Employee 999 not found</code>. Try 80% → <code>ORA-20002</code>.</div></li>
+    <li><span class="dot">5</span><div><b>Function</b>Create <code>get_dept_name</code>, then the SELECT → Sneha IT, Vikram Unknown.</div></li>
+    <li><span class="dot">6</span><div><b>The package</b>Create the <code>hr_int</code> spec and body. Add the bad staging row (113, dept 99), run the loader → <code>Merged: 3, errors: 1</code>. Check <code>employee_stg</code> and <code>integration_log</code> (<code>SUCCESS · 3 merged, 1 rejected</code>). Run the loader again → <code>Merged: 0, errors: 0</code>.</div></li>
+    <li><span class="dot">7</span><div><b>JSON</b>Run the three JSON queries from chapter 12.</div></li>
+  </ol>
+  <h3>Challenges (answers in the practice file)</h3>
+  <ol class="path">
+    <li><span class="dot">A</span><div><b>Function</b><code>years_of_service(p_emp_id)</code> returning completed years up to a date you pass in. <i>(103 on 2026-10-16 → 9)</i></div></li>
+    <li><span class="dot">B</span><div><b>Validation</b>Extend the loader so a staging row with a NULL or negative salary is also marked ERROR with the message <code>Invalid salary</code>.</div></li>
+    <li><span class="dot">C</span><div><b>Report procedure</b><code>dept_summary(p_dept_id IN, p_headcount OUT, p_total_pay OUT)</code>. <i>(30 → 3 and 293000 on fresh data)</i></div></li>
+  </ol>
+</section>
+
+<!-- 17 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">17</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b><code>WHEN OTHERS THEN NULL</code></b>Errors vanish and OIC reports success. Log and re-raise.</div></li>
+    <li><span class="dot">2</span><div><b>SELECT INTO without handling NO_DATA_FOUND</b>One missing record crashes the whole run.</div></li>
+    <li><span class="dot">3</span><div><b>COMMIT inside small helper procedures</b>The caller can no longer make the work all-or-nothing.</div></li>
+    <li><span class="dot">4</span><div><b>Row-by-row loops</b>Slow-by-slow. Use one set-based statement, or one procedure call per batch from OIC.</div></li>
+    <li><span class="dot">5</span><div><b>Building SQL from strings</b>SQL injection and slow parsing. Use binds and <code>#parameters</code>.</div></li>
+    <li><span class="dot">6</span><div><b>Connecting OIC as the schema owner</b>Give the integration user only the grants it needs.</div></li>
+    <li><span class="dot">7</span><div><b>Polling without a status column or an index</b>Rows get processed twice, or each poll scans the whole table.</div></li>
+    <li><span class="dot">8</span><div><b><code>=</code> instead of <code>:=</code></b>In PL/SQL, assignment is <code>:=</code>; <code>=</code> only compares.</div></li>
+  </ol>
+</section>
+
+<!-- 18 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">18</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. Name the four sections of a PL/SQL block. Which are required?</summary><p>DECLARE (optional), BEGIN (required), EXCEPTION (optional), END (required).</p></details>
+    <details><summary>2. What does <code>%TYPE</code> give you?</summary><p>A variable with the same data type as a column, so the code adapts if the column changes.</p></details>
+    <details><summary>3. Which two errors can <code>SELECT … INTO</code> raise?</summary><p>NO_DATA_FOUND (no row) and TOO_MANY_ROWS (more than one row).</p></details>
+    <details><summary>4. Procedure vs function?</summary><p>A procedure does work and returns values through OUT parameters; a function returns exactly one value and can be used inside SQL.</p></details>
+    <details><summary>5. What range must your own error numbers use, and how do you raise one?</summary><p>−20000 to −20999, with RAISE_APPLICATION_ERROR(-20001, 'message').</p></details>
+    <details><summary>6. Package spec vs body?</summary><p>The spec lists what others can call; the body holds the code, including private helpers not in the spec.</p></details>
+    <details><summary>7. In the loader’s EXCEPTION section, why ROLLBACK, log, COMMIT, then RAISE?</summary><p>Undo the half-done data changes, record why it failed, keep only the log row, and re-raise so OIC sees the failure.</p></details>
+    <details><summary>8. When does OIC need the connectivity agent for a database?</summary><p>When the database is inside a private (on-premises) network that OIC can’t reach directly.</p></details>
+    <details><summary>9. Name the three invoke operations of the database adapters.</summary><p>Run a SQL Statement, Invoke a Stored Procedure, and Perform an Operation On a Table.</p></details>
+    <details><summary>10. In logical delete polling, what are the Read and Unread values?</summary><p>Unread marks rows still to process (e.g. NEW); Read is written after the adapter picks them up (e.g. PROCESSED), so they aren’t read again.</p></details>
+    <details><summary>11. Why are bind variables safer than building SQL with <code>||</code>?</summary><p>Input is treated only as a value, never as SQL, which prevents SQL injection; binds also let Oracle reuse the execution plan.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final"><b>PL/SQL</b> wraps SQL in blocks with variables, IF, loops and <b>exceptions</b>; saved as <b>procedures</b>, <b>functions</b> and <b>packages</b>, it lets OIC call one all-or-nothing, set-based, logged unit of work, through the <b>ATP</b> or <b>Database</b> adapter (via the <b>connectivity agent</b> on-premises) using <b>Run a SQL Statement</b>, <b>Invoke a Stored Procedure</b>, <b>table operations</b> or <b>polling</b>, always with bind parameters.</p>
+  <p>That completes Phase 4. Next up, Phase 5: Integration Concepts.</p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 4.3 · PL/SQL &amp; databases in OIC · by @devwithprabir</footer>
+
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p43-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p43-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>

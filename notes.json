@@ -139,6 +139,79 @@
       "readMinutes": 45,
       "video": "",
       "status": "published"
+    },
+    {
+      "slug": "phase-04-1-sql-basics",
+      "phase": 4,
+      "part": 1,
+      "title": "4.1 · Databases & SELECT",
+      "summary": "How Oracle stores data in tables with types, keys and constraints, what NULL really means, and how to ask exact questions with SELECT, WHERE, ORDER BY, FETCH, functions, dates and CASE.",
+      "topics": [
+        "Tables",
+        "Data types",
+        "Keys",
+        "Constraints",
+        "NULL",
+        "SELECT",
+        "WHERE",
+        "ORDER BY",
+        "Paging",
+        "Functions",
+        "Dates",
+        "CASE"
+      ],
+      "date": "2026-10-16",
+      "readMinutes": 45,
+      "video": "",
+      "status": "published"
+    },
+    {
+      "slug": "phase-04-2-joins-and-changes",
+      "phase": 4,
+      "part": 2,
+      "title": "4.2 · Joins, grouping & changing data",
+      "summary": "INNER, LEFT, RIGHT, FULL and self joins, aggregates with GROUP BY and HAVING, the order a query really runs, subqueries, INSERT, UPDATE, DELETE, transactions, idempotent MERGE, sequences, views and indexes.",
+      "topics": [
+        "Joins",
+        "GROUP BY",
+        "HAVING",
+        "Subqueries",
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "COMMIT",
+        "MERGE",
+        "Sequences",
+        "Views",
+        "Indexes"
+      ],
+      "date": "2026-10-16",
+      "readMinutes": 50,
+      "video": "",
+      "status": "published"
+    },
+    {
+      "slug": "phase-04-3-plsql-and-oic",
+      "phase": 4,
+      "part": 3,
+      "title": "4.3 · PL/SQL & databases in OIC",
+      "summary": "PL/SQL blocks, variables, loops, exceptions, procedures, functions and packages, a real staging-table loader, JSON in SQL, and exactly how OIC’s database adapters connect, call procedures, run SQL and poll tables.",
+      "topics": [
+        "PL/SQL",
+        "Exceptions",
+        "Procedures",
+        "Functions",
+        "Packages",
+        "Staging pattern",
+        "JSON_TABLE",
+        "DB adapters",
+        "Polling",
+        "Bind variables"
+      ],
+      "date": "2026-10-16",
+      "readMinutes": 50,
+      "video": "",
+      "status": "published"
     }
   ],
   "roadmap": [
@@ -192,16 +265,13 @@
     {
       "phase": 4,
       "title": "SQL & Databases",
-      "weeks": "1–2 weeks",
+      "weeks": "2 weeks",
       "stage": "Foundations",
-      "topics": "Queries · joins · PL/SQL basics",
+      "topics": "3 parts · SELECT · joins & changes · PL/SQL & OIC",
       "list": [
-        "Tables, keys and relationships",
-        "SELECT, WHERE, ORDER BY, GROUP BY",
-        "Joins",
-        "INSERT, UPDATE, DELETE, MERGE",
-        "PL/SQL procedures and functions",
-        "Hands-on with Oracle Live SQL"
+        "4.1 Databases & SELECT: tables, types, keys, NULL, WHERE, paging, functions, dates, CASE",
+        "4.2 Joins, grouping & changing data: joins, GROUP BY, subqueries, DML, transactions, MERGE, indexes",
+        "4.3 PL/SQL & databases in OIC: procedures, packages, exceptions, staging loader, DB adapters, polling"
       ]
     },
     {

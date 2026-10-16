@@ -1,0 +1,794 @@
+<title>Phase 4.2 · Joins, grouping &amp; changing data | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 4 · Part 2 of 3</p>
+  <h1>Joins, grouping &amp; changing data</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 4: <a href="../phase-04-1-sql-basics/index.html">4.1 Databases &amp; SELECT</a> · <b>4.2 Joins, grouping &amp; changing data</b> · <a href="../phase-04-3-plsql-and-oic/index.html">4.3 PL/SQL &amp; databases in OIC</a>. Real questions need data from <mark>several tables at once</mark>, totals instead of rows, and safe ways to insert, update and merge. This is the SQL that integration jobs run every night.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#why">1 · Why joins exist</a><a href="#inner">2 · INNER JOIN</a><a href="#outer">3 · LEFT, RIGHT, FULL</a><a href="#self">4 · Self join</a>
+    <a href="#agg">5 · Aggregate functions</a><a href="#group">6 · GROUP BY</a><a href="#having">7 · HAVING vs WHERE</a><a href="#orderrun">8 · The order Oracle runs it</a>
+    <a href="#sub">9 · Subqueries</a><a href="#insert">10 · INSERT</a><a href="#update">11 · UPDATE &amp; DELETE</a><a href="#tx">12 · Transactions</a>
+    <a href="#merge">13 · MERGE (upsert)</a><a href="#seq">14 · Sequences &amp; identity</a><a href="#views">15 · Views &amp; indexes</a><a href="#tools">16 · Hands-on</a>
+    <a href="#oic">17 · In OIC</a><a href="#mistakes">18 · Mistakes</a><a href="#quiz">19 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="why">
+  <div class="ch-head"><h2><span class="num">1</span>Why joins exist</h2><label class="got"><input type="checkbox" id="got-why"> Got it</label></div>
+  <div class="story"><b class="lbl">Two registers on the desk</b>The staff register says “Sneha · dept 30”. To know that dept 30 is IT in Bengaluru, you open the department register and look up 30. A <mark>join</mark> is the database doing that lookup for every row, in one go.</div>
+  <p>Why not just write “IT, Bengaluru” on every employee row? Because if IT moves to Hyderabad, you’d have to fix hundreds of rows, and you’d miss some. Storing each fact <b>once</b> and linking by keys is called <b>normalisation</b>. The price is that reading needs joins.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 240" role="img" aria-label="Employee rows on the left each hold a dept_id. Lines connect each dept_id to the matching row in DEPARTMENTS on the right. Vikram has no dept_id and connects to nothing; Legal has no employees.">
+      <g class="rough">
+        <rect class="box f-blue" x="20" y="20" width="250" height="200" rx="12"/>
+        <rect class="box f-green" x="450" y="20" width="250" height="200" rx="12"/>
+        <path class="ln" d="M240 75 C 340 75, 360 70, 455 70" marker-end="url(#ah)"/>
+        <path class="ln" d="M240 105 C 340 105, 360 100, 455 100" marker-end="url(#ah)"/>
+        <path class="ln" d="M240 135 C 340 135, 360 100, 455 102" marker-end="url(#ah)"/>
+        <path class="ln" d="M240 165 C 340 165, 360 132, 455 132" marker-end="url(#ah)"/>
+      </g>
+      <text class="th" x="145" y="46" text-anchor="middle">EMPLOYEES</text>
+      <text class="t" x="40" y="80" style="font-family:var(--f-mono);font-size:13px">Ravi    dept 10</text>
+      <text class="t" x="40" y="110" style="font-family:var(--f-mono);font-size:13px">Amit    dept 30</text>
+      <text class="t" x="40" y="140" style="font-family:var(--f-mono);font-size:13px">Sneha   dept 30</text>
+      <text class="t" x="40" y="170" style="font-family:var(--f-mono);font-size:13px">Karan   dept 40</text>
+      <text class="tr" x="40" y="200" style="font-family:var(--f-mono);font-size:13px">Vikram  (none)</text>
+      <text class="th" x="575" y="46" text-anchor="middle">DEPARTMENTS</text>
+      <text class="t" x="470" y="74" style="font-family:var(--f-mono);font-size:13px">10 HR      Pune</text>
+      <text class="t" x="470" y="104" style="font-family:var(--f-mono);font-size:13px">30 IT      Bengaluru</text>
+      <text class="t" x="470" y="136" style="font-family:var(--f-mono);font-size:13px">40 Sales   Delhi</text>
+      <text class="tr" x="470" y="200" style="font-family:var(--f-mono);font-size:13px">50 Legal   (nobody)</text>
+    </svg></div>
+    <figcaption>Most rows find a partner. Vikram (no department) and Legal (no employees) don’t, and what happens to them is the whole story of chapter 3.</figcaption>
+  </figure>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="inner">
+  <div class="ch-head"><h2><span class="num">2</span>INNER JOIN</h2><label class="got"><input type="checkbox" id="got-inner"> Got it</label></div>
+  <div class="cmd"><pre><span class="a">SELECT e.first_name, e.last_name, d.dept_name, d.location
+FROM   employees   e                        <span class="c">-- e is a table alias</span>
+JOIN   departments d                        <span class="c">-- JOIN means INNER JOIN</span>
+       ON e.dept_id = d.dept_id             <span class="c">-- the matching rule</span>
+ORDER  BY e.emp_id;</span>
+<span class="b">FIRST_NAME LAST_NAME DEPT_NAME LOCATION
+---------- --------- --------- ---------
+Ravi       Kumar     HR        Pune
+Priya      Sharma    Finance   Mumbai
+Amit       Patel     IT        Bengaluru
+Sneha      Iyer      IT        Bengaluru
+Arjun      Singh     IT        Bengaluru
+Neha       Gupta     Finance   Mumbai
+Karan      Mehta     Sales     Delhi
+Pooja      Reddy     HR        Pune
+Anjali     Nair      Sales     Delhi</span>     <span class="c">← 9 rows: Vikram and Legal are gone</span></pre></div>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Piece</th><th style="width:70%">Why</th></tr>
+    <tr><td><code>employees e</code></td><td>A short <b>table alias</b>, so you can write <code>e.dept_id</code> instead of <code>employees.dept_id</code></td></tr>
+    <tr><td><code>e.dept_id</code>, <code>d.dept_id</code></td><td>Both tables have a <code>dept_id</code> column, so you must say which one. Without the prefix: <code>ORA-00918: column ambiguously defined</code></td></tr>
+    <tr><td><code>ON …</code></td><td>The rule that decides which rows belong together, almost always <b>foreign key = primary key</b></td></tr>
+  </table></div>
+  <p><b>INNER</b> means: keep only rows that found a partner on <b>both</b> sides. You’ll also see the old Oracle style, <code>FROM employees e, departments d WHERE e.dept_id = d.dept_id</code>. It gives the same answer, but forget the WHERE and you get every employee paired with every department (10 × 5 = 50 rows, a <b>Cartesian product</b>). Prefer the <code>JOIN … ON</code> style.</p>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="outer">
+  <div class="ch-head"><h2><span class="num">3</span>LEFT, RIGHT and FULL OUTER JOIN</h2><label class="got"><input type="checkbox" id="got-outer"> Got it</label></div>
+  <div class="story"><b class="lbl">The wedding seating list</b>You need a list of <b>every guest</b> with their table number, including guests who haven’t been given a table yet (show a blank). That’s a <mark>LEFT JOIN</mark>: everyone from the left list stays, with blanks where no partner was found.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="Four panels comparing join types on the same data. INNER keeps 9 matched rows. LEFT from employees keeps 10 rows including Vikram with an empty department. RIGHT keeps 10 rows including Legal with no employee. FULL keeps 11 rows including both.">
+      <g class="rough">
+        <rect class="box f-grey" x="10" y="20" width="165" height="215" rx="12"/>
+        <rect class="box f-blue" x="190" y="20" width="165" height="215" rx="12"/>
+        <rect class="box f-green" x="370" y="20" width="165" height="215" rx="12"/>
+        <rect class="box f-yellow" x="550" y="20" width="160" height="215" rx="12"/>
+      </g>
+      <text class="th" x="92" y="50" text-anchor="middle">INNER</text><text class="ts" x="92" y="74" text-anchor="middle">only matches</text>
+      <text class="t" x="92" y="120" text-anchor="middle">9 matched pairs</text><text class="ts" x="92" y="160" text-anchor="middle">Vikram ✗</text><text class="ts" x="92" y="182" text-anchor="middle">Legal ✗</text><text class="th" x="92" y="220" text-anchor="middle">9 rows</text>
+      <text class="th" x="272" y="50" text-anchor="middle">LEFT</text><text class="ts" x="272" y="74" text-anchor="middle">all employees</text>
+      <text class="t" x="272" y="120" text-anchor="middle">9 matched pairs</text><text class="ts" style="fill:var(--blue);font-weight:700" x="272" y="160" text-anchor="middle">Vikram + (null)</text><text class="ts" x="272" y="182" text-anchor="middle">Legal ✗</text><text class="th" x="272" y="220" text-anchor="middle">10 rows</text>
+      <text class="th" x="452" y="50" text-anchor="middle">RIGHT</text><text class="ts" x="452" y="74" text-anchor="middle">all departments</text>
+      <text class="t" x="452" y="120" text-anchor="middle">9 matched pairs</text><text class="ts" x="452" y="160" text-anchor="middle">Vikram ✗</text><text class="ts" style="fill:var(--blue);font-weight:700" x="452" y="182" text-anchor="middle">(null) + Legal</text><text class="th" x="452" y="220" text-anchor="middle">10 rows</text>
+      <text class="th" x="630" y="50" text-anchor="middle">FULL</text><text class="ts" x="630" y="74" text-anchor="middle">everyone</text>
+      <text class="t" x="630" y="120" text-anchor="middle">9 matched pairs</text><text class="ts" style="fill:var(--blue);font-weight:700" x="630" y="160" text-anchor="middle">Vikram + (null)</text><text class="ts" style="fill:var(--blue);font-weight:700" x="630" y="182" text-anchor="middle">(null) + Legal</text><text class="th" x="630" y="220" text-anchor="middle">11 rows</text>
+    </svg></div>
+    <figcaption>All four with <code>FROM employees e … JOIN departments d ON e.dept_id = d.dept_id</code>. “Left” simply means the table written first.</figcaption>
+  </figure>
+  <div class="two">
+    <div class="cmd"><p class="what">Every employee, department if any</p><pre><span class="a">SELECT e.first_name, d.dept_name
+FROM   employees e
+LEFT   JOIN departments d
+       ON e.dept_id = d.dept_id
+ORDER  BY e.emp_id;</span>
+<span class="b">FIRST_NAME DEPT_NAME
+---------- ---------
+Ravi       HR
+…  (7 more)
+Vikram     (null)
+Anjali     Sales</span>   <span class="c">10 rows</span></pre></div>
+    <div class="cmd"><p class="what">Which department has nobody?</p><pre><span class="a">SELECT d.dept_name
+FROM   departments d
+LEFT   JOIN employees e
+       ON e.dept_id = d.dept_id
+WHERE  e.emp_id IS NULL;</span>
+<span class="b">DEPT_NAME
+---------
+Legal</span></pre></div>
+  </div>
+  <p>The second query is a classic pattern called an <b>anti-join</b>: LEFT JOIN, then keep only rows where the right side stayed empty. Integrations use it to find <b>“records in A that are missing from B”</b>, for example employees in the HR system who were never created in payroll.</p>
+  <div class="sticky"><strong>The LEFT JOIN trap.</strong> A condition on the right table in the <b>WHERE</b> clause (<code>WHERE d.location = 'Pune'</code>) throws away the NULL rows and silently turns your LEFT JOIN back into an INNER JOIN. To filter the right side but keep everyone, put the condition in the <b>ON</b>: <code>ON e.dept_id = d.dept_id AND d.location = 'Pune'</code>.</div>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="self">
+  <div class="ch-head"><h2><span class="num">4</span>Self join: a table joined to itself</h2><label class="got"><input type="checkbox" id="got-self"> Got it</label></div>
+  <div class="story"><b class="lbl">The class photo</b>To label who sits next to whom in a class photo, you look at the same photo twice. A <mark>self join</mark> reads the same table twice under two aliases. Our <code>manager_id</code> points at another row of <b>employees</b>.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 200" role="img" aria-label="Org chart: Amit manages Sneha and Arjun; Priya manages Neha; Ravi manages Pooja; Karan manages Anjali">
+      <g class="rough">
+        <rect class="box f-blue" x="40" y="20" width="120" height="44" rx="10"/><rect class="box f-blue" x="230" y="20" width="120" height="44" rx="10"/><rect class="box f-blue" x="420" y="20" width="120" height="44" rx="10"/><rect class="box f-blue" x="580" y="20" width="120" height="44" rx="10"/>
+        <rect class="box f-card" x="10" y="130" width="90" height="44" rx="10"/><rect class="box f-card" x="110" y="130" width="90" height="44" rx="10"/>
+        <rect class="box f-card" x="245" y="130" width="90" height="44" rx="10"/><rect class="box f-card" x="435" y="130" width="90" height="44" rx="10"/><rect class="box f-card" x="595" y="130" width="90" height="44" rx="10"/>
+        <path class="ln" d="M90 66 L 58 126" marker-end="url(#ah)"/><path class="ln" d="M110 66 L 150 126" marker-end="url(#ah)"/>
+        <path class="ln" d="M290 66 L 290 126" marker-end="url(#ah)"/><path class="ln" d="M480 66 L 480 126" marker-end="url(#ah)"/><path class="ln" d="M640 66 L 640 126" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="100" y="48" text-anchor="middle">Amit 103</text><text class="t" x="290" y="48" text-anchor="middle">Priya 102</text><text class="t" x="480" y="48" text-anchor="middle">Ravi 101</text><text class="t" x="640" y="48" text-anchor="middle">Karan 107</text>
+      <text class="ts" x="55" y="157" text-anchor="middle">Sneha</text><text class="ts" x="155" y="157" text-anchor="middle">Arjun</text><text class="ts" x="290" y="157" text-anchor="middle">Neha</text><text class="ts" x="480" y="157" text-anchor="middle">Pooja</text><text class="ts" x="640" y="157" text-anchor="middle">Anjali</text>
+      <text class="ts" x="360" y="196" text-anchor="middle">each arrow is one row’s manager_id → another row’s emp_id</text>
+    </svg></div>
+  </figure>
+  <div class="cmd"><pre><span class="a">SELECT e.first_name AS employee,
+       m.first_name AS manager
+FROM   employees e                       <span class="c">-- e = the employee's copy</span>
+LEFT   JOIN employees m                  <span class="c">-- m = the manager's copy</span>
+       ON e.manager_id = m.emp_id
+WHERE  e.dept_id = 30
+ORDER  BY e.emp_id;</span>
+<span class="b">EMPLOYEE MANAGER
+-------- -------
+Amit     (null)
+Sneha    Amit
+Arjun    Amit</span></pre></div>
+  <p>LEFT, because top managers have no manager and should still appear. You’ll see this pattern in HR integrations that send a reporting line (“supervisor”) along with each worker.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="agg">
+  <div class="ch-head"><h2><span class="num">5</span>Aggregate functions</h2><label class="got"><input type="checkbox" id="got-agg"> Got it</label></div>
+  <div class="story"><b class="lbl">The bill at the end</b>A restaurant bill doesn’t list every bite: it gives a count of items and a total. <mark>Aggregate functions squash many rows into one answer.</mark></div>
+  <div class="cmd"><pre><span class="a">SELECT COUNT(*)                AS all_rows,
+       COUNT(email)            AS with_email,
+       COUNT(DISTINCT dept_id) AS depts_used,
+       SUM(salary)             AS total_pay,
+       AVG(salary)             AS avg_pay,
+       MIN(salary)             AS lowest,
+       MAX(salary)             AS highest,
+       TO_CHAR(MIN(hire_date), 'YYYY-MM-DD') AS first_hire
+FROM   employees;</span>
+<span class="b">ALL_ROWS WITH_EMAIL DEPTS_USED TOTAL_PAY AVG_PAY LOWEST HIGHEST FIRST_HIRE
+-------- ---------- ---------- --------- ------- ------ ------- ----------
+      10          9          4    793000   79300  48000  130000 2017-01-10</span></pre></div>
+  <div class="tbl"><table>
+    <tr><th style="width:34%">Function</th><th style="width:66%">Watch out</th></tr>
+    <tr><td><code>COUNT(*)</code></td><td>Counts <b>rows</b>, whatever is in them</td></tr>
+    <tr><td><code>COUNT(column)</code></td><td>Counts only <b>non-NULL</b> values: 9 emails, because Karan has none</td></tr>
+    <tr><td><code>COUNT(DISTINCT column)</code></td><td>Counts different values: 4 departments (NULL isn’t counted)</td></tr>
+    <tr><td><code>SUM</code>, <code>AVG</code>, <code>MIN</code>, <code>MAX</code></td><td>All <b>ignore NULLs</b>. An AVG over values (10, NULL, 20) is 15, not 10</td></tr>
+  </table></div>
+  <p>Integrations use this for <b>reconciliation</b>: after loading a file, compare <code>COUNT(*)</code> and <code>SUM(amount)</code> in the target with the file’s trailer record. If they match, nothing was lost.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="group">
+  <div class="ch-head"><h2><span class="num">6</span>GROUP BY: one answer per group</h2><label class="got"><input type="checkbox" id="got-group"> Got it</label></div>
+  <div class="story"><b class="lbl">Sorting the post</b>A postman tips the sack onto a table and makes one pile per pin code. Then for each pile he counts the letters. <mark>GROUP BY makes the piles; the aggregate function measures each pile.</mark></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="Ten employee rows are sorted into piles by dept_id: 10, 20, 30, 40 and an empty pile for no department. Each pile becomes one output row with a count and a total.">
+      <g class="rough">
+        <rect class="box f-card" x="20" y="20" width="150" height="190" rx="10"/>
+        <rect class="box f-green" x="240" y="20" width="200" height="34" rx="8"/><rect class="box f-green" x="240" y="60" width="200" height="34" rx="8"/><rect class="box f-green" x="240" y="100" width="200" height="34" rx="8"/><rect class="box f-green" x="240" y="140" width="200" height="34" rx="8"/><rect class="box f-grey" x="240" y="180" width="200" height="34" rx="8"/>
+        <rect class="box f-yellow" x="510" y="20" width="190" height="194" rx="10"/>
+        <path class="ln" d="M172 115 L 234 115" marker-end="url(#ah)"/><path class="ln" d="M442 115 L 504 115" marker-end="url(#ah)"/>
+      </g>
+      <text class="th" x="95" y="50" text-anchor="middle">10 rows</text><text class="ts" x="95" y="80" text-anchor="middle">in any order</text><text class="ts" x="95" y="120" text-anchor="middle">GROUP BY</text><text class="ts" x="95" y="140" text-anchor="middle">dept_id</text>
+      <text class="ts" x="252" y="42">10: Ravi, Pooja</text><text class="ts" x="252" y="82">20: Priya, Neha</text><text class="ts" x="252" y="122">30: Amit, Sneha, Arjun</text><text class="ts" x="252" y="162">40: Karan, Anjali</text><text class="ts" x="252" y="202">(null): Vikram</text>
+      <text class="th" x="605" y="50" text-anchor="middle">5 rows</text><text class="ts" x="605" y="80" text-anchor="middle">one per pile:</text><text class="ts" x="605" y="104" text-anchor="middle">COUNT(*)</text><text class="ts" x="605" y="124" text-anchor="middle">SUM(salary)</text><text class="ts" x="605" y="144" text-anchor="middle">ROUND(AVG(salary))</text>
+    </svg></div>
+  </figure>
+  <div class="cmd"><pre><span class="a">SELECT dept_id,
+       COUNT(*)           AS headcount,
+       SUM(salary)        AS total_pay,
+       ROUND(AVG(salary)) AS avg_pay
+FROM   employees
+GROUP  BY dept_id
+ORDER  BY dept_id;</span>
+<span class="b">DEPT_ID HEADCOUNT TOTAL_PAY AVG_PAY
+------- --------- --------- -------
+     10         2    143000   71500
+     20         2    180000   90000
+     30         3    293000   97667
+     40         2    107000   53500
+(null)          1     70000   70000</span>     <span class="c">← NULLs form their own pile</span></pre></div>
+  <div class="sticky"><strong>The golden rule of GROUP BY.</strong> Every column in SELECT must either be <b>inside an aggregate</b> or be <b>listed in GROUP BY</b>. Ask for <code>first_name</code> too, and Oracle answers <code>ORA-00979: not a GROUP BY expression</code>: a pile of three people has no single first name.</div>
+  <div class="cmd"><p class="what">Group with a join: names instead of numbers, and Legal counted as 0</p><pre><span class="a">SELECT d.dept_name, COUNT(e.emp_id) AS headcount
+FROM   departments d
+LEFT   JOIN employees e ON e.dept_id = d.dept_id
+GROUP  BY d.dept_name
+ORDER  BY headcount DESC, d.dept_name;</span>
+<span class="b">DEPT_NAME HEADCOUNT
+--------- ---------
+IT                3
+Finance           2
+HR                2
+Sales             2
+Legal             0</span></pre></div>
+  <p>Look closely: <code>COUNT(e.emp_id)</code>, not <code>COUNT(*)</code>. Legal’s row exists (with an empty employee side), so <code>COUNT(*)</code> would say 1. Counting a column from the right table counts only real employees.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="having">
+  <div class="ch-head"><h2><span class="num">7</span>HAVING vs WHERE</h2><label class="got"><input type="checkbox" id="got-having"> Got it</label></div>
+  <div class="story"><b class="lbl">Two sieves</b>The postman first throws away junk mail (<b>before</b> making piles). Then he only delivers piles with at least two letters (<b>after</b> making piles). <mark>WHERE filters rows before grouping; HAVING filters groups after.</mark></div>
+  <div class="cmd"><pre><span class="a">SELECT d.dept_name, COUNT(*) AS active_staff, ROUND(AVG(e.salary)) AS avg_pay
+FROM   employees e
+JOIN   departments d ON e.dept_id = d.dept_id
+WHERE  e.status = 'ACTIVE'                 <span class="c">-- sieve 1: rows</span>
+GROUP  BY d.dept_name
+HAVING COUNT(*) &gt;= 2                       <span class="c">-- sieve 2: groups</span>
+ORDER  BY avg_pay DESC;</span>
+<span class="b">DEPT_NAME ACTIVE_STAFF AVG_PAY
+--------- ------------ -------
+IT                   3   97667
+Finance              2   90000
+HR                   2   71500</span>    <span class="c">← Sales lost Anjali (INACTIVE) in sieve 1, then had only 1 left</span></pre></div>
+  <div class="tbl"><table>
+    <tr><th style="width:20%"></th><th style="width:40%">WHERE</th><th style="width:40%">HAVING</th></tr>
+    <tr><td>Filters</td><td>Single rows</td><td>Whole groups</td></tr>
+    <tr><td>Runs</td><td>Before GROUP BY</td><td>After GROUP BY</td></tr>
+    <tr><td>Can use aggregates?</td><td>No: <code>WHERE COUNT(*) &gt; 1</code> is an error</td><td>Yes: that’s its job</td></tr>
+  </table></div>
+  <p>A very common data-quality query uses HAVING to find <b>duplicates</b>: <code>SELECT email, COUNT(*) FROM employee_stg GROUP BY email HAVING COUNT(*) &gt; 1</code>. Run it on a staging table before loading, and you catch duplicate records before they cause unique-constraint errors.</p>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="orderrun">
+  <div class="ch-head"><h2><span class="num">8</span>The order Oracle actually runs a query</h2><label class="got"><input type="checkbox" id="got-orderrun"> Got it</label></div>
+  <p>We <b>write</b> SELECT first, but the database <b>runs</b> it in a different order. Knowing this order explains half of all SQL error messages.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 150" role="img" aria-label="Logical order of a query: 1 FROM and JOIN, 2 WHERE, 3 GROUP BY, 4 HAVING, 5 SELECT, 6 ORDER BY, 7 FETCH">
+      <g class="rough">
+        <rect class="box f-green" x="10" y="40" width="90" height="60" rx="10"/><rect class="box f-yellow" x="112" y="40" width="90" height="60" rx="10"/><rect class="box f-orange" x="214" y="40" width="90" height="60" rx="10"/><rect class="box f-pink" x="316" y="40" width="90" height="60" rx="10"/><rect class="box f-blue" x="418" y="40" width="90" height="60" rx="10"/><rect class="box f-purple" x="520" y="40" width="90" height="60" rx="10"/><rect class="box f-grey" x="622" y="40" width="90" height="60" rx="10"/>
+        <path class="ln" d="M100 70 L 108 70" marker-end="url(#ah)"/><path class="ln" d="M202 70 L 210 70" marker-end="url(#ah)"/><path class="ln" d="M304 70 L 312 70" marker-end="url(#ah)"/><path class="ln" d="M406 70 L 414 70" marker-end="url(#ah)"/><path class="ln" d="M508 70 L 516 70" marker-end="url(#ah)"/><path class="ln" d="M610 70 L 618 70" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" style="font-size:15px;font-weight:700" x="55" y="66" text-anchor="middle">1 FROM</text><text class="ts" x="55" y="88" text-anchor="middle">+ JOIN</text>
+      <text class="t" style="font-size:15px;font-weight:700" x="157" y="66" text-anchor="middle">2 WHERE</text><text class="ts" x="157" y="88" text-anchor="middle">rows</text>
+      <text class="t" style="font-size:15px;font-weight:700" x="259" y="66" text-anchor="middle">3 GROUP</text><text class="ts" x="259" y="88" text-anchor="middle">piles</text>
+      <text class="t" style="font-size:15px;font-weight:700" x="361" y="66" text-anchor="middle">4 HAVING</text><text class="ts" x="361" y="88" text-anchor="middle">piles</text>
+      <text class="t" style="font-size:15px;font-weight:700" x="463" y="66" text-anchor="middle">5 SELECT</text><text class="ts" x="463" y="88" text-anchor="middle">aliases born</text>
+      <text class="t" style="font-size:15px;font-weight:700" x="565" y="66" text-anchor="middle">6 ORDER</text><text class="ts" x="565" y="88" text-anchor="middle">sort</text>
+      <text class="t" style="font-size:15px;font-weight:700" x="667" y="66" text-anchor="middle">7 FETCH</text><text class="ts" x="667" y="88" text-anchor="middle">page</text>
+      <text class="ts" x="360" y="135" text-anchor="middle" style="fill:var(--red);font-weight:700">an alias made in step 5 doesn’t exist yet in steps 2–4, but does in step 6</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:46%">This fails…</th><th style="width:54%">…because</th></tr>
+    <tr><td><code>SELECT salary*12 AS annual … WHERE annual &gt; 1000000</code></td><td>WHERE (step 2) runs before the alias is created (step 5): <code>ORA-00904: invalid identifier</code>. Repeat the expression: <code>WHERE salary*12 &gt; 1000000</code></td></tr>
+    <tr><td><code>WHERE COUNT(*) &gt; 1</code></td><td>Groups don’t exist yet in step 2. Use HAVING.</td></tr>
+    <tr><td><code>ORDER BY annual</code></td><td>This one <b>works</b>: ORDER BY runs after SELECT.</td></tr>
+  </table></div>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="sub">
+  <div class="ch-head"><h2><span class="num">9</span>Subqueries: a query inside a query</h2><label class="got"><input type="checkbox" id="got-sub"> Got it</label></div>
+  <div class="story"><b class="lbl">Two-step question</b>“Who earns more than average?” is really two questions: first “what’s the average?”, then “who’s above it?”. A <mark>subquery</mark> answers the inner question first, in brackets, and hands the answer to the outer one.</div>
+  <div class="cmd"><p class="what">Single value: above the company average (79300)</p><pre><span class="a">SELECT first_name, salary FROM employees
+WHERE  salary &gt; (SELECT AVG(salary) FROM employees)
+ORDER  BY salary DESC;</span>
+<span class="b">FIRST_NAME SALARY
+---------- ------
+Amit       130000
+Priya      120000
+Ravi        95000
+Sneha       85000</span></pre></div>
+  <div class="cmd"><p class="what">A list: everyone working in Pune or Mumbai</p><pre><span class="a">SELECT first_name FROM employees
+WHERE  dept_id IN (SELECT dept_id FROM departments WHERE location IN ('Pune', 'Mumbai'))
+ORDER  BY emp_id;</span>
+<span class="b">FIRST_NAME
+----------
+Ravi
+Priya
+Neha
+Pooja</span></pre></div>
+  <div class="cmd"><p class="what">EXISTS: departments with at least one person earning over 1 lakh</p><pre><span class="a">SELECT d.dept_name FROM departments d
+WHERE  EXISTS (SELECT 1 FROM employees e
+               WHERE e.dept_id = d.dept_id AND e.salary &gt; 100000)
+ORDER  BY d.dept_name;</span>
+<span class="b">DEPT_NAME
+---------
+Finance
+IT</span></pre></div>
+  <p>The last one is <b>correlated</b>: the inner query uses <code>d.dept_id</code> from the outer row, so it runs once per department. <code>EXISTS</code> only asks “is there at least one?”, and stops at the first match. It’s also NULL-safe, unlike <code>NOT IN</code> (Part 4.1, chapter 9), so <code>NOT EXISTS</code> is the safer way to find missing records.</p>
+  <p>If a subquery used with <code>=</code> returns more than one row, Oracle stops with <code>ORA-01427: single-row subquery returns more than one row</code>. Use <code>IN</code> when the inner answer can be a list.</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="insert">
+  <div class="ch-head"><h2><span class="num">10</span>INSERT: adding rows</h2><label class="got"><input type="checkbox" id="got-insert"> Got it</label></div>
+  <div class="cmd"><pre><span class="a">INSERT INTO employees (emp_id, first_name, last_name, email,
+                       job_title, salary, hire_date, dept_id)
+VALUES (112, 'Meera', 'Joshi', 'meera.joshi@company.com',
+        'Legal Advisor', 88000, DATE '2026-10-16', 50);</span>
+<span class="b">1 row inserted.</span></pre></div>
+  <p>Always <b>list the columns</b>. Columns you leave out get their DEFAULT (<code>status</code> becomes <code>'ACTIVE'</code>, <code>last_update_date</code> becomes now) or NULL. If someone adds a column to the table later, your statement still works.</p>
+  <div class="cmd"><p class="what">INSERT … SELECT: copy many rows in one statement</p><pre><span class="a">INSERT INTO employee_stg (emp_id, first_name, last_name, email, job_title, salary, dept_id)
+SELECT emp_id, first_name, last_name, email, job_title, salary, dept_id
+FROM   employees
+WHERE  dept_id = 20;</span>
+<span class="b">2 rows inserted.</span>   <span class="c">← no VALUES: the rows come from the query</span></pre></div>
+  <h3>When the database says no</h3>
+  <div class="tbl"><table>
+    <tr><th style="width:42%">You try</th><th style="width:58%">Oracle answers</th></tr>
+    <tr><td>emp_id 101 again</td><td><code>ORA-00001: unique constraint (…EMP_PK) violated</code></td></tr>
+    <tr><td><code>dept_id</code> 99</td><td><code>ORA-02291: integrity constraint (…EMP_DEPT_FK) violated - parent key not found</code></td></tr>
+    <tr><td>no <code>last_name</code></td><td><code>ORA-01400: cannot insert NULL into (…"EMPLOYEES"."LAST_NAME")</code></td></tr>
+    <tr><td><code>salary</code> −5</td><td><code>ORA-02290: check constraint (…EMP_SALARY_CK) violated</code></td></tr>
+    <tr><td>a 60-letter <code>last_name</code></td><td><code>ORA-12899: value too large for column … (actual: 60, maximum: 30)</code></td></tr>
+  </table></div>
+  <p>These five errors are most of what goes wrong when an integration writes to a database. Learn to read them on sight.</p>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="update">
+  <div class="ch-head"><h2><span class="num">11</span>UPDATE and DELETE</h2><label class="got"><input type="checkbox" id="got-update"> Got it</label></div>
+  <div class="story"><b class="lbl">Measure twice, cut once</b>A tailor checks the measurements before cutting the cloth, because a cut can’t be undone. <mark>Before any UPDATE or DELETE, run the same WHERE as a SELECT and check the rows.</mark></div>
+  <div class="cmd"><p class="what">1 · Check first</p><pre><span class="a">SELECT emp_id, salary FROM employees WHERE dept_id = 10;</span>
+<span class="b">EMP_ID SALARY
+------ ------
+   101  95000
+   108  48000</span></pre></div>
+  <div class="cmd"><p class="what">2 · Then change exactly those rows</p><pre><span class="a">UPDATE employees
+SET    salary           = salary * 1.10,       <span class="c">-- 10% raise</span>
+       last_update_date = SYSTIMESTAMP          <span class="c">-- so delta queries notice!</span>
+WHERE  dept_id = 10;</span>
+<span class="b">2 rows updated.</span>        <span class="c">← the count should match your SELECT</span></pre></div>
+  <div class="cmd"><p class="what">DELETE</p><pre><span class="a">DELETE FROM employees WHERE emp_id = 112;</span>
+<span class="b">1 row deleted.</span></pre></div>
+  <div class="sticky"><strong>Forget the WHERE and every row changes.</strong> <code>UPDATE employees SET salary = 50000;</code> gives everyone the same salary. <code>DELETE FROM employees;</code> empties the table. Both are allowed, and both are silent. Chapter 12 shows how to undo them, if you haven’t committed.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:24%"></th><th style="width:38%">DELETE</th><th style="width:38%">TRUNCATE TABLE</th></tr>
+    <tr><td>Removes</td><td>Rows matching WHERE (or all)</td><td>Always all rows</td></tr>
+    <tr><td>Undo with ROLLBACK?</td><td>Yes, until COMMIT</td><td><b>No</b>: it’s DDL, auto-commits</td></tr>
+    <tr><td>Speed on big tables</td><td>Slower: logs every row</td><td>Very fast</td></tr>
+    <tr><td>Typical use</td><td>Remove specific records</td><td>Empty a staging table before a new load</td></tr>
+  </table></div>
+  <p>Deleting a parent that still has children fails: <code>DELETE FROM departments WHERE dept_id = 30</code> → <code>ORA-02292: integrity constraint (…EMP_DEPT_FK) violated - child record found</code>. The foreign key is protecting you. In HR systems, people are rarely deleted anyway: they’re <b>ended</b> (status INACTIVE, an end date), so history stays.</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="tx">
+  <div class="ch-head"><h2><span class="num">12</span>Transactions: COMMIT and ROLLBACK</h2><label class="got"><input type="checkbox" id="got-tx"> Got it</label></div>
+  <div class="story"><b class="lbl">A bank transfer</b>Moving ₹5,000 from your account to a friend’s is two steps: take it from you, add it to them. If the system crashes between the two, the money must not vanish. Either <b>both</b> happen, or <b>neither</b>. That bundle is a <mark>transaction</mark>.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 210" role="img" aria-label="Timeline: an UPDATE and an INSERT form one transaction that only your session can see. COMMIT makes them permanent and visible to everyone; ROLLBACK throws them away and returns to the last commit.">
+      <g class="rough">
+        <path class="ln" d="M20 100 L 440 100"/>
+        <rect class="box f-grey" x="20" y="70" width="100" height="60" rx="10"/>
+        <rect class="box f-yellow" x="170" y="70" width="120" height="60" rx="10"/><rect class="box f-yellow" x="310" y="70" width="120" height="60" rx="10"/>
+        <rect class="box f-green" x="520" y="12" width="190" height="66" rx="10"/><rect class="box f-orange" x="520" y="127" width="190" height="66" rx="10"/>
+        <path class="lb" d="M432 95 C 470 80, 480 50, 514 45" marker-end="url(#ahb)"/><path class="lr" d="M432 105 C 470 120, 480 155, 514 160" marker-end="url(#ahr)"/>
+        <rect class="box f-pink dash" x="160" y="58" width="282" height="84" rx="14" style="fill:none"/>
+      </g>
+      <text class="t" x="70" y="96" text-anchor="middle">last</text><text class="t" x="70" y="116" text-anchor="middle">COMMIT</text>
+      <text class="t" x="230" y="96" text-anchor="middle">UPDATE</text><text class="ts" x="230" y="116" text-anchor="middle">−5000</text>
+      <text class="t" x="370" y="96" text-anchor="middle">UPDATE</text><text class="ts" x="370" y="116" text-anchor="middle">+5000</text>
+      <text class="ts" x="300" y="166" text-anchor="middle">one transaction: only YOU see these changes</text>
+      <text class="th" x="615" y="40" text-anchor="middle">COMMIT</text><text class="ts" x="615" y="64" text-anchor="middle">saved, everyone sees</text>
+      <text class="th" x="615" y="155" text-anchor="middle">ROLLBACK</text><text class="ts" x="615" y="179" text-anchor="middle">all undone</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:26%">Statement</th><th style="width:74%">Does</th></tr>
+    <tr><td><code>COMMIT</code></td><td>Saves every change since the last commit. Other sessions can now see them. Can’t be undone.</td></tr>
+    <tr><td><code>ROLLBACK</code></td><td>Throws away every change since the last commit.</td></tr>
+    <tr><td><code>SAVEPOINT a</code> / <code>ROLLBACK TO a</code></td><td>A bookmark inside a transaction: undo back to it, keep what came before.</td></tr>
+  </table></div>
+  <div class="cmd"><p class="what">Undo a mistake</p><pre><span class="a">UPDATE employees SET salary = 50000;          <span class="c">-- oops, no WHERE</span></span>
+<span class="b">10 rows updated.</span>
+<span class="a">ROLLBACK;</span>
+<span class="b">Rollback complete.</span>
+<span class="a">SELECT salary FROM employees WHERE emp_id = 103;</span>
+<span class="b">130000</span>                                        <span class="c">← saved, because nothing was committed</span></pre></div>
+  <p><b>Locks:</b> while your transaction has updated a row but not committed, another session that tries to update the <b>same row</b> waits. A forgotten uncommitted session can make an integration hang. Commit or roll back promptly.</p>
+  <div class="sticky l"><strong>In OIC:</strong> each database adapter call normally commits its own work when it succeeds. So if an integration inserts a header in one call and lines in a second call, and the second fails, the header <b>stays</b>. When steps must be all-or-nothing, put them in <b>one stored procedure</b> (Part 4.3) and let it commit once at the end.</div>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="merge">
+  <div class="ch-head"><h2><span class="num">13</span>MERGE: insert or update in one statement</h2><label class="got"><input type="checkbox" id="got-merge"> Got it</label></div>
+  <div class="story"><b class="lbl">The school admission desk</b>A form arrives. If the student already has a file, the clerk <b>updates</b> it. If not, the clerk <b>opens a new file</b>. Either way, there’s never a second file for the same student. That’s an <mark>upsert</mark>, and in SQL it’s called MERGE.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 240" role="img" aria-label="Staging rows 104, 108 and 111 are matched to EMPLOYEES on emp_id. 104 and 108 exist, so they are updated. 111 does not exist, so it is inserted.">
+      <g class="rough">
+        <rect class="box f-yellow" x="20" y="40" width="190" height="160" rx="12"/>
+        <rect class="box f-pink" x="260" y="90" width="150" height="60" rx="30"/>
+        <rect class="box f-blue" x="470" y="20" width="230" height="80" rx="12"/>
+        <rect class="box f-green" x="470" y="140" width="230" height="80" rx="12"/>
+        <path class="ln" d="M212 120 L 254 120" marker-end="url(#ah)"/>
+        <path class="lb" d="M412 110 C 440 90, 450 65, 464 62" marker-end="url(#ahb)"/>
+        <path class="ln" d="M412 130 C 440 150, 450 175, 464 178" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="115" y="68" text-anchor="middle" style="font-weight:700">EMPLOYEE_STG</text>
+      <text class="t" x="40" y="104" style="font-family:var(--f-mono);font-size:13px">104 Sneha 92000</text>
+      <text class="t" x="40" y="134" style="font-family:var(--f-mono);font-size:13px">108 Pooja 48000</text>
+      <text class="t" x="40" y="164" style="font-family:var(--f-mono);font-size:13px">111 Rahul 75000</text>
+      <text class="t" x="335" y="115" text-anchor="middle" style="font-weight:700">ON emp_id</text><text class="ts" x="335" y="136" text-anchor="middle">matches?</text>
+      <text class="t" x="585" y="50" text-anchor="middle" style="fill:var(--blue);font-weight:700">WHEN MATCHED</text><text class="ts" x="585" y="74" text-anchor="middle">104, 108 → UPDATE</text>
+      <text class="t" x="585" y="170" text-anchor="middle" style="font-weight:700">WHEN NOT MATCHED</text><text class="ts" x="585" y="194" text-anchor="middle">111 → INSERT</text>
+    </svg></div>
+  </figure>
+  <div class="cmd"><pre><span class="a">MERGE INTO employees e                                   <span class="c">-- target</span>
+USING (SELECT * FROM employee_stg
+       WHERE  process_status = 'NEW') s                  <span class="c">-- source</span>
+ON    (e.emp_id = s.emp_id)                              <span class="c">-- the matching rule</span>
+WHEN MATCHED THEN UPDATE SET
+      e.first_name = s.first_name, e.last_name = s.last_name,
+      e.email      = s.email,      e.job_title = s.job_title,
+      e.salary     = s.salary,     e.dept_id   = s.dept_id,
+      e.last_update_date = SYSTIMESTAMP
+WHEN NOT MATCHED THEN INSERT
+      (emp_id, first_name, last_name, email, job_title, salary, hire_date, dept_id)
+      VALUES (s.emp_id, s.first_name, s.last_name, s.email, s.job_title,
+              s.salary, TRUNC(SYSDATE), s.dept_id);</span>
+<span class="b">3 rows merged.</span></pre></div>
+  <div class="cmd"><p class="what">The result</p><pre><span class="a">SELECT emp_id, first_name, job_title, salary FROM employees
+WHERE  emp_id IN (104, 108, 111) ORDER BY emp_id;</span>
+<span class="b">EMP_ID FIRST_NAME JOB_TITLE                    SALARY
+------ ---------- ---------------------------- ------
+   104 Sneha      Senior Integration Developer  92000    <span class="c">← updated</span>
+   108 Pooja      HR Executive                  48000    <span class="c">← updated (same values)</span>
+   111 Rahul      Integration Developer         75000    <span class="c">← inserted</span></span></pre></div>
+  <p>Now <b>run the MERGE a second time</b>. It says 3 rows merged again, but there’s still only <b>one</b> Rahul. Remember Part 3.4’s retry problem: a blind INSERT run twice creates duplicates; a MERGE run twice gives the same result. That makes MERGE <mark>idempotent</mark>, and that’s why integrations love it.</p>
+  <p>Rules: the <code>ON</code> columns should identify one row (a key), and you can’t UPDATE the columns used in <code>ON</code> (<code>ORA-38104</code>). If two source rows match the same target row, Oracle stops with <code>ORA-30926: unable to get a stable set of rows</code>: remove duplicates from the source first (chapter 7’s HAVING query).</p>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="seq">
+  <div class="ch-head"><h2><span class="num">14</span>Sequences and identity columns</h2><label class="got"><input type="checkbox" id="got-seq"> Got it</label></div>
+  <div class="story"><b class="lbl">The token machine</b>At a bank, the token machine gives the next number to whoever presses the button, even if a hundred people press at once, and never gives the same number twice. A <mark>sequence</mark> is that machine for primary keys.</div>
+  <div class="two">
+    <div class="cmd"><p class="what">A sequence</p><pre><span class="a">CREATE SEQUENCE emp_seq START WITH 200;
+
+SELECT emp_seq.NEXTVAL FROM dual;</span>   <span class="b">200</span>
+<span class="a">SELECT emp_seq.NEXTVAL FROM dual;</span>   <span class="b">201</span>
+<span class="a">SELECT emp_seq.CURRVAL FROM dual;</span>   <span class="b">201</span>
+
+<span class="a">INSERT INTO employees (emp_id, last_name, hire_date)
+VALUES (emp_seq.NEXTVAL, 'Test', SYSDATE);</span></pre></div>
+    <div class="cmd"><p class="what">An identity column (Oracle 12c+)</p><pre><span class="a">CREATE TABLE integration_log (
+  log_id NUMBER GENERATED ALWAYS
+         AS IDENTITY PRIMARY KEY,
+  …
+);
+
+INSERT INTO integration_log (run_name, status)
+VALUES ('daily-sync', 'OK');</span>
+<span class="c">-- log_id fills itself: 1, 2, 3…</span></pre></div>
+  </div>
+  <p>Our <code>integration_log</code> table uses an identity column. Numbers can have <b>gaps</b> (a rolled-back insert still used its number), so never rely on IDs being continuous. And if you need the new ID back in OIC after an insert, a stored procedure with an OUT parameter is the cleanest way (Part 4.3).</p>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="views">
+  <div class="ch-head"><h2><span class="num">15</span>Views and indexes</h2><label class="got"><input type="checkbox" id="got-views"> Got it</label></div>
+  <div class="two">
+    <div class="card t1 tilt-a"><h4>A view: a saved query</h4><p>Like a saved filter in your email. It stores the <b>question</b>, not a copy of the data, so it always shows current rows.</p></div>
+    <div class="card t4 tilt-b"><h4>An index: the book’s index</h4><p>To find “MERGE” in a 500-page book you don’t read every page; you check the index at the back. An index lets the database jump straight to the rows.</p></div>
+  </div>
+  <div class="cmd"><p class="what">A view that hides the join</p><pre><span class="a">CREATE OR REPLACE VIEW emp_details_v AS
+SELECT e.emp_id, e.first_name, e.last_name, e.job_title, e.salary,
+       d.dept_name, d.location, e.last_update_date
+FROM   employees e
+LEFT   JOIN departments d ON e.dept_id = d.dept_id;
+
+SELECT first_name, dept_name FROM emp_details_v WHERE location = 'Pune';</span>
+<span class="b">FIRST_NAME DEPT_NAME
+---------- ---------
+Ravi       HR
+Pooja      HR</span></pre></div>
+  <p>Views are handy for integrations: give OIC a view with exactly the columns it needs, and the integration never has to know the joins behind it. You can also grant access to a view without giving access to the whole table.</p>
+  <div class="cmd"><p class="what">An index for the nightly delta query</p><pre><span class="a">CREATE INDEX emp_last_update_ix ON employees (last_update_date);</span></pre></div>
+  <p>With a million rows, <code>WHERE last_update_date &gt; …</code> without an index reads <b>every row</b> (a “full table scan”); with the index it jumps to the recent ones. Primary keys and unique constraints get an index automatically. Indexes speed up reading but slow down inserts and updates a little, so add them for columns you <b>filter or join on often</b>. To see how Oracle plans to run a query, use <b>Explain Plan</b> (F10 in FreeSQL).</p>
+  <p>A sneaky one: <code>WHERE UPPER(last_name) = 'KUMAR'</code> can’t use a normal index on <code>last_name</code>, because the function changes the value. Oracle supports <b>function-based indexes</b> for that: <code>CREATE INDEX … ON employees (UPPER(last_name))</code>.</p>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">16</span>Try it yourself</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <p>Run <a href="../phase-04-sql/practice/phase4-setup.sql">phase4-setup.sql</a> again first, so you start from clean data. All statements are in <a href="../phase-04-sql/practice/phase4-2-joins-dml.sql">phase4-2-joins-dml.sql</a>, in this order.</p>
+  <h3>A · Reading</h3>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Four joins</b>Run INNER, LEFT, RIGHT and FULL from chapter 3 and count the rows: <b>9, 10, 10, 11</b>.</div></li>
+    <li><span class="dot">2</span><div><b>Missing records</b>The anti-join finds <b>Legal</b>. Rewrite it with <code>NOT EXISTS</code> and get the same answer.</div></li>
+    <li><span class="dot">3</span><div><b>Department report</b>The GROUP BY with a join (chapter 6): IT 3, Finance 2, HR 2, Sales 2, Legal 0.</div></li>
+    <li><span class="dot">4</span><div><b>Break the golden rule</b>Add <code>first_name</code> to that SELECT and read <code>ORA-00979</code>.</div></li>
+  </ol>
+  <h3>B · Changing (watch the counts)</h3>
+  <ol class="path">
+    <li><span class="dot">5</span><div><b>Insert Meera, then COMMIT</b><code>1 row inserted.</code> · <code>Commit complete.</code> · <code>SELECT COUNT(*) FROM employees</code> → 11.</div></li>
+    <li><span class="dot">6</span><div><b>Collect the errors</b>Try emp_id 101 again (ORA-00001), dept 99 (ORA-02291) and <code>DELETE FROM departments WHERE dept_id = 30</code> (ORA-02292).</div></li>
+    <li><span class="dot">7</span><div><b>Raise, look, undo</b>Update dept 10 by 10% → <code>2 rows updated.</code> Select: <b>104500</b> and <b>52800</b>. <code>ROLLBACK;</code> Select again: <b>95000</b> and <b>48000</b>.</div></li>
+    <li><span class="dot">8</span><div><b>MERGE twice</b>Run the MERGE: <code>3 rows merged.</code>, 12 employees. Run it again: still 12. Then <code>COMMIT</code>.</div></li>
+    <li><span class="dot">9</span><div><b>Duplicates check</b><code>SELECT emp_id, COUNT(*) FROM employee_stg GROUP BY emp_id HAVING COUNT(*) &gt; 1;</code> → no rows: safe to merge.</div></li>
+  </ol>
+  <h3>Challenges (answers in the practice file)</h3>
+  <p>The answers below are for fresh data: run the setup script again before you start.</p>
+  <ol class="path">
+    <li><span class="dot">A</span><div><b>Each department’s top earner</b>Department name, employee, salary. <i>(Finance Priya, HR Ravi, IT Amit, Sales Karan)</i></div></li>
+    <li><span class="dot">B</span><div><b>Managers and team size</b>Each manager with how many people report to them. <i>(Amit 2, Karan 1, Priya 1, Ravi 1)</i></div></li>
+    <li><span class="dot">C</span><div><b>Pay above department average</b>Use a correlated subquery. <i>(Ravi, Priya, Amit, Karan)</i></div></li>
+  </ol>
+</section>
+
+<!-- 17 -->
+<section class="ch" id="oic">
+  <div class="ch-head"><h2><span class="num">17</span>Where this shows up in OIC</h2><label class="got"><input type="checkbox" id="got-oic"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">This part</th><th style="width:72%">In OIC</th></tr>
+    <tr><td>Joins &amp; views</td><td>A <b>Run a SQL Statement</b> invoke can run a join, but a <b>view</b> keeps the integration simple and lets the DBA change the joins later</td></tr>
+    <tr><td>GROUP BY, COUNT, SUM</td><td><b>Reconciliation</b> after a load: compare counts and totals with the source file, and alert when they differ</td></tr>
+    <tr><td>INSERT, UPDATE, MERGE</td><td>The adapter’s <b>Perform an Operation On a Table</b> generates insert, update and merge (insert-or-update) statements for you from the table’s columns</td></tr>
+    <tr><td>MERGE / idempotency</td><td>The safe choice for anything that might be retried or re-run (Part 3.4)</td></tr>
+    <tr><td>Transactions</td><td>Each adapter call commits on its own; multi-step all-or-nothing work goes into one stored procedure (Part 4.3)</td></tr>
+    <tr><td>Constraint errors</td><td>Arrive in the <b>fault handler</b> with the ORA- code and message (Phase 7)</td></tr>
+    <tr><td>Indexes</td><td>A polling or delta integration that “suddenly got slow” usually needs an index on the column it filters by</td></tr>
+  </table></div>
+</section>
+
+<!-- 18 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">18</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>A forgotten join condition</b>Every row pairs with every row: a Cartesian product.</div></li>
+    <li><span class="dot">2</span><div><b>Filtering the right table of a LEFT JOIN in WHERE</b>It becomes an INNER JOIN. Move the condition into ON.</div></li>
+    <li><span class="dot">3</span><div><b><code>COUNT(*)</code> with an outer join</b>Empty groups count as 1. Count a column from the right table.</div></li>
+    <li><span class="dot">4</span><div><b>WHERE with an aggregate</b>Use HAVING.</div></li>
+    <li><span class="dot">5</span><div><b>UPDATE or DELETE without WHERE</b>Every row changes. SELECT first, compare counts.</div></li>
+    <li><span class="dot">6</span><div><b>Forgetting COMMIT, or committing too early</b>Uncommitted work locks rows and disappears when the session ends; committed work can’t be undone.</div></li>
+    <li><span class="dot">7</span><div><b>Plain INSERT for data that can be resent</b>Duplicates on retry. Use MERGE.</div></li>
+    <li><span class="dot">8</span><div><b>Not updating <code>last_update_date</code></b>The next delta run never sees your change.</div></li>
+  </ol>
+</section>
+
+<!-- 19 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">19</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. INNER vs LEFT JOIN, in one line each?</summary><p>INNER keeps only rows with a match on both sides. LEFT keeps every row from the first table, with NULLs where no match was found.</p></details>
+    <details><summary>2. How do you find departments that have no employees?</summary><p>LEFT JOIN employees and keep rows WHERE e.emp_id IS NULL (an anti-join), or use NOT EXISTS.</p></details>
+    <details><summary>3. <code>COUNT(*)</code> vs <code>COUNT(email)</code>?</summary><p>COUNT(*) counts rows; COUNT(email) counts only rows where email isn’t NULL.</p></details>
+    <details><summary>4. Why does <code>SELECT dept_id, first_name, COUNT(*) … GROUP BY dept_id</code> fail?</summary><p>first_name is neither aggregated nor in GROUP BY: ORA-00979.</p></details>
+    <details><summary>5. WHERE vs HAVING?</summary><p>WHERE filters rows before grouping; HAVING filters groups after grouping and can use aggregates.</p></details>
+    <details><summary>6. Why can’t WHERE use a column alias from SELECT?</summary><p>WHERE runs before SELECT, so the alias doesn’t exist yet. ORDER BY runs after, so it can.</p></details>
+    <details><summary>7. You ran an UPDATE without WHERE and haven’t committed. What now?</summary><p>ROLLBACK. Every change since the last commit is undone.</p></details>
+    <details><summary>8. DELETE vs TRUNCATE?</summary><p>DELETE is DML: can use WHERE and can be rolled back. TRUNCATE is DDL: removes all rows, fast, auto-commits, can’t be rolled back.</p></details>
+    <details><summary>9. Why is MERGE better than INSERT for integrations?</summary><p>It inserts new rows and updates existing ones, so running it twice doesn’t create duplicates: it’s idempotent.</p></details>
+    <details><summary>10. A nightly delta query got slow as the table grew. First thing to check?</summary><p>Whether there’s an index on the column in the WHERE, such as last_update_date (look at the explain plan).</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final"><b>Joins</b> stitch tables together on their keys (INNER for matches only, LEFT/RIGHT/FULL to keep the unmatched), <b>GROUP BY</b> with aggregates and <b>HAVING</b> turn rows into totals, <b>subqueries</b> answer two-step questions, and <b>INSERT</b>, <b>UPDATE</b>, <b>DELETE</b> and idempotent <b>MERGE</b> change data inside <b>transactions</b> that you COMMIT or ROLLBACK as one.</p>
+  <p>Next: <a href="../phase-04-3-plsql-and-oic/index.html">Part 4.3 · PL/SQL &amp; databases in OIC →</a></p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 4.2 · Joins, grouping &amp; changing data · by @devwithprabir</footer>
+
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p42-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p42-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>
