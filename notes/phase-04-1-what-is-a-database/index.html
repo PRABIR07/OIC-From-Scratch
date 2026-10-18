@@ -1,0 +1,743 @@
+<title>Phase 4.1 · What is a database? | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 4 · Part 1 of 6</p>
+  <h1>What is a database?</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 4 · SQL &amp; Databases, for <mark>complete beginners</mark>. You don’t need to know anything about databases to start. In this part we go slowly: what data is, where companies keep it, what a table looks like inside, and then you <b>run your very first SQL query</b>, word by word.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#data">1 · What is data?</a><a href="#where">2 · Register → Excel → database</a><a href="#oic">3 · Why OIC developers need this</a><a href="#words">4 · Database, Oracle, SQL</a>
+    <a href="#table">5 · Inside a table</a><a href="#rules">6 · The golden rules of a table</a><a href="#company">7 · Meet our practice company</a><a href="#types">8 · Data types</a>
+    <a href="#pk">9 · Primary key</a><a href="#fk">10 · Foreign key</a><a href="#guards">11 · Rules that guard the data</a><a href="#null">12 · NULL: the empty box</a>
+    <a href="#sql">13 · What is SQL?</a><a href="#setup">14 · Set up your playground</a><a href="#first">15 · Your first query, word by word</a><a href="#tools">16 · Practice</a>
+    <a href="#glossary">17 · Words you learned</a><a href="#quiz">18 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="data">
+  <div class="ch-head"><h2><span class="num">1</span>What is data?</h2><label class="got"><input type="checkbox" id="got-data"> Got it</label></div>
+  <div class="story"><b class="lbl">Your phone’s contact list</b>Open the contacts on your phone. For each person you’ve saved a <b>name</b>, a <b>phone number</b>, maybe an <b>email</b> and a <b>birthday</b>. Each of those small facts is a piece of <mark>data</mark>.</div>
+  <p><b>Data</b> simply means <b>facts that are written down</b> so we can use them later. Nothing more scary than that.</p>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>At a shop</h4><p>Bill number 4521 · 2 packets of rice · ₹180 · paid by UPI · 16 Oct 2026</p></div>
+    <div class="card t2 tilt-b"><h4>At a school</h4><p>Roll no 12 · Ananya · Class 8B · Maths 91 · Science 88</p></div>
+    <div class="card t3 tilt-a"><h4>At a company</h4><p>Employee 104 · Sneha Iyer · IT department · salary ₹85,000 · joined 1 June 2021</p></div>
+  </div>
+  <p>Notice something: in every example, the data is about <b>a thing</b> (a bill, a student, an employee), and it describes that thing with <b>a few facts</b> (number, name, amount, date). Keep this in mind. It’s the whole idea behind a database.</p>
+  <div class="sticky l"><strong>In one line:</strong> data = facts about things, written down so we can find and use them later.</div>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="where">
+  <div class="ch-head"><h2><span class="num">2</span>From register to Excel to database</h2><label class="got"><input type="checkbox" id="got-where"> Got it</label></div>
+  <div class="story"><b class="lbl">How a growing company keeps its staff list</b>When the company had 10 people, the office manager wrote them in a <b>register</b>. At 200 people, she moved to <b>Excel</b>. At 20,000 people across 5 cities, with HR, payroll and IT all needing the same list at the same time, Excel started breaking. That’s when companies move to a <mark>database</mark>.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 270" role="img" aria-label="Three stages. A paper register: simple, but one person at a time and hard to search. An Excel sheet: easy to search, but anyone can type anything, and many people editing at once causes mistakes. A database: strict rules, many users and programs at once, millions of rows, and very fast.">
+      <g class="rough">
+        <rect class="box f-yellow" x="15" y="20" width="210" height="230" rx="14"/>
+        <rect class="box f-green" x="255" y="20" width="210" height="230" rx="14"/>
+        <rect class="box f-blue" x="495" y="20" width="210" height="230" rx="14"/>
+        <path class="ln" d="M227 135 L 249 135" marker-end="url(#ah)"/><path class="ln" d="M467 135 L 489 135" marker-end="url(#ah)"/>
+      </g>
+      <text class="th" x="120" y="54" text-anchor="middle">Register</text>
+      <text class="ts" x="35" y="90">✓ simple to start</text><text class="ts" x="35" y="118">✗ one person at a time</text><text class="ts" x="35" y="146">✗ slow to search</text><text class="ts" x="35" y="174">✗ ink mistakes stay</text><text class="ts" x="35" y="202">✗ can be lost</text>
+      <text class="th" x="360" y="54" text-anchor="middle">Excel</text>
+      <text class="ts" x="275" y="90">✓ easy to search</text><text class="ts" x="275" y="118">✗ anyone types anything</text><text class="ts" x="275" y="146">   (“twenty thousand”)</text><text class="ts" x="275" y="174">✗ two people editing</text><text class="ts" x="275" y="202">   = lost changes</text><text class="ts" x="275" y="230">✗ slow with lakhs of rows</text>
+      <text class="th" x="600" y="54" text-anchor="middle">Database</text>
+      <text class="ts" x="515" y="90">✓ strict rules for</text><text class="ts" x="515" y="112">   every value</text><text class="ts" x="515" y="140">✓ thousands of users</text><text class="ts" x="515" y="162">   and programs at once</text><text class="ts" x="515" y="190">✓ millions of rows,</text><text class="ts" x="515" y="212">   answers in a blink</text><text class="ts" x="515" y="238">✓ safe backups</text>
+    </svg></div>
+    <figcaption>Same staff list, three homes. A database is a <b>strict, shared, very fast</b> register that programs can talk to.</figcaption>
+  </figure>
+  <p>So a <b>database</b> is a place where a company stores its data in an organised way, with rules, so that many people and many programs can read and change it safely at the same time.</p>
+  <p>You use databases every day without seeing them: your bank balance, your train ticket on IRCTC, your Swiggy order history, your college marks. Each of those apps asks a database for your data every time you open it.</p>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="oic">
+  <div class="ch-head"><h2><span class="num">3</span>Why an OIC developer needs this</h2><label class="got"><input type="checkbox" id="got-oic"> Got it</label></div>
+  <p>Remember: OIC’s job is to <b>move data between applications</b>. And behind almost every application, there’s a database. So sooner or later, OIC has to talk to one.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="OIC in the centre connected to four common database jobs: keeping data in a waiting table before sending it, reading or writing an application's own database, running Oracle Fusion reports that are written in SQL, and writing logs and code lookups">
+      <g class="rough">
+        <rect class="box f-blue" x="285" y="115" width="150" height="70" rx="14"/>
+        <rect class="box f-green" x="20" y="20" width="230" height="90" rx="12"/>
+        <rect class="box f-yellow" x="470" y="20" width="230" height="90" rx="12"/>
+        <rect class="box f-pink" x="20" y="190" width="230" height="90" rx="12"/>
+        <rect class="box f-purple" x="470" y="190" width="230" height="90" rx="12"/>
+        <path class="ln" d="M285 135 C 265 120, 260 95, 254 85" marker-end="url(#ah)"/>
+        <path class="ln" d="M435 135 C 455 120, 460 95, 466 85" marker-end="url(#ah)"/>
+        <path class="ln" d="M285 165 C 265 180, 260 205, 254 215" marker-end="url(#ah)"/>
+        <path class="ln" d="M435 165 C 455 180, 460 205, 466 215" marker-end="url(#ah)"/>
+      </g>
+      <text class="th" x="360" y="148" text-anchor="middle">OIC</text><text class="ts" x="360" y="170" text-anchor="middle">moves data</text>
+      <text class="t" x="135" y="50" text-anchor="middle" style="font-weight:700">① A waiting table</text><text class="ts" x="135" y="74" text-anchor="middle">park data, check it,</text><text class="ts" x="135" y="94" text-anchor="middle">then send it on</text>
+      <text class="t" x="585" y="50" text-anchor="middle" style="font-weight:700">② An app’s own database</text><text class="ts" x="585" y="74" text-anchor="middle">read new orders, write</text><text class="ts" x="585" y="94" text-anchor="middle">back their status</text>
+      <text class="t" x="135" y="220" text-anchor="middle" style="font-weight:700">③ Oracle Fusion reports</text><text class="ts" x="135" y="244" text-anchor="middle">they are written in SQL</text><text class="ts" x="135" y="264" text-anchor="middle">(Phase 8)</text>
+      <text class="t" x="585" y="220" text-anchor="middle" style="font-weight:700">④ Logs and lookups</text><text class="ts" x="585" y="244" text-anchor="middle">“what ran, what failed,</text><text class="ts" x="585" y="264" text-anchor="middle">what code means what”</text>
+    </svg></div>
+    <figcaption>Four everyday database jobs in OIC projects. You’ll build all four later in this course.</figcaption>
+  </figure>
+  <p>That’s why almost every OIC interview asks: <b>“Can you write SQL?”</b> By the end of Phase 4, your honest answer will be “yes”.</p>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="words">
+  <div class="ch-head"><h2><span class="num">4</span>Database, Oracle, SQL: three words, three jobs</h2><label class="got"><input type="checkbox" id="got-words"> Got it</label></div>
+  <div class="story"><b class="lbl">The library</b>A library has <b>shelves full of books</b>. It has a <b>librarian</b> who looks after the shelves and fetches books. And to ask the librarian for something, you speak a <b>language</b> you both understand. Three different things, working together.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="You write a question in SQL. Oracle Database, the software, reads it and fetches the data from the database's tables. The answer comes back to you as rows.">
+      <g class="rough">
+        <rect class="box f-grey" x="15" y="80" width="130" height="80" rx="14"/>
+        <rect class="box f-yellow" x="230" y="80" width="200" height="80" rx="14"/>
+        <rect class="box f-green" x="520" y="40" width="185" height="160" rx="14"/>
+        <rect class="box f-card" x="532" y="100" width="161" height="26" rx="4"/><rect class="box f-card" x="532" y="134" width="161" height="26" rx="4"/><rect class="box f-card" x="532" y="168" width="161" height="22" rx="4"/>
+        <path class="lb" d="M147 105 L 224 105" marker-end="url(#ahb)"/>
+        <path class="ln" d="M432 120 L 514 120" marker-end="url(#ah)"/>
+        <path class="lr" d="M224 145 L 149 145" marker-end="url(#ahr)"/>
+      </g>
+      <text class="th" x="80" y="115" text-anchor="middle">You</text><text class="ts" x="80" y="140" text-anchor="middle">(or OIC)</text>
+      <text class="ts" x="186" y="90" text-anchor="middle" style="fill:var(--blue);font-weight:700">SQL question</text>
+      <text class="ts" x="186" y="170" text-anchor="middle" style="fill:var(--red);font-weight:700">answer (rows)</text>
+      <text class="t" x="330" y="112" text-anchor="middle" style="font-weight:700">Oracle Database</text><text class="ts" x="330" y="136" text-anchor="middle">the software (librarian)</text>
+      <text class="t" x="612" y="70" text-anchor="middle" style="font-weight:700">the database</text><text class="ts" x="612" y="90" text-anchor="middle">the shelves</text>
+      <text class="ts" x="612" y="118" text-anchor="middle" style="font-size:12px">EMPLOYEES</text><text class="ts" x="612" y="152" text-anchor="middle" style="font-size:12px">DEPARTMENTS</text><text class="ts" x="612" y="184" text-anchor="middle">… more tables</text>
+      <text class="ts" x="360" y="232" text-anchor="middle">You never touch the shelves directly: you always ask the librarian, in SQL.</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Word</th><th style="width:30%">In the library</th><th style="width:46%">In plain words</th></tr>
+    <tr><td><b>Database</b></td><td>The shelves full of books</td><td>The organised collection of data itself</td></tr>
+    <tr><td><b>Oracle Database</b> (a DBMS)</td><td>The librarian</td><td>The <b>software</b> that stores the data, guards it and answers questions. Others: MySQL, SQL Server, PostgreSQL</td></tr>
+    <tr><td><b>SQL</b></td><td>The language you speak to the librarian</td><td>The language for asking a database questions and giving it instructions. Say it “S-Q-L” or “sequel”</td></tr>
+  </table></div>
+  <p>DBMS means <b>Database Management System</b>: just the formal name for the “librarian” software. In this course we use <b>Oracle Database</b>, because OIC and Oracle Fusion live in Oracle’s world. The good news: about 90% of SQL is the same in every database, so what you learn here works almost everywhere.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="table">
+  <div class="ch-head"><h2><span class="num">5</span>Inside a table</h2><label class="got"><input type="checkbox" id="got-table"> Got it</label></div>
+  <div class="story"><b class="lbl">The school attendance register</b>The first page of the register has printed headings across the top: <b>Roll no · Name · Class</b>. Then there’s one line for each student. A database keeps its data in exactly this shape, and calls it a <mark>table</mark>.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 320" role="img" aria-label="The DEPARTMENTS table with its parts labelled: the table name at the top; the column headings DEPT_ID, DEPT_NAME and LOCATION; a column (LOCATION) running down; a row (department 30, IT, Bengaluru) running across; and one cell, Bengaluru, where a row meets a column">
+      <text class="th" x="60" y="38">DEPARTMENTS</text><text class="ts" x="300" y="38">← the table’s name</text>
+      <g class="rough">
+        <rect class="box f-yellow" x="60" y="56" width="420" height="40" rx="4"/>
+        <rect class="box f-card" x="60" y="96" width="420" height="40" rx="2"/>
+        <rect class="box f-card" x="60" y="136" width="420" height="40" rx="2"/>
+        <rect class="box f-green" x="60" y="176" width="420" height="40" rx="2"/>
+        <rect class="box f-card" x="60" y="216" width="420" height="40" rx="2"/>
+        <rect class="box f-card" x="60" y="256" width="420" height="40" rx="2"/>
+        <path class="ln" d="M160 56 L 160 296"/><path class="ln" d="M330 56 L 330 296"/>
+        <rect class="box f-pink dash" x="335" y="58" width="140" height="236" rx="6" style="fill:none"/>
+        <path class="lr" d="M560 80 C 520 80, 500 90, 482 100" marker-end="url(#ahr)"/>
+        <path class="lb" d="M560 196 L 486 196" marker-end="url(#ahb)"/>
+        <path class="ln" d="M560 262 C 520 262, 470 230, 450 210" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="110" y="82" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">DEPT_ID</text><text class="t" x="245" y="82" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">DEPT_NAME</text><text class="t" x="405" y="82" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">LOCATION</text>
+      <text class="t" x="110" y="122" text-anchor="middle">10</text><text class="t" x="245" y="122" text-anchor="middle">HR</text><text class="t" x="405" y="122" text-anchor="middle">Pune</text>
+      <text class="t" x="110" y="162" text-anchor="middle">20</text><text class="t" x="245" y="162" text-anchor="middle">Finance</text><text class="t" x="405" y="162" text-anchor="middle">Mumbai</text>
+      <text class="t" x="110" y="202" text-anchor="middle">30</text><text class="t" x="245" y="202" text-anchor="middle">IT</text><text class="t" x="405" y="202" text-anchor="middle">Bengaluru</text>
+      <text class="t" x="110" y="242" text-anchor="middle">40</text><text class="t" x="245" y="242" text-anchor="middle">Sales</text><text class="t" x="405" y="242" text-anchor="middle">Delhi</text>
+      <text class="t" x="110" y="282" text-anchor="middle">50</text><text class="t" x="245" y="282" text-anchor="middle">Legal</text><text class="t" x="405" y="282" text-anchor="middle">Chennai</text>
+      <text class="t" x="570" y="76" style="fill:var(--red);font-weight:700">a COLUMN</text><text class="ts" x="570" y="96">goes DOWN</text><text class="ts" x="570" y="114">one kind of fact</text>
+      <text class="t" x="570" y="192" style="fill:var(--blue);font-weight:700">a ROW</text><text class="ts" x="570" y="212">goes ACROSS</text><text class="ts" x="570" y="230">one thing</text>
+      <text class="t" x="570" y="266" style="font-weight:700">a CELL</text><text class="ts" x="570" y="286">one value</text>
+    </svg></div>
+    <figcaption>Five rows, three columns, fifteen cells. That’s the whole DEPARTMENTS table.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">Part</th><th style="width:42%">Means</th><th style="width:40%">In DEPARTMENTS</th></tr>
+    <tr><td><b>Table</b></td><td>A list of one kind of thing</td><td>All the departments</td></tr>
+    <tr><td><b>Column</b></td><td>One kind of fact, the same for every row. Goes <b>down</b>.</td><td><code>LOCATION</code>: the city of every department</td></tr>
+    <tr><td><b>Row</b></td><td>One thing, with all its facts. Goes <b>across</b>. Also called a <b>record</b>.</td><td><code>30 · IT · Bengaluru</code></td></tr>
+    <tr><td><b>Cell</b></td><td>One value, where a row and a column meet</td><td><code>Bengaluru</code></td></tr>
+  </table></div>
+  <p>A database usually has <b>many tables</b>: one for employees, one for departments, one for salaries, one for leave… Each table holds <b>one kind of thing</b>. And the tables are connected to each other, which you’ll see in chapter 10.</p>
+  <div class="sticky l"><strong>Easy trick to remember:</strong> a <b>c</b>olumn stands up like a <b>c</b>olumn (pillar) in a building. A <b>r</b>ow lies flat like people sitting in a <b>r</b>ow in a cinema.</div>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="rules">
+  <div class="ch-head"><h2><span class="num">6</span>The golden rules of a table</h2><label class="got"><input type="checkbox" id="got-rules"> Got it</label></div>
+  <p>A table looks like an Excel sheet, but it follows strict rules. These rules are what make a database trustworthy.</p>
+  <div class="two">
+    <div class="tbl"><table>
+      <tr><th style="width:100%">✗ Allowed in Excel, not in a table</th></tr>
+      <tr><td>A cell with two values: <code>Pune, Mumbai</code></td></tr>
+      <tr><td>Text in a number column: <code>twenty thousand</code></td></tr>
+      <tr><td>Two rows for the same employee, by accident</td></tr>
+      <tr><td>Random notes typed under the data</td></tr>
+      <tr><td>Merged cells, colours that “mean something”</td></tr>
+    </table></div>
+    <div class="tbl"><table>
+      <tr><th style="width:100%">✓ The rule in a database</th></tr>
+      <tr><td><b>One value per cell</b></td></tr>
+      <tr><td><b>Every column has a type</b> (number, text, date…)</td></tr>
+      <tr><td><b>Every row can be told apart</b> (chapter 9)</td></tr>
+      <tr><td><b>Every row has the same columns</b></td></tr>
+      <tr><td><b>Meaning lives in data</b>, not in colours</td></tr>
+    </table></div>
+  </div>
+  <p>Why so strict? Because a <b>program</b> like OIC reads this data, not a human. A human can guess that “twenty thousand” means 20000. A program can’t. Strict rules mean every program gets clean, predictable data, every single time.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="company">
+  <div class="ch-head"><h2><span class="num">7</span>Meet our practice company</h2><label class="got"><input type="checkbox" id="got-company"> Got it</label></div>
+  <div class="story"><b class="lbl">A small company in five cities</b>All through Phase 4, we’ll practise on one small company with <b>5 departments</b> and <b>10 employees</b>. Get to know them now, like characters in a story. Later, when a query gives an answer, you’ll know immediately whether it’s right.</div>
+  <h3>DEPARTMENTS (5 rows)</h3>
+  <div class="tbl"><table>
+    <tr><th>DEPT_ID</th><th>DEPT_NAME</th><th>LOCATION</th></tr>
+    <tr><td>10</td><td>HR</td><td>Pune</td></tr>
+    <tr><td>20</td><td>Finance</td><td>Mumbai</td></tr>
+    <tr><td>30</td><td>IT</td><td>Bengaluru</td></tr>
+    <tr><td>40</td><td>Sales</td><td>Delhi</td></tr>
+    <tr><td>50</td><td>Legal</td><td>Chennai</td></tr>
+  </table></div>
+  <h3>EMPLOYEES (10 rows, main columns)</h3>
+  <div class="tbl"><table>
+    <tr><th>EMP_ID</th><th>NAME</th><th>JOB_TITLE</th><th>SALARY</th><th>DEPT_ID</th><th>EMAIL</th><th>STATUS</th></tr>
+    <tr><td>101</td><td>Ravi Kumar</td><td>HR Manager</td><td>95000</td><td>10</td><td>ravi.kumar@…</td><td>ACTIVE</td></tr>
+    <tr><td>102</td><td>Priya Sharma</td><td>Finance Manager</td><td>120000</td><td>20</td><td>priya.sharma@…</td><td>ACTIVE</td></tr>
+    <tr><td>103</td><td>Amit Patel</td><td>IT Manager</td><td>130000</td><td>30</td><td>amit.patel@…</td><td>ACTIVE</td></tr>
+    <tr><td>104</td><td>Sneha Iyer</td><td>Integration Developer</td><td>85000</td><td>30</td><td>sneha.iyer@…</td><td>ACTIVE</td></tr>
+    <tr><td>105</td><td>Arjun Singh</td><td>Integration Developer</td><td>78000</td><td>30</td><td>arjun.singh@…</td><td>ACTIVE</td></tr>
+    <tr><td>106</td><td>Neha Gupta</td><td>Accountant</td><td>60000</td><td>20</td><td>neha.gupta@…</td><td>ACTIVE</td></tr>
+    <tr><td>107</td><td>Karan Mehta</td><td>Sales Executive</td><td>55000</td><td>40</td><td><mark>(empty)</mark></td><td>ACTIVE</td></tr>
+    <tr><td>108</td><td>Pooja Reddy</td><td>HR Executive</td><td>48000</td><td>10</td><td>pooja.reddy@…</td><td>ACTIVE</td></tr>
+    <tr><td>109</td><td>Vikram Das</td><td>Consultant</td><td>70000</td><td><mark>(empty)</mark></td><td>vikram.das@…</td><td>ACTIVE</td></tr>
+    <tr><td>110</td><td>Anjali Nair</td><td>Sales Executive</td><td>52000</td><td>40</td><td>anjali.nair@…</td><td><mark>INACTIVE</mark></td></tr>
+  </table></div>
+  <p>The real table also stores <code>first_name</code> and <code>last_name</code> separately, a <code>hire_date</code>, a <code>manager_id</code> and a <code>last_update_date</code>. We’ll use those soon.</p>
+  <h3>The four “special” cases (remember them!)</h3>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Karan · 107</h4><p>Has <b>no email</b>. Watch what happens to him when we search by email.</p></div>
+    <div class="card t2 tilt-b"><h4>Vikram · 109</h4><p>A consultant with <b>no department</b>. He’ll go “missing” from some answers.</p></div>
+    <div class="card t3 tilt-a"><h4>Legal · 50</h4><p>A department with <b>nobody in it</b>. Will it show in a staff report?</p></div>
+    <div class="card t4 tilt-b"><h4>Anjali · 110</h4><p>Has <b>left the company</b> (INACTIVE), but her record is still kept.</p></div>
+  </div>
+  <p>Real company data is never perfect. These four cases are exactly the kind of thing that breaks real integrations, so we’ve put them in on purpose.</p>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="types">
+  <div class="ch-head"><h2><span class="num">8</span>Data types: what each column can hold</h2><label class="got"><input type="checkbox" id="got-types"> Got it</label></div>
+  <div class="story"><b class="lbl">Kitchen containers</b>Milk goes in a bottle. Rice goes in a jar. Eggs go in an egg tray. If you try to pour milk into the egg tray, it makes a mess. In a table, every column is a container of a fixed kind, called its <mark>data type</mark>. Put the wrong kind of value in, and the database refuses.</div>
+  <p>You only need <b>three</b> data types to start. Everything else is a variation of these.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:20%">Kind</th><th style="width:26%">Oracle type</th><th style="width:30%">What it means</th><th style="width:24%">Our examples</th></tr>
+    <tr><td>✏️ <b>Text</b></td><td><code>VARCHAR2(30)</code></td><td>Letters, numbers, symbols, up to 30 characters</td><td><code>'Sneha'</code>, <code>'Bengaluru'</code></td></tr>
+    <tr><td>🔢 <b>Number</b></td><td><code>NUMBER(10,2)</code></td><td>A number: up to 10 digits in total, 2 of them after the decimal point</td><td><code>85000</code>, <code>85000.50</code></td></tr>
+    <tr><td>📅 <b>Date</b></td><td><code>DATE</code></td><td>A calendar date (and a time of day)</td><td><code>1 June 2021</code></td></tr>
+  </table></div>
+  <h3>How to read <code>VARCHAR2(30)</code> and <code>NUMBER(10,2)</code></h3>
+  <ul>
+    <li><b>VARCHAR2</b> = “variable-length characters”, which just means <b>text</b>. The <b>(30)</b> is the maximum length. <code>last_name VARCHAR2(30)</code> can hold “Iyer” (4) or “Subramaniam” (11), but not a 40-letter name.</li>
+    <li><b>NUMBER(10,2)</b>: the first number (10) is the <b>total digits</b>, the second (2) is <b>digits after the decimal point</b>. So the biggest salary is 99,999,999.99. Plenty!</li>
+    <li><b>NUMBER(4)</b>: up to 4 digits, no decimals. Our <code>dept_id</code> is <code>NUMBER(4)</code>, so it can be 10, 30 or 9999.</li>
+  </ul>
+  <h3>How you write each kind in SQL</h3>
+  <div class="tbl"><table>
+    <tr><th style="width:20%">Kind</th><th style="width:36%">Write it like</th><th style="width:44%">Why</th></tr>
+    <tr><td>Text</td><td><code>'Pune'</code> — in <b>single</b> quotes</td><td>The quotes tell Oracle “this is text, not a command”</td></tr>
+    <tr><td>Number</td><td><code>85000</code> — no quotes, no commas</td><td>Commas are for humans. <code>85,000</code> would confuse SQL</td></tr>
+    <tr><td>Date</td><td><code>DATE '2021-06-01'</code></td><td>Always year-month-day, so nobody mixes up 06/01 and 01/06</td></tr>
+  </table></div>
+  <div class="cmd"><p class="what">What happens if you put the wrong kind of value in</p><pre><span class="c">-- trying to save the word 'abc' in the salary column (a NUMBER)</span>
+<span class="b">ORA-01722: invalid number</span>
+<span class="c">-- newer Oracle versions word it more helpfully:
+-- "unable to convert string value containing 'a' to a number"</span></pre></div>
+  <p>Every Oracle error starts with <b>ORA-</b> and a number. Don’t be scared of them. They’re the database telling you exactly what went wrong. You’ll get very good at reading them.</p>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="pk">
+  <div class="ch-head"><h2><span class="num">9</span>Primary key: a unique number for every row</h2><label class="got"><input type="checkbox" id="got-pk"> Got it</label></div>
+  <div class="story"><b class="lbl">Two Ravi Kumars in one class</b>In a class there are two students named Ravi Kumar. When the teacher says “Ravi Kumar, come here”, both stand up. So the school gives every student a <b>roll number</b>, and no two students ever share one. Roll number 12 always means exactly one student.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 200" role="img" aria-label="Two rows both named Ravi Kumar in Pune look identical by name. With an EMP_ID column, 101 and 115, they are clearly two different people.">
+      <g class="rough">
+        <rect class="box f-orange" x="15" y="40" width="300" height="120" rx="12"/>
+        <rect class="box f-green" x="400" y="40" width="305" height="120" rx="12"/>
+        <path class="ln" d="M318 100 L 394 100" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="165" y="28" text-anchor="middle" style="font-weight:700">Without a key: who is who?</text>
+      <text class="t" x="35" y="88" style="font-family:var(--f-mono);font-size:13.5px">Ravi Kumar  Pune  HR</text>
+      <text class="t" x="35" y="122" style="font-family:var(--f-mono);font-size:13.5px">Ravi Kumar  Pune  HR</text>
+      <text class="ts" x="35" y="150" style="fill:var(--red)">update “Ravi Kumar” → both change!</text>
+      <text class="t" x="552" y="28" text-anchor="middle" style="font-weight:700">With a key: always clear</text>
+      <text class="t" x="420" y="88" style="font-family:var(--f-mono);font-size:13.5px"><tspan style="fill:var(--blue);font-weight:700">101</tspan>  Ravi Kumar  Pune</text>
+      <text class="t" x="420" y="122" style="font-family:var(--f-mono);font-size:13.5px"><tspan style="fill:var(--blue);font-weight:700">115</tspan>  Ravi Kumar  Pune</text>
+      <text class="ts" x="420" y="150" style="fill:var(--blue)">update 101 → only one changes</text>
+    </svg></div>
+  </figure>
+  <p>A <mark>primary key</mark> is a column whose value is <b>different for every row</b>, so it can point to exactly one row. In EMPLOYEES it’s <code>emp_id</code>. In DEPARTMENTS it’s <code>dept_id</code>.</p>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Rule 1: unique</h4><p>No two rows can have the same value. A second employee 101 is refused.</p></div>
+    <div class="card t2 tilt-b"><h4>Rule 2: never empty</h4><p>Every row must have one. An employee without an emp_id is refused.</p></div>
+    <div class="card t3 tilt-a"><h4>Rule 3: never changes</h4><p>Not enforced, but good practice. Your roll number doesn’t change when you change your hairstyle.</p></div>
+  </div>
+  <p>Why not use the name, or the email? Names repeat. Emails change when people marry or the company changes domain. A simple number that means nothing else is the safest key. In real systems you’ll see it called <b>ID</b>, <b>PersonId</b>, <b>InvoiceId</b> and so on. In Oracle Fusion, every record you touch from OIC has one.</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="fk">
+  <div class="ch-head"><h2><span class="num">10</span>Foreign key: how tables are linked</h2><label class="got"><input type="checkbox" id="got-fk"> Got it</label></div>
+  <div class="story"><b class="lbl">The class number on your report card</b>Your report card says “Class 8B”. It doesn’t print the class teacher’s name, room number and timetable on every student’s card; it just says <b>8B</b>. If you want those details, you look up 8B in the school’s class list. The “8B” on your card is a <mark>foreign key</mark>: a value that points to a row in another table.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="Each employee row stores only a dept_id. That number points to the matching row in DEPARTMENTS, which holds the department's name and city. Vikram's dept_id is empty, so he points nowhere.">
+      <g class="rough">
+        <rect class="box f-blue" x="15" y="20" width="270" height="205" rx="12"/>
+        <rect class="box f-green" x="440" y="20" width="265" height="205" rx="12"/>
+        <path class="ln" d="M250 76 C 340 76, 360 72, 446 72" marker-end="url(#ah)"/>
+        <path class="ln" d="M250 106 C 340 106, 360 104, 446 104" marker-end="url(#ah)"/>
+        <path class="ln" d="M250 136 C 340 136, 360 106, 446 106" marker-end="url(#ah)"/>
+        <path class="ln" d="M250 166 C 340 166, 360 136, 446 136" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="150" y="48" text-anchor="middle" style="font-weight:700">EMPLOYEES</text>
+      <text class="t" x="30" y="81" style="font-family:var(--f-mono);font-size:13px">Ravi   dept_id <tspan style="font-weight:700">10</tspan></text>
+      <text class="t" x="30" y="111" style="font-family:var(--f-mono);font-size:13px">Amit   dept_id <tspan style="font-weight:700">30</tspan></text>
+      <text class="t" x="30" y="141" style="font-family:var(--f-mono);font-size:13px">Sneha  dept_id <tspan style="font-weight:700">30</tspan></text>
+      <text class="t" x="30" y="171" style="font-family:var(--f-mono);font-size:13px">Karan  dept_id <tspan style="font-weight:700">40</tspan></text>
+      <text class="t" x="30" y="205" style="font-family:var(--f-mono);font-size:13px;fill:var(--red)">Vikram dept_id (empty)</text>
+      <text class="t" x="572" y="48" text-anchor="middle" style="font-weight:700">DEPARTMENTS</text>
+      <text class="t" x="455" y="77" style="font-family:var(--f-mono);font-size:13px">10  HR     Pune</text>
+      <text class="t" x="455" y="109" style="font-family:var(--f-mono);font-size:13px">30  IT     Bengaluru</text>
+      <text class="t" x="455" y="141" style="font-family:var(--f-mono);font-size:13px">40  Sales  Delhi</text>
+      <text class="t" x="455" y="205" style="font-family:var(--f-mono);font-size:13px;fill:var(--red)">50  Legal  (nobody)</text>
+      <text class="ts" x="360" y="245" text-anchor="middle">the employee row keeps only the NUMBER; the details live once, in DEPARTMENTS</text>
+    </svg></div>
+  </figure>
+  <p>So <code>dept_id</code> appears in <b>two</b> tables, with two different jobs:</p>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Where</th><th style="width:30%">Its job</th><th style="width:40%">Like</th></tr>
+    <tr><td><code>DEPARTMENTS.dept_id</code></td><td><b>Primary key</b>: names each department</td><td>The class list, where 8B is defined</td></tr>
+    <tr><td><code>EMPLOYEES.dept_id</code></td><td><b>Foreign key</b>: points to a department</td><td>“8B” written on your report card</td></tr>
+  </table></div>
+  <h3>Why not just write “IT, Bengaluru” on every employee?</h3>
+  <p>Imagine IT moves from Bengaluru to Hyderabad. With the city copied onto 3,000 employee rows, you’d have to change 3,000 rows, and if you miss one, the data now disagrees with itself. With a foreign key, the city is stored <b>once</b> in DEPARTMENTS. Change that one cell, and every IT employee is instantly “in Hyderabad”.</p>
+  <p>And the foreign key has a rule: <b>you can only point to something that exists</b>. Try to give an employee department 99, which doesn’t exist, and the database refuses. That keeps the links honest. (Getting data from both tables together is called a <b>join</b>, and it gets its own part later in Phase 4.)</p>
+  <div class="sticky l"><strong>Bonus:</strong> <code>manager_id</code> in EMPLOYEES is also a foreign key, but it points back to EMPLOYEES itself, because a manager is also an employee. Sneha’s <code>manager_id</code> is 103: Amit.</div>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="guards">
+  <div class="ch-head"><h2><span class="num">11</span>Rules that guard the data</h2><label class="got"><input type="checkbox" id="got-guards"> Got it</label></div>
+  <div class="story"><b class="lbl">The security guard at the gate</b>A building guard checks everyone: “ID card? Visitor pass? No bags inside.” Anyone who breaks a rule doesn’t get in. A table has its own guards, called <mark>constraints</mark>. Every row is checked before it’s saved, and a row that breaks a rule is turned away with an error.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:20%">Guard</th><th style="width:34%">Rule, in plain words</th><th style="width:22%">In our tables</th><th style="width:24%">Break it, and you get</th></tr>
+    <tr><td><b>PRIMARY KEY</b></td><td>Unique and never empty (chapter 9)</td><td><code>emp_id</code>, <code>dept_id</code></td><td><code>ORA-00001</code></td></tr>
+    <tr><td><b>FOREIGN KEY</b></td><td>Must point to a row that exists (chapter 10)</td><td><code>employees.dept_id</code></td><td><code>ORA-02291</code></td></tr>
+    <tr><td><b>NOT NULL</b></td><td>This box can’t be left empty</td><td><code>last_name</code>, <code>hire_date</code></td><td><code>ORA-01400</code></td></tr>
+    <tr><td><b>UNIQUE</b></td><td>No two rows can share this value (empty is allowed)</td><td><code>email</code>, <code>dept_name</code></td><td><code>ORA-00001</code></td></tr>
+    <tr><td><b>CHECK</b></td><td>The value must pass a test</td><td><code>salary &gt; 0</code>, status is ACTIVE or INACTIVE</td><td><code>ORA-02290</code></td></tr>
+    <tr><td><b>DEFAULT</b></td><td>If nobody gives a value, use this one</td><td><code>status</code> → ACTIVE</td><td>(no error: it just fills the gap)</td></tr>
+  </table></div>
+  <p>You don’t need to remember the error numbers today. Just remember the idea: <b>the database protects itself</b>. When OIC sends bad data (a missing name, a department that doesn’t exist), the database says no, and that “no” comes back to OIC as an error you can read and handle. You’ll learn to read these errors properly in Part 4.5.</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="null">
+  <div class="ch-head"><h2><span class="num">12</span>NULL: the empty box</h2><label class="got"><input type="checkbox" id="got-null"> Got it</label></div>
+  <div class="story"><b class="lbl">The blank on a form</b>A form has a box for “Email”. Karan left it blank. Does Karan have no email? Did he forget? Did he not want to share it? We simply <b>don’t know</b>. In a database, a box with nothing in it is called <mark>NULL</mark>, and it means “no value, unknown”.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 200" role="img" aria-label="Three boxes that look similar but are different: a box holding zero, which is a number; a box holding a space, which is text; and an empty box, which is NULL, meaning no value at all">
+      <g class="rough">
+        <rect class="box f-green" x="40" y="40" width="160" height="90" rx="12"/>
+        <rect class="box f-yellow" x="280" y="40" width="160" height="90" rx="12"/>
+        <rect class="box f-card dash" x="520" y="40" width="160" height="90" rx="12"/>
+      </g>
+      <text class="th" x="120" y="96" text-anchor="middle">0</text>
+      <text class="th" x="360" y="96" text-anchor="middle">' '</text>
+      <text class="ts" x="600" y="92" text-anchor="middle" style="fill:var(--ink-soft)">(nothing)</text>
+      <text class="t" x="120" y="160" text-anchor="middle" style="font-weight:700">zero</text><text class="ts" x="120" y="182" text-anchor="middle">a real number</text>
+      <text class="t" x="360" y="160" text-anchor="middle" style="font-weight:700">a space</text><text class="ts" x="360" y="182" text-anchor="middle">real text, just blank-looking</text>
+      <text class="t" x="600" y="160" text-anchor="middle" style="font-weight:700;fill:var(--red)">NULL</text><text class="ts" x="600" y="182" text-anchor="middle">no value at all</text>
+    </svg></div>
+    <figcaption>A salary of 0 means “paid nothing”. A NULL salary means “we don’t know the salary”. Very different!</figcaption>
+  </figure>
+  <p>In our company, NULL appears in two places: <b>Karan’s email</b> and <b>Vikram’s department</b>. Columns marked NOT NULL (like <code>last_name</code>) can never be NULL.</p>
+  <div class="sticky"><strong>Why beginners must care about NULL:</strong> because “unknown” behaves strangely in questions. If you ask “whose email equals nothing?”, the database can’t say yes or no about an unknown value, so it returns <b>nobody</b>, even Karan, with no error. There’s a special way to ask about NULL, and you’ll learn it in Part 4.2. For now, just remember: <b>NULL is not zero, not a space, but “unknown”</b>.</div>
+  <p>One Oracle-only surprise: if you save an empty text <code>''</code> (two quotes with nothing between), Oracle stores it as NULL. So in Oracle, “empty text” and “unknown” are the same thing.</p>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="sql">
+  <div class="ch-head"><h2><span class="num">13</span>What is SQL?</h2><label class="got"><input type="checkbox" id="got-sql"> Got it</label></div>
+  <p><b>SQL</b> (Structured Query Language) is how you talk to the database. A “query” just means a <b>question</b>. The nice thing about SQL is that it reads almost like English:</p>
+  <div class="cmd"><pre><span class="a">SELECT first_name FROM employees WHERE dept_id = 30;</span>
+<span class="c">-- in English: "Show me the first names from the employees table, where the department is 30."</span></pre></div>
+  <p>SQL has a small set of command words. They fall into five families, by what they do:</p>
+  <div class="tbl"><table>
+    <tr><th style="width:22%">Family</th><th style="width:40%">What it does</th><th style="width:38%">Main words</th></tr>
+    <tr><td>🔍 <b>Ask</b> (DQL)</td><td>Reads data. Changes nothing.</td><td><code>SELECT</code></td></tr>
+    <tr><td>✏️ <b>Change</b> (DML)</td><td>Adds, edits or removes rows</td><td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>MERGE</code></td></tr>
+    <tr><td>🏗️ <b>Build</b> (DDL)</td><td>Creates or removes tables themselves</td><td><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code></td></tr>
+    <tr><td>💾 <b>Save / undo</b> (TCL)</td><td>Makes changes permanent, or cancels them</td><td><code>COMMIT</code>, <code>ROLLBACK</code></td></tr>
+    <tr><td>🔑 <b>Permissions</b> (DCL)</td><td>Who is allowed to do what</td><td><code>GRANT</code>, <code>REVOKE</code></td></tr>
+  </table></div>
+  <p>Here’s the good news: <b>SELECT is used far more than all the others combined</b>, and it’s completely safe: a SELECT only reads, so you can’t break anything with it. That’s why we start with SELECT, and spend the next two parts on it.</p>
+  <div class="sticky l"><strong>Three small grammar rules:</strong> ① Every statement ends with a <b>semicolon</b> <code>;</code>, like a full stop. ② Command words like <code>SELECT</code> can be written in capitals or small letters; capitals are just a habit that makes them easy to spot. ③ Text values are case-sensitive: <code>'Pune'</code> and <code>'PUNE'</code> are different values.</div>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="setup">
+  <div class="ch-head"><h2><span class="num">14</span>Set up your playground</h2><label class="got"><input type="checkbox" id="got-setup"> Got it</label></div>
+  <p>You don’t need to install anything. Oracle gives everyone a free database that runs in the browser, called <b>FreeSQL</b>. Follow these steps once.</p>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Open FreeSQL</b>Go to <a href="https://freesql.com">freesql.com</a> on a laptop (a phone screen is too small for this).</div></li>
+    <li><span class="dot">2</span><div><b>Sign in</b>Click <b>Sign in</b> at the top right and log in with a free Oracle account, or create one. This step matters: without signing in you can read, but you <b>can’t create tables</b>.</div></li>
+    <li><span class="dot">3</span><div><b>Open the editor</b>Click <b>Editor</b> (or SQL Worksheet). The screen splits in two: you <b>type</b> in the top half, and <b>results</b> appear in the bottom half.</div></li>
+    <li><span class="dot">4</span><div><b>Get the practice script</b>Open <a href="../phase-04-sql/practice/phase4-setup.sql">phase4-setup.sql</a>, select all of it (Ctrl/⌘ + A) and copy it (Ctrl/⌘ + C).</div></li>
+    <li><span class="dot">5</span><div><b>Paste and run</b>Click in the top half, paste (Ctrl/⌘ + V), and click <b>Run Script</b> (or press F5). It takes a few seconds.</div></li>
+    <li><span class="dot">6</span><div><b>Check the last line</b>Scroll to the bottom of the output. You should see <code>DEPARTMENTS 5 · EMPLOYEES 10 · STAGED 3 · LOG_ROWS 0</code>. If you do, your company is ready.</div></li>
+  </ol>
+  <div class="cmd"><p class="what">What you’ll see while it runs (shortened)</p><pre><span class="b">Table DEPARTMENTS created.
+Table EMPLOYEES created.
+…
+1 row inserted.
+1 row inserted.
+…
+Commit complete.
+
+DEPARTMENTS  EMPLOYEES  STAGED  LOG_ROWS
+-----------  ---------  ------  --------
+          5         10       3         0</span></pre></div>
+  <p>Don’t worry about understanding the script yet: it’s the “build” family (CREATE TABLE) plus a lot of “change” (INSERT). You’ll be able to read every line of it by the end of Phase 4. If anything ever goes wrong later, <b>just run this script again</b>: it wipes the practice tables and builds them fresh.</p>
+  <div class="two">
+    <div class="card t1 tilt-a"><h4>▶ Run Statement (Ctrl/⌘ + Enter)</h4><p>Runs <b>one</b> statement, the one your cursor is in, and shows a neat <b>grid</b>. Use this for your queries.</p></div>
+    <div class="card t2 tilt-b"><h4>▶▶ Run Script (F5)</h4><p>Runs <b>everything</b> in the editor, one after another, and shows plain text. Use this for the setup script.</p></div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="first">
+  <div class="ch-head"><h2><span class="num">15</span>Your first query, word by word</h2><label class="got"><input type="checkbox" id="got-first"> Got it</label></div>
+  <p>Delete everything in the editor, type this one line, and press <b>Ctrl/⌘ + Enter</b>:</p>
+  <div class="cmd"><pre><span class="a">SELECT * FROM departments;</span></pre></div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 200" role="img" aria-label="The query SELECT star FROM departments semicolon, split into words: SELECT means show me; star means every column; FROM means from the table called; departments is the table's name; the semicolon means the end">
+      <g class="rough">
+        <rect class="box f-blue" x="20" y="30" width="140" height="56" rx="10"/>
+        <rect class="box f-yellow" x="180" y="30" width="80" height="56" rx="10"/>
+        <rect class="box f-green" x="280" y="30" width="120" height="56" rx="10"/>
+        <rect class="box f-pink" x="420" y="30" width="200" height="56" rx="10"/>
+        <rect class="box f-grey" x="640" y="30" width="60" height="56" rx="10"/>
+        <path class="ln" d="M90 90 L 90 120" marker-end="url(#ah)"/><path class="ln" d="M220 90 L 220 120" marker-end="url(#ah)"/><path class="ln" d="M340 90 L 340 120" marker-end="url(#ah)"/><path class="ln" d="M520 90 L 520 120" marker-end="url(#ah)"/><path class="ln" d="M670 90 L 670 120" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="90" y="65" text-anchor="middle" style="font-family:var(--f-mono);font-size:16px;font-weight:700">SELECT</text>
+      <text class="t" x="220" y="65" text-anchor="middle" style="font-family:var(--f-mono);font-size:18px;font-weight:700">*</text>
+      <text class="t" x="340" y="65" text-anchor="middle" style="font-family:var(--f-mono);font-size:16px;font-weight:700">FROM</text>
+      <text class="t" x="520" y="65" text-anchor="middle" style="font-family:var(--f-mono);font-size:16px;font-weight:700">departments</text>
+      <text class="t" x="670" y="65" text-anchor="middle" style="font-family:var(--f-mono);font-size:18px;font-weight:700">;</text>
+      <text class="t" x="90" y="142" text-anchor="middle" style="font-weight:700">“show me”</text>
+      <text class="t" x="220" y="142" text-anchor="middle" style="font-weight:700">“every</text><text class="t" x="220" y="162" text-anchor="middle" style="font-weight:700">column”</text>
+      <text class="t" x="340" y="142" text-anchor="middle" style="font-weight:700">“from the</text><text class="t" x="340" y="162" text-anchor="middle" style="font-weight:700">table…”</text>
+      <text class="t" x="520" y="142" text-anchor="middle" style="font-weight:700">“…called</text><text class="t" x="520" y="162" text-anchor="middle" style="font-weight:700">departments”</text>
+      <text class="t" x="670" y="142" text-anchor="middle" style="font-weight:700">“end”</text>
+      <text class="ts" x="360" y="192" text-anchor="middle">Read it aloud: “Show me every column from the table called departments.”</text>
+    </svg></div>
+  </figure>
+  <div class="cmd"><p class="what">The answer (in FreeSQL it appears as a grid)</p><pre><span class="b">DEPT_ID  DEPT_NAME  LOCATION
+-------  ---------  ---------
+     10  HR         Pune
+     20  Finance    Mumbai
+     30  IT         Bengaluru
+     40  Sales      Delhi
+     50  Legal      Chennai</span>
+<span class="c">5 rows selected.</span></pre></div>
+  <p>Congratulations, you just asked a database a question and got an answer! Now compare it with the table in chapter 7: it’s exactly the same data.</p>
+  <h3>Second query: choose your columns</h3>
+  <p>The star means “every column”. To see only some columns, <b>name them</b>, separated by commas:</p>
+  <div class="cmd"><pre><span class="a">SELECT dept_name, location FROM departments;</span>
+<span class="b">DEPT_NAME  LOCATION
+---------  ---------
+HR         Pune
+Finance    Mumbai
+IT         Bengaluru
+Sales      Delhi
+Legal      Chennai</span></pre></div>
+  <p>Same five rows, but now only two columns, in the order <b>you</b> asked for them. Try swapping them: <code>SELECT location, dept_name FROM departments;</code> and watch the columns swap too.</p>
+  <h3>Third query: the bigger table</h3>
+  <div class="cmd"><pre><span class="a">SELECT emp_id, first_name, last_name, salary FROM employees;</span>
+<span class="b">EMP_ID  FIRST_NAME  LAST_NAME  SALARY
+------  ----------  ---------  ------
+   101  Ravi        Kumar       95000
+   102  Priya       Sharma     120000
+   …    (8 more rows)</span>
+<span class="c">10 rows selected.</span></pre></div>
+  <h3>When you make a mistake (you will, and that’s fine)</h3>
+  <div class="tbl"><table>
+    <tr><th style="width:40%">You typed</th><th style="width:30%">Oracle says</th><th style="width:30%">Fix</th></tr>
+    <tr><td><code>SELECT * FROM department;</code></td><td><code>ORA-00942: table or view … does not exist</code></td><td>The table is <b>departments</b>, with an s</td></tr>
+    <tr><td><code>SELECT dept_nam FROM departments;</code></td><td><code>ORA-00904: "DEPT_NAM": invalid identifier</code></td><td>A column name is misspelled</td></tr>
+    <tr><td><code>SELECT dept_name location FROM departments;</code></td><td>No error, but one column called LOCATION full of department names!</td><td>A comma is missing between the two names</td></tr>
+  </table></div>
+  <p>Read errors like a message from a friend: they nearly always say exactly what’s wrong. “Does not exist” means check the table name; “invalid identifier” means check the column name.</p>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">16</span>Practice</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <p>Try each one yourself before opening the answer. All of them are also in <a href="../phase-04-sql/practice/phase4-1-first-look.sql">phase4-1-first-look.sql</a>.</p>
+  <div>
+    <details><summary>1. Show every column of the employees table. How many rows come back?</summary><p><code>SELECT * FROM employees;</code> → 10 rows.</p></details>
+    <details><summary>2. Show only the first name and job title of every employee.</summary><p><code>SELECT first_name, job_title FROM employees;</code> → 10 rows, 2 columns.</p></details>
+    <details><summary>3. Show each employee’s first name and email. Find the one with an empty email.</summary><p><code>SELECT first_name, email FROM employees;</code> → Karan’s email shows as empty (NULL).</p></details>
+    <details><summary>4. Show each employee’s first name and dept_id. Who has no department?</summary><p><code>SELECT first_name, dept_id FROM employees;</code> → Vikram.</p></details>
+    <details><summary>5. Show emp_id, first name and manager_id. Who is Sneha’s manager?</summary><p><code>SELECT emp_id, first_name, manager_id FROM employees;</code> → Sneha’s manager_id is 103, which is Amit.</p></details>
+    <details><summary>6. Break it on purpose: type <code>SELECT * FROM staff;</code>. What does Oracle say?</summary><p>ORA-00942: the table doesn’t exist. There is no table called staff.</p></details>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="ch" id="glossary">
+  <div class="ch-head"><h2><span class="num">17</span>Words you learned today</h2><label class="got"><input type="checkbox" id="got-glossary"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Word</th><th style="width:76%">Meaning in one line</th></tr>
+    <tr><td><b>Data</b></td><td>Facts about things, written down</td></tr>
+    <tr><td><b>Database</b></td><td>An organised, rule-based store of data that many people and programs share</td></tr>
+    <tr><td><b>DBMS</b></td><td>The software that runs a database (Oracle Database, MySQL…)</td></tr>
+    <tr><td><b>Table</b></td><td>A list of one kind of thing, in rows and columns</td></tr>
+    <tr><td><b>Row / record</b></td><td>One thing with all its facts (goes across)</td></tr>
+    <tr><td><b>Column</b></td><td>One kind of fact for every row (goes down)</td></tr>
+    <tr><td><b>Data type</b></td><td>What a column can hold: text (VARCHAR2), number (NUMBER), date (DATE)</td></tr>
+    <tr><td><b>Primary key</b></td><td>A column that’s unique and never empty, naming each row</td></tr>
+    <tr><td><b>Foreign key</b></td><td>A column that points to a row in another table</td></tr>
+    <tr><td><b>Constraint</b></td><td>A rule that guards a table (NOT NULL, UNIQUE, CHECK…)</td></tr>
+    <tr><td><b>NULL</b></td><td>No value; unknown. Not zero, not a space</td></tr>
+    <tr><td><b>SQL</b></td><td>The language for asking a database questions and giving it instructions</td></tr>
+    <tr><td><b>Query</b></td><td>A question to the database, usually a SELECT</td></tr>
+    <tr><td><b>ORA- error</b></td><td>Oracle’s error message, with a number and a reason</td></tr>
+  </table></div>
+</section>
+
+<!-- 18 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">18</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. In a table, does a column go across or down?</summary><p>Down. A column is one kind of fact for every row; a row goes across.</p></details>
+    <details><summary>2. What’s the difference between a database and Oracle Database?</summary><p>The database is the data itself (the shelves); Oracle Database is the software that stores and serves it (the librarian).</p></details>
+    <details><summary>3. Why can’t we use the employee’s name as the primary key?</summary><p>Names can repeat (two Ravi Kumars), so a name can’t point to exactly one row.</p></details>
+    <details><summary>4. EMPLOYEES has a dept_id column. Is it a primary key or a foreign key there?</summary><p>A foreign key: it points to a row in DEPARTMENTS. In DEPARTMENTS, dept_id is the primary key.</p></details>
+    <details><summary>5. Karan’s salary is 55000 and his email is NULL. What does NULL mean?</summary><p>No value / unknown. It’s not zero and not a space.</p></details>
+    <details><summary>6. How do you write the text Pune, the number 85000 and the date 1 June 2021 in SQL?</summary><p><code>'Pune'</code>, <code>85000</code>, <code>DATE '2021-06-01'</code>.</p></details>
+    <details><summary>7. What does <code>*</code> mean in <code>SELECT * FROM departments;</code>?</summary><p>Every column.</p></details>
+    <details><summary>8. Can a SELECT change or delete your data?</summary><p>No. SELECT only reads. Changing data uses INSERT, UPDATE, DELETE or MERGE.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final">A <b>database</b> is a strict, shared store of data, kept in <b>tables</b> of <b>rows</b> (things) and <b>columns</b> (facts) with fixed <b>data types</b>; a <b>primary key</b> names each row, a <b>foreign key</b> links tables, <b>constraints</b> guard the data, <b>NULL</b> means unknown, and you talk to it all in <b>SQL</b>, starting with <code>SELECT … FROM …;</code></p>
+  <p>Next: Part 4.2 · Asking questions with SELECT and WHERE (coming next).</p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 4.1 · What is a database? · by @devwithprabir</footer>
+
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p41b-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p41b-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>

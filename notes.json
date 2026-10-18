@@ -141,31 +141,6 @@
       "status": "published"
     },
     {
-      "slug": "phase-04-1-sql-basics",
-      "phase": 4,
-      "part": 1,
-      "title": "4.1 · Databases & SELECT",
-      "summary": "How Oracle stores data in tables with types, keys and constraints, what NULL really means, and how to ask exact questions with SELECT, WHERE, ORDER BY, FETCH, functions, dates and CASE.",
-      "topics": [
-        "Tables",
-        "Data types",
-        "Keys",
-        "Constraints",
-        "NULL",
-        "SELECT",
-        "WHERE",
-        "ORDER BY",
-        "Paging",
-        "Functions",
-        "Dates",
-        "CASE"
-      ],
-      "date": "2026-10-16",
-      "readMinutes": 45,
-      "video": "",
-      "status": "published"
-    },
-    {
       "slug": "phase-04-2-joins-and-changes",
       "phase": 4,
       "part": 2,
@@ -188,7 +163,7 @@
       "date": "2026-10-16",
       "readMinutes": 50,
       "video": "",
-      "status": "published"
+      "status": "draft"
     },
     {
       "slug": "phase-04-3-plsql-and-oic",
@@ -210,6 +185,29 @@
       ],
       "date": "2026-10-16",
       "readMinutes": 50,
+      "video": "",
+      "status": "draft"
+    },
+    {
+      "slug": "phase-04-1-what-is-a-database",
+      "phase": 4,
+      "part": 1,
+      "title": "4.1 · What is a database?",
+      "summary": "For complete beginners: what data is, why companies move from registers and Excel to databases, what a table looks like inside, primary and foreign keys, the rules that guard data, NULL, and your very first SQL query, word by word.",
+      "topics": [
+        "Data",
+        "Database",
+        "Tables",
+        "Rows & columns",
+        "Data types",
+        "Primary key",
+        "Foreign key",
+        "Constraints",
+        "NULL",
+        "First SELECT"
+      ],
+      "date": "2026-10-18",
+      "readMinutes": 40,
       "video": "",
       "status": "published"
     }
@@ -265,13 +263,16 @@
     {
       "phase": 4,
       "title": "SQL & Databases",
-      "weeks": "2 weeks",
+      "weeks": "2–3 weeks",
       "stage": "Foundations",
-      "topics": "3 parts · SELECT · joins & changes · PL/SQL & OIC",
+      "topics": "6 parts · from “what is a database?” to PL/SQL in OIC",
       "list": [
-        "4.1 Databases & SELECT: tables, types, keys, NULL, WHERE, paging, functions, dates, CASE",
-        "4.2 Joins, grouping & changing data: joins, GROUP BY, subqueries, DML, transactions, MERGE, indexes",
-        "4.3 PL/SQL & databases in OIC: procedures, packages, exceptions, staging loader, DB adapters, polling"
+        "4.1 What is a database? Tables, keys, NULL, your first query",
+        "4.2 Asking questions: SELECT and WHERE",
+        "4.3 Sorting, paging and shaping results: ORDER BY, functions, dates, CASE",
+        "4.4 Joining tables and counting: joins, GROUP BY, subqueries",
+        "4.5 Changing data safely: INSERT, UPDATE, DELETE, COMMIT, MERGE",
+        "4.6 PL/SQL and databases in OIC"
       ]
     },
     {
