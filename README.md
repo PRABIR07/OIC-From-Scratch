@@ -22,7 +22,9 @@ by **@devwithprabir**
 | 4.1 | **What is a database?** | Data, tables, rows & columns, data types, primary & foreign keys, constraints, NULL, your first SELECT | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-04-1-what-is-a-database/index.html) |
 | 4.2–4.6 | SQL & Databases (continued) | SELECT & WHERE, sorting & functions, joins & totals, changing data, PL/SQL in OIC | Coming soon |
 | 5 | Integration Concepts | Sync vs async, events, files, patterns | Coming soon |
-| 6 | OIC Basics | Connections, adapters, mapper, monitoring | Coming soon |
+| 6.1 | **What is OIC?** | The integration problem, core OIC words, OCI, editions, roles, console tour | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-06-1-what-is-oic/index.html) |
+| 6.2 | **Connections & adapters** | Adapter vs connection, roles, REST connections step by step, security, access types, connectivity agent | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-06-2-connections-and-adapters/index.html) |
+| 6.3–6.6 | OIC Basics (continued) | First integration, actions, activate & monitor, labs | Coming soon |
 | 7 | OIC Intermediate | Loops, fault handling, stage file, lookups | Coming soon |
 | 8 | Oracle Fusion Applications | BIP reports, FBDI, HDL, business events | Coming soon |
 | 9 | Advanced & Related Tools | VBCS, Process Automation, OCI basics | Coming soon |

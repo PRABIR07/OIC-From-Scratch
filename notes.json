@@ -210,6 +210,49 @@
       "readMinutes": 40,
       "video": "",
       "status": "published"
+    },
+    {
+      "slug": "phase-06-1-what-is-oic",
+      "phase": 6,
+      "part": 1,
+      "title": "6.1 · What is OIC?",
+      "summary": "Why companies need integration, point-to-point vs a hub, the 8 core OIC words, one integration step by step, where OIC lives in Oracle Cloud, editions, roles, getting your own instance, and a full console tour.",
+      "topics": [
+        "Integration",
+        "iPaaS",
+        "Trigger & invoke",
+        "Instance",
+        "OCI",
+        "Editions",
+        "Roles",
+        "Console tour",
+        "Observability"
+      ],
+      "date": "2026-10-19",
+      "readMinutes": 40,
+      "video": "",
+      "status": "published"
+    },
+    {
+      "slug": "phase-06-2-connections-and-adapters",
+      "phase": 6,
+      "part": 2,
+      "title": "6.2 · Connections & adapters",
+      "summary": "Adapter vs connection, kinds of adapters, trigger and invoke roles, the five parts of every connection, building your first REST invoke and trigger connections click by click, security policies, access types and the connectivity agent.",
+      "topics": [
+        "Adapters",
+        "Connections",
+        "Roles",
+        "REST connection",
+        "Security policies",
+        "Access type",
+        "Connectivity agent",
+        "Test & save"
+      ],
+      "date": "2026-10-19",
+      "readMinutes": 35,
+      "video": "",
+      "status": "published"
     }
   ],
   "roadmap": [
@@ -297,18 +340,14 @@
       "title": "OIC Basics",
       "weeks": "3 weeks",
       "stage": "Oracle Integration Cloud",
-      "topics": "Connections · adapters · mapper · monitoring",
+      "topics": "6 parts · what OIC is · connections · first integration · actions · run & monitor · labs",
       "list": [
-        "What OIC is (Oracle Integration 3)",
-        "Console tour",
-        "Connections and adapters: REST, SOAP, FTP, DB",
-        "App-driven and scheduled integrations",
-        "Trigger vs invoke",
-        "The mapper",
-        "Assign, Switch, Logger, Notification",
-        "Activate, trace and test",
-        "Monitoring",
-        "Your first REST-to-REST integration"
+        "6.1 What is OIC? The problem, core words, OCI, roles, console tour",
+        "6.2 Connections & adapters: roles, security, access types, connectivity agent",
+        "6.3 Your first integration: projects, styles, canvas, trigger, invoke, mapper",
+        "6.4 Actions: Assign, Switch, Log, Notification, For Each, While, Scope",
+        "6.5 Activate, test & monitor: tracing, endpoints, instances, errors",
+        "6.6 Labs: a REST-to-REST integration and a scheduled integration, end to end"
       ]
     },
     {

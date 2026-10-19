@@ -1,0 +1,548 @@
+<title>Phase 6.2 · Connections &amp; adapters | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 6 · Part 2 of 6</p>
+  <h1>Connections &amp; adapters</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 6 · OIC Basics. Before an integration can talk to any system, OIC needs to know <b>how</b> to talk to it and <b>where</b> it is. That’s what adapters and connections are. In this part you understand them properly and <mark>create your first two connections, click by click</mark>.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#idea">1 · Adapter vs connection</a><a href="#kinds">2 · Kinds of adapters</a><a href="#roles">3 · Roles: trigger, invoke, both</a><a href="#parts">4 · The five parts of a connection</a>
+    <a href="#invoke">5 · Build an invoke connection</a><a href="#trigger">6 · Build a trigger connection</a><a href="#security">7 · Security policies</a><a href="#access">8 · Access type</a>
+    <a href="#agent">9 · The connectivity agent</a><a href="#test">10 · Test, save, status</a><a href="#others">11 · Other adapters at a glance</a><a href="#good">12 · Good habits</a>
+    <a href="#tools">13 · Practice</a><a href="#mistakes">14 · Mistakes</a><a href="#glossary">15 · Words you learned</a><a href="#quiz">16 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="idea">
+  <div class="ch-head"><h2><span class="num">1</span>Adapter vs connection</h2><label class="got"><input type="checkbox" id="got-idea"> Got it</label></div>
+  <div class="story"><b class="lbl">WhatsApp and a chat with Ravi</b>WhatsApp <b>knows how</b> to send messages, photos and voice notes to anyone. But to actually message Ravi, you need <b>Ravi’s chat</b>: his number, saved in your phone. WhatsApp is the <mark>adapter</mark> (the know-how). Ravi’s chat is the <mark>connection</mark> (one specific person, with his details).</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 260" role="img" aria-label="One REST adapter on the left, with three connections created from it on the right: a connection to JSONPlaceholder, one to a payroll API, and one to a weather API. Each connection has its own URL and its own login.">
+      <g class="rough">
+        <rect class="box f-yellow" x="20" y="80" width="200" height="100" rx="14"/>
+        <rect class="box f-blue" x="320" y="15" width="380" height="66" rx="12"/>
+        <rect class="box f-blue" x="320" y="97" width="380" height="66" rx="12"/>
+        <rect class="box f-blue" x="320" y="179" width="380" height="66" rx="12"/>
+        <path class="ln" d="M222 115 C 270 100, 280 55, 314 50" marker-end="url(#ah)"/>
+        <path class="ln" d="M222 130 L 314 130" marker-end="url(#ah)"/>
+        <path class="ln" d="M222 145 C 270 160, 280 205, 314 210" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="120" y="118" text-anchor="middle" style="font-weight:700">REST adapter</text><text class="ts" x="120" y="142" text-anchor="middle">knows HTTP, JSON,</text><text class="ts" x="120" y="160" text-anchor="middle">headers, methods</text>
+      <text class="t" x="335" y="42" style="font-weight:700">JSONPlaceholder_API</text><text class="ts" x="335" y="64">https://jsonplaceholder.typicode.com · no login</text>
+      <text class="t" x="335" y="124" style="font-weight:700">Payroll_API</text><text class="ts" x="335" y="146">https://payroll.acme.com/api · OAuth</text>
+      <text class="t" x="335" y="206" style="font-weight:700">Weather_API</text><text class="ts" x="335" y="228">https://api.openweathermap.org · API key</text>
+      <text class="ts" x="120" y="212" text-anchor="middle">one adapter → many connections</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:20%"></th><th style="width:40%">Adapter</th><th style="width:40%">Connection</th></tr>
+    <tr><td>Is</td><td>Built-in know-how for <b>one kind</b> of system</td><td>An adapter + <b>one real system’s</b> address and login</td></tr>
+    <tr><td>Made by</td><td>Oracle (it comes with OIC)</td><td>You</td></tr>
+    <tr><td>Example</td><td>REST adapter, FTP adapter, Oracle ERP Cloud adapter</td><td>“Payroll_API”, “Supplier_SFTP”, “Acme_ERP_DEV”</td></tr>
+    <tr><td>How many</td><td>Fixed list</td><td>As many as you need, one per system</td></tr>
+  </table></div>
+  <p>And here’s the important part: <b>one connection is reused by many integrations</b>. If ten integrations call the payroll API, they all use the same <code>Payroll_API</code> connection. When payroll’s password changes, you update it <b>once</b>.</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="kinds">
+  <div class="ch-head"><h2><span class="num">2</span>Kinds of adapters</h2><label class="got"><input type="checkbox" id="got-kinds"> Got it</label></div>
+  <p>OIC has a long list of adapters (see <b>Design → Adapters</b>). They fall into a few families. You don’t need to learn them all: learn the families, and the few you’ll use most.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Family</th><th style="width:40%">Examples</th><th style="width:36%">Knows how to…</th></tr>
+    <tr><td>🌐 <b>Technology</b></td><td>REST, SOAP, FTP, File</td><td>Speak a general technology. Works with any system that uses it (Phases 1–3)</td></tr>
+    <tr><td>🗄️ <b>Database</b></td><td>Oracle Autonomous Transaction Processing (ATP), Oracle Database, MySQL, SQL Server</td><td>Run SQL, call procedures, poll tables (Phase 4)</td></tr>
+    <tr><td>🏢 <b>Oracle applications</b></td><td>Oracle ERP Cloud, Oracle HCM Cloud, Oracle CX, E-Business Suite, NetSuite</td><td>Show the app’s <b>business objects</b> (Invoice, Worker, Supplier) as a list, so you don’t look up URLs</td></tr>
+    <tr><td>☁️ <b>Other SaaS apps</b></td><td>Salesforce, ServiceNow, Workday, SAP, Shopify, Slack</td><td>The same for non-Oracle apps</td></tr>
+    <tr><td>📬 <b>Messaging &amp; other</b></td><td>Oracle Advanced Queuing, Kafka, email…</td><td>Queues, streams and more</td></tr>
+  </table></div>
+  <div class="sticky l"><strong>Which to choose?</strong> If a <b>specific adapter</b> exists for the application, prefer it: it shows the app’s objects and handles its security for you. If not, the app almost certainly has a REST or SOAP API, and the <b>REST or SOAP adapter</b> works with anything. That’s why we start with REST.</div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="roles">
+  <div class="ch-head"><h2><span class="num">3</span>Roles: trigger, invoke, or both</h2><label class="got"><input type="checkbox" id="got-roles"> Got it</label></div>
+  <div class="story"><b class="lbl">The front door and the gate</b>Your house has a <b>front door</b> where visitors come <b>in</b>, and you go <b>out</b> through the gate to visit others. A connection’s <mark>role</mark> says which way it’s used: are others coming in to OIC through it, or is OIC going out?</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 220" role="img" aria-label="A trigger connection is the way IN: another system calls OIC and starts an integration. An invoke connection is the way OUT: the integration calls another system. Some connections can be both.">
+      <g class="rough">
+        <rect class="box f-grey" x="15" y="70" width="140" height="80" rx="14"/>
+        <rect class="box f-blue" x="265" y="40" width="190" height="140" rx="18"/>
+        <rect class="box f-grey" x="565" y="70" width="140" height="80" rx="14"/>
+        <path class="lb" d="M157 110 L 259 110" marker-end="url(#ahb)"/>
+        <path class="ln" d="M457 110 L 559 110" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="85" y="106" text-anchor="middle" style="font-weight:700">Mobile app</text><text class="ts" x="85" y="128" text-anchor="middle">calls OIC</text>
+      <text class="t" x="360" y="104" text-anchor="middle" style="font-weight:700">Integration</text><text class="ts" x="360" y="128" text-anchor="middle">in OIC</text>
+      <text class="t" x="635" y="106" text-anchor="middle" style="font-weight:700">Payroll API</text><text class="ts" x="635" y="128" text-anchor="middle">OIC calls it</text>
+      <text class="t" x="208" y="96" text-anchor="middle" style="fill:var(--blue);font-weight:700">TRIGGER</text><text class="ts" x="208" y="140" text-anchor="middle">the way IN</text>
+      <text class="t" x="508" y="96" text-anchor="middle" style="font-weight:700">INVOKE</text><text class="ts" x="508" y="140" text-anchor="middle">the way OUT</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Role</th><th style="width:46%">Means</th><th style="width:30%">Example</th></tr>
+    <tr><td><b>Trigger</b></td><td>Others use it to <b>start</b> your integration</td><td>A REST endpoint the mobile app calls</td></tr>
+    <tr><td><b>Invoke</b></td><td>Your integration uses it to <b>call out</b></td><td>Calling the payroll API</td></tr>
+    <tr><td><b>Trigger and Invoke</b></td><td>Either way, in different integrations</td><td>An ERP connection that listens for events and also creates invoices</td></tr>
+  </table></div>
+  <p>The role screen only offers what the adapter supports. If you create a connection as <b>Invoke</b> and later try to use it as a trigger, OIC shows an error. Choose the role on purpose.</p>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="parts">
+  <div class="ch-head"><h2><span class="num">4</span>The five parts of a connection</h2><label class="got"><input type="checkbox" id="got-parts"> Got it</label></div>
+  <p>Every connection, for any adapter, is filled in the same five areas. Learn this shape once, and every connection screen will feel familiar.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 270" role="img" aria-label="Five stacked parts of a connection: 1 identity (name, identifier, role), 2 properties (where: URL, host, WSDL), 3 security (who you are: policy and credentials), 4 access type (which road: public gateway, private endpoint or connectivity agent), 5 test and save">
+      <g class="rough">
+        <rect class="box f-grey" x="20" y="15" width="680" height="42" rx="10"/>
+        <rect class="box f-yellow" x="20" y="65" width="680" height="42" rx="10"/>
+        <rect class="box f-pink" x="20" y="115" width="680" height="42" rx="10"/>
+        <rect class="box f-blue" x="20" y="165" width="680" height="42" rx="10"/>
+        <rect class="box f-green" x="20" y="215" width="680" height="42" rx="10"/>
+      </g>
+      <text class="t" x="38" y="42" style="font-weight:700">① Identity</text><text class="ts" x="220" y="42">Name · Identifier · Role · Description</text><text class="ts" x="560" y="42">“who is this?”</text>
+      <text class="t" x="38" y="92" style="font-weight:700">② Properties</text><text class="ts" x="220" y="92">Connection URL / host / WSDL URL</text><text class="ts" x="560" y="92">“where is it?”</text>
+      <text class="t" x="38" y="142" style="font-weight:700">③ Security</text><text class="ts" x="220" y="142">Policy + username, password, keys…</text><text class="ts" x="560" y="142">“how do I log in?”</text>
+      <text class="t" x="38" y="192" style="font-weight:700">④ Access type</text><text class="ts" x="220" y="192">Public gateway · Private · Agent</text><text class="ts" x="560" y="192">“which road?”</text>
+      <text class="t" x="38" y="242" style="font-weight:700">⑤ Test &amp; Save</text><text class="ts" x="220" y="242">Check it works, then store it</text><text class="ts" x="560" y="242">“does it work?”</text>
+    </svg></div>
+  </figure>
+  <p>That’s exactly like saving a contact: <b>who</b> (name), <b>where</b> (number or address), <b>how to get in</b> (the gate code), <b>which road</b>, and a test call to check the number works.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="invoke">
+  <div class="ch-head"><h2><span class="num">5</span>Build your first invoke connection</h2><label class="got"><input type="checkbox" id="got-invoke"> Got it</label></div>
+  <p>We’ll connect OIC to <b>JSONPlaceholder</b>, the free practice API you used in Phase 3. It needs no login, so it’s perfect for a first connection. In Part 6.6, an integration will use this connection to fetch users.</p>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Open the connections list</b>In the navigation pane, click <b>Design → Connections</b>, then click <b>Create</b>. (Inside a project, it’s the <b>Connections</b> section → <b>Add</b>; same panel.)</div></li>
+    <li><span class="dot">2</span><div><b>Choose the adapter</b>The <b>Create connection</b> panel lists adapters. Type <code>REST</code> in the search box and select <b>REST</b>.</div></li>
+    <li><span class="dot">3</span><div><b>① Identity</b><b>Name</b>: <code>JSONPlaceholder_API</code>. The <b>Identifier</b> fills itself in capitals: <code>JSONPLACEHOLDER_API</code>. <b>Role</b>: <b>Invoke</b>. <b>Description</b>: “Free practice REST API”. Click <b>Create</b>.</div></li>
+    <li><span class="dot">4</span><div><b>② Properties</b><b>Connection Type</b>: <b>REST API Base URL</b>. <b>Connection URL</b>: <code>https://jsonplaceholder.typicode.com</code> (no slash at the end). Leave TLS empty.</div></li>
+    <li><span class="dot">5</span><div><b>③ Security</b><b>Security policy</b>: <b>No Security Policy</b>, because this API is public.</div></li>
+    <li><span class="dot">6</span><div><b>④ Access type</b>Keep <b>Public gateway</b>: the API is on the public internet.</div></li>
+    <li><span class="dot">7</span><div><b>⑤ Test, then Save</b>Click <b>Test</b> at the top. You should see a green message that the connection was tested successfully, and the progress shows <b>100%</b>. Click <b>Save</b>, then the <b>Back</b> arrow.</div></li>
+  </ol>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="Sketch of the filled-in connection page: name JSONPlaceholder_API, role Invoke, connection type REST API Base URL, connection URL https://jsonplaceholder.typicode.com, security No Security Policy, access type Public gateway, and Test and Save buttons at the top with 100 percent progress">
+      <g class="rough">
+        <rect class="box f-card" x="10" y="10" width="700" height="230" rx="14"/>
+        <rect class="box f-blue" x="10" y="10" width="700" height="44" rx="10"/>
+        <rect class="box f-green" x="520" y="18" width="80" height="28" rx="8"/><rect class="box f-yellow" x="610" y="18" width="80" height="28" rx="8"/>
+      </g>
+      <text class="t" x="28" y="38" style="font-weight:700">JSONPlaceholder_API  ·  REST  ·  Invoke</text>
+      <text class="t" x="560" y="38" text-anchor="middle">Test</text><text class="t" x="650" y="38" text-anchor="middle">Save</text>
+      <text class="ts" x="30" y="84" style="font-weight:700">Properties</text>
+      <text class="ts" x="50" y="106">Connection Type</text><text class="t" x="260" y="106" style="font-family:var(--f-mono);font-size:13px">REST API Base URL</text>
+      <text class="ts" x="50" y="130">Connection URL</text><text class="t" x="260" y="130" style="font-family:var(--f-mono);font-size:13px">https://jsonplaceholder.typicode.com</text>
+      <text class="ts" x="30" y="162" style="font-weight:700">Security</text>
+      <text class="ts" x="50" y="184">Security policy</text><text class="t" x="260" y="184" style="font-family:var(--f-mono);font-size:13px">No Security Policy</text>
+      <text class="ts" x="30" y="214" style="font-weight:700">Access type</text><text class="t" x="260" y="214" style="font-family:var(--f-mono);font-size:13px">● Public gateway</text>
+      <text class="ts" x="560" y="214" style="fill:var(--blue);font-weight:700">Configuration 100% ✓</text>
+    </svg></div>
+    <figcaption>A sketch of what you fill in. The real page has a few more optional fields; leave them empty.</figcaption>
+  </figure>
+  <p>Notice what you did <b>not</b> enter: any path like <code>/users/1</code>. The connection holds only the <b>base URL</b>, the part that’s the same for every call. The specific path (<code>/users/{id}</code>) is chosen later, inside each integration. That’s what lets one connection serve many integrations.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="trigger">
+  <div class="ch-head"><h2><span class="num">6</span>Build your first trigger connection</h2><label class="got"><input type="checkbox" id="got-trigger"> Got it</label></div>
+  <p>Now the way <b>in</b>: a REST connection that lets other systems call your integrations. A trigger connection has <b>no URL</b> to fill in, because OIC <b>creates</b> the address for each integration when you activate it.</p>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Create</b><b>Design → Connections → Create</b>, search <code>REST</code>, select <b>REST</b>.</div></li>
+    <li><span class="dot">2</span><div><b>① Identity</b><b>Name</b>: <code>REST_Trigger</code>. <b>Role</b>: <b>Trigger</b>. Click <b>Create</b>.</div></li>
+    <li><span class="dot">3</span><div><b>③ Security</b><b>Security policy</b>: <b>OAuth 2.0 or Basic Authentication</b>. This means callers can prove who they are either with a token or a username and password (Part 3.3).</div></li>
+    <li><span class="dot">4</span><div><b>④ Access type</b>Keep <b>Public gateway</b>.</div></li>
+    <li><span class="dot">5</span><div><b>⑤ Test and Save</b>Click <b>Test</b> → success, 100% → <b>Save</b> → <b>Back</b>.</div></li>
+  </ol>
+  <p>You now have the two connections almost every beginner integration needs: <b>a way in</b> (<code>REST_Trigger</code>) and <b>a way out</b> (<code>JSONPlaceholder_API</code>). You’ll reuse <code>REST_Trigger</code> for many integrations; each one will get its own address.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Trigger security option</th><th style="width:70%">Callers must send</th></tr>
+    <tr><td><b>Basic Authentication</b></td><td>A username and password of an OIC user (e.g. one with the ServiceInvoker role)</td></tr>
+    <tr><td><b>OAuth2.0</b></td><td>A Bearer token from OCI IAM (client credentials, Part 3.3 ch. 14)</td></tr>
+    <tr><td><b>OAuth 2.0 or Basic Authentication</b></td><td>Either one. A friendly choice while learning</td></tr>
+  </table></div>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="security">
+  <div class="ch-head"><h2><span class="num">7</span>Security policies: Part 3.3, now as a drop-down</h2><label class="got"><input type="checkbox" id="got-security"> Got it</label></div>
+  <p>Remember all the ways an API checks who you are? In an invoke connection, they appear as one drop-down called <b>Security policy</b>. Pick the one the other system’s documentation asks for, and fill in its boxes. OIC then adds the right header to every call for you.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Security policy</th><th style="width:36%">You fill in</th><th style="width:34%">OIC sends (Part 3.3)</th></tr>
+    <tr><td><b>No Security Policy</b></td><td>Nothing</td><td>No credentials: public APIs only</td></tr>
+    <tr><td><b>Basic Authentication</b></td><td>Username, password</td><td><code>Authorization: Basic …</code></td></tr>
+    <tr><td><b>API Key Based Authentication</b></td><td>The key, and where it goes (header or query)</td><td><code>x-api-key: …</code> or <code>?appid=…</code></td></tr>
+    <tr><td><b>OAuth Client Credentials</b></td><td>Token URL, client ID, client secret, scope</td><td>Gets a token, caches it, sends <code>Authorization: Bearer …</code></td></tr>
+    <tr><td><b>OAuth Authorization Code Credentials</b></td><td>Same, plus a one-time <b>Provide Consent</b> login</td><td>Bearer token, refreshed for you</td></tr>
+    <tr><td>OAuth Custom Two/Three Legged Flow</td><td>Each token request described by hand</td><td>For APIs that don’t follow the standard exactly</td></tr>
+    <tr><td>AWS, OCI signatures, JWT assertions…</td><td>Keys and certificates</td><td>Signed requests for specific clouds</td></tr>
+  </table></div>
+  <div class="sticky"><strong>Two things beginners miss.</strong> ① For OAuth Authorization Code (and the custom three-legged flow), filling the boxes isn’t enough: you must click <b>Provide Consent</b> and log in once, or the connection never works. ② For Basic Authentication, the <b>Test</b> button only checks it can reach the URL; it does <b>not</b> check the password. A wrong password shows up later, as a 401 inside a run.</div>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="access">
+  <div class="ch-head"><h2><span class="num">8</span>Access type: which road does OIC take?</h2><label class="got"><input type="checkbox" id="got-access"> Got it</label></div>
+  <div class="story"><b class="lbl">Three kinds of addresses</b>A shop on the main road: any courier can reach it. A flat inside a gated society: the courier needs a <b>private gate pass</b>. A house inside a military area: only someone <b>who lives inside</b> can collect the parcel at the gate and carry it in. OIC’s three <mark>access types</mark> are those three cases.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Access type</th><th style="width:42%">Use when the system is…</th><th style="width:34%">Example</th></tr>
+    <tr><td><b>Public gateway</b></td><td>On the public internet (most SaaS apps and public APIs)</td><td>JSONPlaceholder, Salesforce, Oracle Fusion</td></tr>
+    <tr><td><b>Private endpoint</b></td><td>Inside your company’s private network <b>in Oracle Cloud</b> (a VCN)</td><td>A database in your OCI network with no public address</td></tr>
+    <tr><td><b>Connectivity agent</b></td><td>Inside your company’s <b>own data centre</b> (on-premises), behind a firewall</td><td>An old payroll database in the office server room</td></tr>
+  </table></div>
+  <p>For everything in Phase 6, choose <b>Public gateway</b>. The other two need setup by an admin, and you’ll meet them on real projects.</p>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="agent">
+  <div class="ch-head"><h2><span class="num">9</span>The connectivity agent, simply explained</h2><label class="got"><input type="checkbox" id="got-agent"> Got it</label></div>
+  <p>Big companies still run many systems in their own server rooms. Their firewall blocks anything coming <b>in</b> from the internet, so OIC in the cloud can’t reach them directly. The solution is clever:</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 270" role="img" aria-label="OIC in the cloud places work in a queue. The connectivity agent, a small program installed on a server inside the company network, keeps asking OIC for work over an outbound HTTPS connection, carries each request to the on-premises database or app, and sends the answer back. The firewall stays closed to incoming traffic.">
+      <g class="rough">
+        <rect class="box f-blue" x="20" y="90" width="170" height="90" rx="14"/>
+        <rect class="box f-grey dash" x="300" y="15" width="400" height="240" rx="18" style="fill:none"/>
+        <path class="ln" d="M300 25 L 300 245" style="stroke-width:5"/>
+        <rect class="box f-yellow" x="340" y="90" width="150" height="90" rx="14"/>
+        <rect class="box f-orange" x="540" y="90" width="140" height="90" rx="14"/>
+        <path class="lb" d="M336 120 C 280 105, 240 105, 194 115" marker-end="url(#ahb)"/>
+        <path class="ln" d="M194 150 C 240 165, 280 165, 336 155" marker-end="url(#ah)"/>
+        <path class="ln" d="M492 135 L 534 135" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="105" y="128" text-anchor="middle" style="font-weight:700">OIC</text><text class="ts" x="105" y="150" text-anchor="middle">in the cloud</text>
+      <text class="ts" x="300" y="268" text-anchor="middle" style="fill:var(--red);font-weight:700">firewall: nothing comes IN</text>
+      <text class="ts" x="500" y="38" text-anchor="middle">company network (on-premises)</text>
+      <text class="t" x="415" y="128" text-anchor="middle" style="font-weight:700">Connectivity</text><text class="t" x="415" y="150" text-anchor="middle" style="font-weight:700">agent</text>
+      <text class="t" x="610" y="128" text-anchor="middle" style="font-weight:700">Old DB /</text><text class="t" x="610" y="150" text-anchor="middle" style="font-weight:700">app</text>
+      <text class="ts" x="245" y="92" text-anchor="middle" style="fill:var(--blue);font-size:12px">“any work for me?”</text>
+      <text class="ts" x="245" y="194" text-anchor="middle" style="font-size:12px">“yes: run this query”</text>
+    </svg></div>
+  </figure>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Install</b>An admin downloads the agent from <b>Design → Agents</b> and installs it on a small server <b>inside</b> the company network.</div></li>
+    <li><span class="dot">2</span><div><b>It calls out</b>The agent connects <b>outward</b> to OIC over HTTPS and keeps asking “any work for me?”. Outgoing traffic is normally allowed, so no firewall hole is needed.</div></li>
+    <li><span class="dot">3</span><div><b>It carries the work</b>When an integration needs the on-premises database, OIC hands the request to the agent, the agent runs it inside the network, and sends the answer back.</div></li>
+  </ol>
+  <p>Agents belong to an <b>agent group</b>. In a connection, you choose <b>Connectivity agent</b> as the access type and pick the group. Real projects install <b>two agents</b> in one group, on two servers, so integrations keep working if one server goes down. You can check agents are alive in <b>Observability → Agents</b>.</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="test">
+  <div class="ch-head"><h2><span class="num">10</span>Test, save, and connection status</h2><label class="got"><input type="checkbox" id="got-test"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Situation</th><th style="width:70%">What it means / what to do</th></tr>
+    <tr><td>Test is green, 100%</td><td>OIC could reach the system with these settings. Save it.</td></tr>
+    <tr><td>Test fails: host not found</td><td>Typo in the URL, or the system isn’t on the public internet (wrong access type). Remember DNS from Phase 1.</td></tr>
+    <tr><td>Test fails: 401</td><td>The credentials are wrong (for policies that are actually checked during the test)</td></tr>
+    <tr><td>Test fails: certificate / SSL error</td><td>The system’s HTTPS certificate isn’t trusted. An admin uploads it in <b>Settings → Certificates</b></td></tr>
+    <tr><td>Status not 100%</td><td>Some required boxes are empty, or Test hasn’t passed. Integrations can’t use it properly yet.</td></tr>
+  </table></div>
+  <p><b>Changing a connection changes every integration that uses it</b>, as soon as you save. That’s powerful (fix a password once) and dangerous (break ten integrations at once). Before editing, look at which integrations use it: OIC won’t let you delete a connection that’s still in use.</p>
+  <div class="sticky l"><strong>DEV vs PROD:</strong> keep the <b>same connection name and identifier</b> in every instance, but different URLs and passwords. In DEV, <code>Payroll_API</code> points to payroll’s test system; in PROD, to the real one. When you move an integration from DEV to PROD, it finds a connection with the same identifier, and you only fill in PROD’s details.</div>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="others">
+  <div class="ch-head"><h2><span class="num">11</span>Other adapters at a glance</h2><label class="got"><input type="checkbox" id="got-others"> Got it</label></div>
+  <p>Every adapter follows the same five parts. Only the “where” and “how to log in” boxes change. Here’s what the common ones ask for.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:22%">Adapter</th><th style="width:40%">② Where</th><th style="width:38%">③ Login</th></tr>
+    <tr><td><b>SOAP</b></td><td>The <b>WSDL URL</b>, the file from Part 3.2</td><td>Basic, WS-Security Username Password Token, or none</td></tr>
+    <tr><td><b>FTP</b></td><td>Host, port, and whether it’s <b>SFTP</b> (secure)</td><td>Username + password, or an SSH key</td></tr>
+    <tr><td><b>Oracle ATP</b> (database)</td><td>The database <b>wallet</b> file and service name (Part 4)</td><td>A database username and password</td></tr>
+    <tr><td><b>Oracle ERP Cloud</b> / <b>HCM Cloud</b></td><td>Your Oracle Fusion host address</td><td>An integration user (Basic) or OAuth</td></tr>
+    <tr><td><b>Salesforce</b>, <b>ServiceNow</b>…</td><td>The instance address</td><td>Usually OAuth with Provide Consent</td></tr>
+  </table></div>
+  <p>The Oracle application adapters are a big help: instead of looking up Fusion’s REST URLs (Part 3.4), the integration wizard <b>lists the business objects</b> (Invoice, Supplier, Worker) and their operations for you to pick. You’ll use them in Phase 8.</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="good">
+  <div class="ch-head"><h2><span class="num">12</span>Good habits from day one</h2><label class="got"><input type="checkbox" id="got-good"> Got it</label></div>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Name by system, not by integration</h4><p><code>Payroll_API</code>, not <code>Connection_for_my_salary_flow</code>. Many integrations will share it.</p></div>
+    <div class="card t2 tilt-b"><h4>One connection per system</h4><p>Don’t create five copies of the same API. Reuse one.</p></div>
+    <div class="card t3 tilt-a"><h4>A dedicated integration user</h4><p>Never your personal login. When you leave the company, integrations shouldn’t break.</p></div>
+    <div class="card t4 tilt-b"><h4>Least privilege</h4><p>The connection’s user should only have the roles the integrations need (Part 3.3).</p></div>
+    <div class="card t5 tilt-a"><h4>Write a description</h4><p>Who owns the other system, and who to call when it’s down.</p></div>
+    <div class="card t6 tilt-b"><h4>Test after every change</h4><p>Click Test before Save, every time.</p></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="tools">
+  <div class="ch-head"><h2><span class="num">13</span>Practice</h2><label class="got"><input type="checkbox" id="got-tools"> Got it</label></div>
+  <p>If you have an OIC instance, do these now. If not, read them and keep them for later. Part 6.6 builds on them.</p>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Explore adapters</b>Open <b>Design → Adapters</b> and search for REST, FTP, Oracle ERP Cloud and Salesforce. Notice each one’s roles.</div></li>
+    <li><span class="dot">2</span><div><b>Invoke connection</b>Create <code>JSONPlaceholder_API</code> (chapter 5). Test → 100% → Save.</div></li>
+    <li><span class="dot">3</span><div><b>Trigger connection</b>Create <code>REST_Trigger</code> (chapter 6). Test → 100% → Save.</div></li>
+    <li><span class="dot">4</span><div><b>Break it on purpose</b>Edit <code>JSONPlaceholder_API</code>, change the URL to <code>https://jsonplaceholdr.typicode.com</code> (missing “e”) and click Test. Read the error. Fix it, test again, save.</div></li>
+    <li><span class="dot">5</span><div><b>API key connection (optional)</b>Create a free key at openweathermap.org, then a <code>Weather_API</code> connection: URL <code>https://api.openweathermap.org</code>, policy <b>API Key Based Authentication</b>. Oracle’s own tutorial uses this one.</div></li>
+  </ol>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">14</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Putting the full path in the connection URL</b><code>…typicode.com/users/1</code>. Only the base URL goes in the connection.</div></li>
+    <li><span class="dot">2</span><div><b>A slash at the end of the URL</b>Leave it off: <code>…typicode.com</code>, not <code>…typicode.com/</code>.</div></li>
+    <li><span class="dot">3</span><div><b>Wrong role</b>An Invoke-only connection can’t be used as a trigger.</div></li>
+    <li><span class="dot">4</span><div><b>Forgetting Provide Consent</b>OAuth Authorization Code connections stay broken until you do it.</div></li>
+    <li><span class="dot">5</span><div><b>Trusting a green Test for Basic Auth</b>The password isn’t checked until a real call.</div></li>
+    <li><span class="dot">6</span><div><b>Using your personal login</b>It expires or leaves with you. Use an integration user.</div></li>
+    <li><span class="dot">7</span><div><b>Public gateway for an on-premises system</b>It can’t reach inside the firewall. Use the connectivity agent.</div></li>
+  </ol>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="glossary">
+  <div class="ch-head"><h2><span class="num">15</span>Words you learned</h2><label class="got"><input type="checkbox" id="got-glossary"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:26%">Word</th><th style="width:74%">Meaning in one line</th></tr>
+    <tr><td><b>Adapter</b></td><td>Oracle’s built-in know-how for one kind of system</td></tr>
+    <tr><td><b>Connection</b></td><td>An adapter + one real system’s address and login, reusable by many integrations</td></tr>
+    <tr><td><b>Role</b> (of a connection)</td><td>Trigger (way in), Invoke (way out), or both</td></tr>
+    <tr><td><b>Connection URL</b></td><td>The base address of the system, without a path</td></tr>
+    <tr><td><b>Security policy</b></td><td>How OIC proves who it is (Basic, API key, OAuth…)</td></tr>
+    <tr><td><b>Provide Consent</b></td><td>The one-time login some OAuth connections need</td></tr>
+    <tr><td><b>Access type</b></td><td>The road: public gateway, private endpoint, connectivity agent</td></tr>
+    <tr><td><b>Connectivity agent</b></td><td>A small program inside a company network that carries OIC’s work to on-premises systems</td></tr>
+    <tr><td><b>Agent group</b></td><td>A set of agents (usually two) that share the work</td></tr>
+    <tr><td><b>Business object</b></td><td>An app’s thing, like Invoice or Worker, listed by application adapters</td></tr>
+  </table></div>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">16</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. Ten integrations call the same payroll API. How many connections do you need?</summary><p>One, shared by all ten.</p></details>
+    <details><summary>2. A mobile app will call your integration. Trigger or invoke connection?</summary><p>Trigger: it’s the way in.</p></details>
+    <details><summary>3. Why doesn’t a REST trigger connection have a URL box?</summary><p>OIC creates each integration’s address itself, when the integration is activated.</p></details>
+    <details><summary>4. Name the five parts of a connection.</summary><p>Identity, properties (where), security (login), access type (road), and test &amp; save.</p></details>
+    <details><summary>5. A partner API needs a token from a token URL with a client ID and secret. Which policy?</summary><p>OAuth Client Credentials.</p></details>
+    <details><summary>6. The Test button is green for a Basic Authentication connection. Is the password definitely right?</summary><p>No. The test only checks the URL can be reached; a wrong password shows up later as a 401.</p></details>
+    <details><summary>7. The database is in the company’s own server room. Which access type?</summary><p>Connectivity agent.</p></details>
+    <details><summary>8. Why does the agent not need a hole in the firewall?</summary><p>It connects outward to OIC and asks for work; nothing comes in from outside.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final">An <b>adapter</b> is Oracle’s know-how for a kind of system; a <b>connection</b> is that adapter plus one system’s <b>address</b>, <b>security policy</b> and <b>access type</b>, created once with a <b>role</b> (trigger, invoke or both), <b>tested</b>, saved, and reused by every integration that needs that system, through the <b>connectivity agent</b> when the system is on-premises.</p>
+  <p>Next: Part 6.3 · Building your first integration (coming next).</p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 6.2 · Connections &amp; adapters · by @devwithprabir</footer>
+
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p62-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p62-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>

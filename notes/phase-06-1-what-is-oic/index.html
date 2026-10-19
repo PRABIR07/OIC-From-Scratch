@@ -1,0 +1,620 @@
+<title>Phase 6.1 · What is OIC? | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 6 · Part 1 of 6</p>
+  <h1>What is OIC?</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 6 · OIC Basics. Finally, the tool itself! In this part you learn <mark>what problem Oracle Integration solves</mark>, what’s inside it, how you get access, and you take a guided tour of every screen, so that when you log in for the first time, nothing looks strange.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#problem">1 · The problem: apps don’t talk</a><a href="#spaghetti">2 · Spaghetti vs a hub</a><a href="#what">3 · So what is OIC?</a><a href="#day">4 · A day in the life of OIC</a>
+    <a href="#words">5 · The 8 words of OIC</a><a href="#flow">6 · One integration, step by step</a><a href="#cloud">7 · Where OIC lives: OCI</a><a href="#inside">8 · What’s inside the box</a>
+    <a href="#editions">9 · Editions &amp; billing</a><a href="#roles">10 · Who can do what: roles</a><a href="#access">11 · Getting your own OIC</a><a href="#tour">12 · Console tour</a>
+    <a href="#design">13 · The Design menu</a><a href="#observe">14 · Observability &amp; Settings</a><a href="#phases">15 · How Phases 1–4 fit in</a><a href="#glossary">16 · Words you learned</a>
+    <a href="#quiz">17 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="problem">
+  <div class="ch-head"><h2><span class="num">1</span>The problem: applications don’t talk to each other</h2><label class="got"><input type="checkbox" id="got-problem"> Got it</label></div>
+  <div class="story"><b class="lbl">Priya’s first day at work</b>Priya joins a company. HR adds her in the <b>HR system</b>. Now someone must also create her login in the <b>IT system</b>, add her to <b>payroll</b> so she gets a salary, and order a laptop in the <b>asset system</b>. Each system is a different application, from a different company. None of them know Priya exists, until someone tells them.</div>
+  <p>In many companies, that “someone” is a person. They copy Priya’s details from one screen and type them into the next. Four systems, four times the typing, four chances for a mistake. Now imagine 500 new joiners a month, plus people leaving, changing departments, getting promoted…</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="A person copies Priya's details by hand from the HR system into the IT system, payroll and the asset system. Each copy is slow and can introduce mistakes.">
+      <g class="rough">
+        <rect class="box f-green" x="20" y="80" width="150" height="70" rx="12"/>
+        <rect class="box f-yellow" x="285" y="80" width="140" height="70" rx="35"/>
+        <rect class="box f-blue" x="540" y="10" width="160" height="56" rx="10"/>
+        <rect class="box f-blue" x="540" y="87" width="160" height="56" rx="10"/>
+        <rect class="box f-blue" x="540" y="164" width="160" height="56" rx="10"/>
+        <path class="ln" d="M172 115 L 279 115" marker-end="url(#ah)"/>
+        <path class="lr dash" d="M427 105 C 480 80, 500 45, 534 40" marker-end="url(#ahr)"/>
+        <path class="lr dash" d="M427 115 L 534 115" marker-end="url(#ahr)"/>
+        <path class="lr dash" d="M427 125 C 480 150, 500 185, 534 190" marker-end="url(#ahr)"/>
+      </g>
+      <text class="t" x="95" y="110" text-anchor="middle" style="font-weight:700">HR system</text><text class="ts" x="95" y="132" text-anchor="middle">Priya added</text>
+      <text class="t" x="355" y="110" text-anchor="middle" style="font-weight:700">A person</text><text class="ts" x="355" y="132" text-anchor="middle">copy… paste… type</text>
+      <text class="t" x="620" y="43" text-anchor="middle">IT login</text><text class="t" x="620" y="120" text-anchor="middle">Payroll</text><text class="t" x="620" y="197" text-anchor="middle">Laptop order</text>
+      <text class="ts" x="355" y="180" text-anchor="middle" style="fill:var(--red)">slow · typos · forgotten steps</text>
+    </svg></div>
+  </figure>
+  <p><b>Integration</b> means making applications pass data to each other <b>automatically</b>, with no human copying in between. HR adds Priya once, and the other three systems are updated within seconds, every time, without typos.</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="spaghetti">
+  <div class="ch-head"><h2><span class="num">2</span>Spaghetti vs a hub</h2><label class="got"><input type="checkbox" id="got-spaghetti"> Got it</label></div>
+  <div class="story"><b class="lbl">Ten friends, one WhatsApp group</b>If ten friends want to share plans by phoning each other one by one, they need 45 separate phone calls. Make one WhatsApp group, and everyone talks to <b>one</b> place. Applications have the same problem, and the same solution.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="Left: five applications each wired directly to the others, making a tangle of ten connections called point-to-point or spaghetti. Right: the same five applications each connected once to OIC in the middle, a hub.">
+      <g class="rough">
+        <rect class="box f-orange" x="10" y="10" width="340" height="282" rx="16" style="fill-opacity:.35"/>
+        <rect class="box f-green" x="370" y="10" width="340" height="282" rx="16" style="fill-opacity:.35"/>
+        <circle class="box f-card" cx="180" cy="60" r="26"/><circle class="box f-card" cx="290" cy="130" r="26"/><circle class="box f-card" cx="250" cy="230" r="26"/><circle class="box f-card" cx="110" cy="230" r="26"/><circle class="box f-card" cx="70" cy="130" r="26"/>
+        <path class="ln" d="M180 86 L 250 204"/><path class="ln" d="M180 86 L 110 204"/><path class="ln" d="M206 66 L 266 120"/><path class="ln" d="M154 66 L 94 120"/><path class="ln" d="M96 130 L 264 130"/>
+        <path class="ln" d="M96 140 L 226 222"/><path class="ln" d="M264 140 L 134 222"/><path class="ln" d="M136 230 L 224 230"/><path class="ln" d="M80 154 L 100 206"/><path class="ln" d="M280 154 L 260 206"/>
+        <rect class="box f-blue" x="495" y="110" width="90" height="50" rx="12"/>
+        <circle class="box f-card" cx="540" cy="45" r="24"/><circle class="box f-card" cx="660" cy="100" r="24"/><circle class="box f-card" cx="640" cy="225" r="24"/><circle class="box f-card" cx="440" cy="225" r="24"/><circle class="box f-card" cx="420" cy="100" r="24"/>
+        <path class="ln" d="M540 69 L 540 108"/><path class="ln" d="M636 106 L 587 125"/><path class="ln" d="M620 210 L 580 162"/><path class="ln" d="M460 210 L 500 162"/><path class="ln" d="M444 106 L 493 125"/>
+      </g>
+      <text class="ts" x="180" y="65" text-anchor="middle">HR</text><text class="ts" x="290" y="135" text-anchor="middle">IT</text><text class="ts" x="250" y="235" text-anchor="middle">Pay</text><text class="ts" x="110" y="235" text-anchor="middle">Bank</text><text class="ts" x="70" y="135" text-anchor="middle">ERP</text>
+      <text class="ts" x="540" y="50" text-anchor="middle">HR</text><text class="ts" x="660" y="105" text-anchor="middle">IT</text><text class="ts" x="640" y="230" text-anchor="middle">Pay</text><text class="ts" x="440" y="230" text-anchor="middle">Bank</text><text class="ts" x="420" y="105" text-anchor="middle">ERP</text>
+      <text class="t" x="540" y="141" text-anchor="middle" style="font-weight:700">OIC</text>
+      <text class="ts" x="180" y="282" text-anchor="middle" style="fill:var(--red);font-weight:700">point-to-point: 10 links</text>
+      <text class="ts" x="540" y="282" text-anchor="middle" style="fill:var(--blue);font-weight:700">hub: 5 links, one place</text>
+    </svg></div>
+    <figcaption>With 5 apps, direct wiring needs 10 links; with 20 apps, 190. A hub needs one link per app.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:24%"></th><th style="width:38%">Point-to-point (spaghetti)</th><th style="width:38%">A hub like OIC</th></tr>
+    <tr><td>Building</td><td>Custom code for every pair of apps</td><td>Drag-and-drop flows in one tool</td></tr>
+    <tr><td>When something fails</td><td>Search through many servers and logs</td><td>One screen shows every run, success or failure</td></tr>
+    <tr><td>When an app changes</td><td>Fix every link that touches it</td><td>Fix one connection</td></tr>
+    <tr><td>Security</td><td>Passwords scattered in many programs</td><td>Credentials kept in one guarded place</td></tr>
+  </table></div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="what">
+  <div class="ch-head"><h2><span class="num">3</span>So what is OIC?</h2><label class="got"><input type="checkbox" id="got-what"> Got it</label></div>
+  <p><b>Oracle Integration</b>, usually called <b>OIC</b> (Oracle Integration Cloud), is Oracle’s cloud service for connecting applications. You build <b>integrations</b>: small automatic flows that take data from one place, change its shape if needed, and deliver it somewhere else.</p>
+  <div class="grid">
+    <div class="card t1 tilt-a"><h4>Cloud</h4><p>Oracle runs the servers, updates and backups. You just open it in a browser.</p></div>
+    <div class="card t2 tilt-b"><h4>Low-code</h4><p>You build flows by clicking and dragging, not by writing programs. (But you still need to <b>understand</b> data, which is why Phases 1–4 exist.)</p></div>
+    <div class="card t3 tilt-a"><h4>Ready-made connectors</h4><p>Hundreds of “adapters” already know how to talk to Oracle Fusion, Salesforce, SAP, databases, FTP servers, REST and SOAP APIs.</p></div>
+  </div>
+  <p>The industry name for this kind of product is <b>iPaaS</b>: integration Platform as a Service. Other iPaaS products you may hear about are MuleSoft, Boomi and Microsoft Logic Apps. They all solve the same problem; OIC is the natural choice for companies that run <b>Oracle Fusion</b> applications, which is a big part of the job market.</p>
+  <div class="sticky l"><strong>Version names:</strong> the current version is <b>Oracle Integration 3</b> (sometimes written “OIC Gen 3”). The older one was “Generation 2”. New instances are always version 3, and every screen in these notes is from version 3. If you watch older YouTube videos, the screens will look different, but the ideas are the same.</div>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="day">
+  <div class="ch-head"><h2><span class="num">4</span>A day in the life of OIC</h2><label class="got"><input type="checkbox" id="got-day"> Got it</label></div>
+  <p>Before any theory, here are real things OIC does every day in companies. You’ll be able to build versions of all of them by the end of this course.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">When</th><th style="width:44%">What happens</th><th style="width:38%">How it starts</th></tr>
+    <tr><td>09:00</td><td>A new joiner is added in Oracle HCM. OIC creates her login and laptop request.</td><td>An <b>event</b> from the app (“a worker was created”)</td></tr>
+    <tr><td>11:30</td><td>A sales website calls OIC: “What’s the stock for product 501?” OIC asks the ERP and replies in one second.</td><td>An <b>API call</b> to OIC (REST)</td></tr>
+    <tr><td>14:00</td><td>A supplier drops an invoice file on an SFTP server. OIC reads it and loads the invoices into Oracle ERP.</td><td>A <b>schedule</b> that checks for files</td></tr>
+    <tr><td>23:00</td><td>OIC collects the day’s orders from a database and sends a summary to the bank.</td><td>A <b>schedule</b> (every night at 11 pm)</td></tr>
+  </table></div>
+  <p>Look at the last column. Every integration needs something that <b>starts</b> it: an app saying “something happened”, someone calling it, or the clock. That starting point is called the <b>trigger</b>, and it’s the first of the eight words in the next chapter.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="words">
+  <div class="ch-head"><h2><span class="num">5</span>The 8 words of OIC</h2><label class="got"><input type="checkbox" id="got-words"> Got it</label></div>
+  <div class="story"><b class="lbl">A courier company</b>Think of OIC as a courier company. It has <b>route plans</b> for deliveries, <b>vehicles</b> that know how to reach certain places, <b>address books</b> with each customer’s location and gate pass, and a <b>tracking page</b> for every parcel. Each OIC word has a courier twin.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">OIC word</th><th style="width:30%">Courier twin</th><th style="width:52%">Meaning</th></tr>
+    <tr><td><b>Integration</b></td><td>A delivery route plan</td><td>One automatic flow: what starts it, what it does, where data goes</td></tr>
+    <tr><td><b>Adapter</b></td><td>A type of vehicle (truck, boat, bike)</td><td>Built-in know-how for talking to one kind of system: REST, SOAP, FTP, Oracle Fusion, a database…</td></tr>
+    <tr><td><b>Connection</b></td><td>An address-book entry: “Mumbai warehouse, gate pass #42”</td><td>An adapter plus the details of <b>one real system</b>: its address (URL) and its login</td></tr>
+    <tr><td><b>Trigger</b></td><td>The pickup that starts a delivery</td><td>What starts an integration: a call, an event or a schedule</td></tr>
+    <tr><td><b>Invoke</b></td><td>A drop-off on the route</td><td>A call <b>from</b> the integration <b>out</b> to another system</td></tr>
+    <tr><td><b>Map</b></td><td>Repacking a parcel into the right box</td><td>Changing data from one shape into another (field to field)</td></tr>
+    <tr><td><b>Activate</b></td><td>Putting the route into service</td><td>Switching an integration ON so it can run</td></tr>
+    <tr><td><b>Instance</b></td><td>One parcel’s journey, with a tracking number</td><td>One single run of an integration, with its own ID and status</td></tr>
+  </table></div>
+  <p>Read the table twice. Almost every sentence an OIC developer says uses these words: “The integration’s <b>trigger</b> is a REST <b>connection</b>, it <b>maps</b> the data and <b>invokes</b> the ERP <b>adapter</b>; after I <b>activated</b> it, the first <b>instance</b> failed.” In a few weeks, that sentence will sound completely normal to you.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="flow">
+  <div class="ch-head"><h2><span class="num">6</span>One integration, step by step</h2><label class="got"><input type="checkbox" id="got-flow"> Got it</label></div>
+  <p>Let’s watch one simple integration from start to end. A mobile app asks OIC: “Give me employee 104’s details.” OIC gets them from the HR system and answers.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 310" role="img" aria-label="Flow of one integration: 1 the mobile app calls OIC's REST trigger with employee id 104; 2 a map turns the request into the HR system's format; 3 an invoke calls the HR system's API; 4 a map turns the HR answer into the app's format; 5 OIC replies to the app. Every run is recorded as an instance.">
+      <g class="rough">
+        <rect class="box f-grey" x="10" y="110" width="92" height="80" rx="12"/>
+        <rect class="box f-blue dash" x="150" y="30" width="420" height="250" rx="18" style="fill:none"/>
+        <rect class="box f-yellow" x="170" y="110" width="90" height="80" rx="12"/>
+        <rect class="box f-pink" x="280" y="60" width="80" height="60" rx="10"/>
+        <rect class="box f-green" x="380" y="110" width="90" height="80" rx="12"/>
+        <rect class="box f-pink" x="280" y="180" width="80" height="60" rx="10"/>
+        <rect class="box f-orange" x="600" y="110" width="110" height="80" rx="12"/>
+        <path class="lb" d="M104 140 L 164 140" marker-end="url(#ahb)"/>
+        <path class="ln" d="M262 125 C 268 105, 270 95, 276 92" marker-end="url(#ah)"/>
+        <path class="ln" d="M362 92 C 370 95, 372 105, 378 120" marker-end="url(#ah)"/>
+        <path class="ln" d="M472 135 L 594 135" marker-end="url(#ah)"/>
+        <path class="ln" d="M594 165 L 474 165" marker-end="url(#ah)"/>
+        <path class="ln" d="M378 175 C 372 190, 370 205, 364 208" marker-end="url(#ah)"/>
+        <path class="ln" d="M278 210 C 270 205, 268 195, 264 178" marker-end="url(#ah)"/>
+        <path class="lr" d="M164 165 L 106 165" marker-end="url(#ahr)"/>
+      </g>
+      <text class="ts" x="360" y="22" text-anchor="middle">the integration, inside OIC</text>
+      <text class="t" x="56" y="146" text-anchor="middle" style="font-weight:700">Mobile</text><text class="t" x="56" y="166" text-anchor="middle" style="font-weight:700">app</text>
+      <text class="t" x="215" y="146" text-anchor="middle" style="font-weight:700">① Trigger</text><text class="ts" x="215" y="168" text-anchor="middle">REST</text>
+      <text class="t" x="320" y="95" text-anchor="middle" style="font-weight:700">② Map</text>
+      <text class="t" x="425" y="146" text-anchor="middle" style="font-weight:700">③ Invoke</text><text class="ts" x="425" y="168" text-anchor="middle">HR API</text>
+      <text class="t" x="320" y="215" text-anchor="middle" style="font-weight:700">④ Map</text>
+      <text class="t" x="655" y="146" text-anchor="middle" style="font-weight:700">HR</text><text class="t" x="655" y="166" text-anchor="middle" style="font-weight:700">system</text>
+      <text class="ts" x="134" y="130" text-anchor="middle" style="fill:var(--blue);font-size:11px">id 104</text>
+      <text class="ts" x="134" y="186" text-anchor="middle" style="fill:var(--red);font-size:11px">⑤ reply</text>
+      <text class="ts" x="360" y="268" text-anchor="middle">every run = one instance, with its own ID</text>
+    </svg></div>
+  </figure>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Trigger</b>The app calls OIC’s address with <code>GET /employees/104</code>. This call starts a new <b>instance</b>.</div></li>
+    <li><span class="dot">2</span><div><b>Map</b>OIC rearranges the request into the shape the HR system expects. Maybe HR calls the field <code>PersonNumber</code>, not <code>id</code>.</div></li>
+    <li><span class="dot">3</span><div><b>Invoke</b>OIC calls the HR system’s API, using the HR <b>connection</b> (its URL and login).</div></li>
+    <li><span class="dot">4</span><div><b>Map</b>HR answers with 80 fields. The app needs only 4: name, email, department, manager. The map picks and renames them.</div></li>
+    <li><span class="dot">5</span><div><b>Reply</b>OIC sends those 4 fields back to the app as JSON. The instance is marked <b>Succeeded</b>.</div></li>
+  </ol>
+  <p>That’s it. Most integrations, even big ones, are just more of the same building blocks: a trigger, some maps, some invokes, plus a few <b>actions</b> for decisions and loops, which we’ll meet in Part 6.4.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="cloud">
+  <div class="ch-head"><h2><span class="num">7</span>Where OIC lives: Oracle Cloud (OCI)</h2><label class="got"><input type="checkbox" id="got-cloud"> Got it</label></div>
+  <div class="story"><b class="lbl">A flat in a big housing society</b>Oracle’s cloud is like a huge housing society. Your company rents an account in it (a <b>tenancy</b>), divides it into <b>wings</b> (compartments) for different teams, and inside a wing you get your own <b>flat</b>: an <b>OIC instance</b>. Your integrations live inside that flat.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 270" role="img" aria-label="Nested boxes: Oracle Cloud Infrastructure contains your company's tenancy, which contains compartments such as Dev and Prod. Each compartment holds an OIC instance, and the instance holds integrations, connections, lookups and libraries.">
+      <g class="rough">
+        <rect class="box f-grey" x="10" y="10" width="700" height="250" rx="18"/>
+        <rect class="box f-card" x="30" y="45" width="660" height="200" rx="16"/>
+        <rect class="box f-yellow" x="50" y="80" width="300" height="150" rx="14"/>
+        <rect class="box f-green" x="370" y="80" width="300" height="150" rx="14"/>
+        <rect class="box f-blue" x="70" y="125" width="260" height="90" rx="12"/>
+        <rect class="box f-blue" x="390" y="125" width="260" height="90" rx="12"/>
+      </g>
+      <text class="ts" x="30" y="32">Oracle Cloud Infrastructure (OCI)</text>
+      <text class="ts" x="50" y="68">Your company’s tenancy (account)</text>
+      <text class="t" x="70" y="108" style="font-weight:700">Compartment: Dev</text>
+      <text class="t" x="390" y="108" style="font-weight:700">Compartment: Prod</text>
+      <text class="t" x="200" y="152" text-anchor="middle" style="font-weight:700">OIC instance “acme-dev”</text><text class="ts" x="200" y="176" text-anchor="middle">integrations · connections</text><text class="ts" x="200" y="196" text-anchor="middle">lookups · libraries</text>
+      <text class="t" x="520" y="152" text-anchor="middle" style="font-weight:700">OIC instance “acme-prod”</text><text class="ts" x="520" y="176" text-anchor="middle">the same integrations,</text><text class="ts" x="520" y="196" text-anchor="middle">pointing at real systems</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Word</th><th style="width:76%">Meaning</th></tr>
+    <tr><td><b>OCI</b></td><td>Oracle Cloud Infrastructure: Oracle’s cloud, the “housing society”</td></tr>
+    <tr><td><b>Tenancy</b></td><td>Your company’s account in OCI</td></tr>
+    <tr><td><b>Compartment</b></td><td>A folder inside the tenancy, to keep teams or environments separate</td></tr>
+    <tr><td><b>Region</b></td><td>The city where the data centre is, for example Mumbai or Hyderabad</td></tr>
+    <tr><td><b>OIC instance</b></td><td>Your own copy of OIC, with its own web address</td></tr>
+    <tr><td><b>Identity domain</b></td><td>The list of users and passwords that can log in (OCI IAM, which you met in Part 3.3)</td></tr>
+  </table></div>
+  <p>Real projects almost always have <b>two or three instances</b>: Development (DEV) to build and test, sometimes Test (UAT) for business users to check, and Production (PROD) for the real thing. You build in DEV, then move the finished work to PROD. Never experiment in production!</p>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="inside">
+  <div class="ch-head"><h2><span class="num">8</span>What’s inside the box</h2><label class="got"><input type="checkbox" id="got-inside"> Got it</label></div>
+  <p>One OIC instance contains several tools. As an OIC developer, you’ll spend 90% of your time in the first one.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:26%">Feature</th><th style="width:48%">What it’s for</th><th style="width:26%">In this course</th></tr>
+    <tr><td>⭐ <b>Integrations</b></td><td>Building, running and monitoring integration flows</td><td>Phases 6, 7, 8</td></tr>
+    <tr><td><b>File Server</b></td><td>A built-in SFTP server, so partners can drop files for OIC to pick up</td><td>Phase 7</td></tr>
+    <tr><td><b>Process Automation</b></td><td>Human workflows: approvals, forms, tasks (“manager approves the leave”)</td><td>Phase 9</td></tr>
+    <tr><td><b>Visual Builder</b></td><td>Building simple web and mobile screens</td><td>Phase 9</td></tr>
+    <tr><td><b>B2B</b></td><td>Exchanging standard business documents (like EDI orders) with trading partners</td><td>Mention only</td></tr>
+    <tr><td><b>Recipes &amp; accelerators</b></td><td>Ready-made integrations from Oracle you can install and adjust</td><td>Phase 6.6</td></tr>
+  </table></div>
+  <p>Inside Integrations, your work is made of a few kinds of building blocks, and you’ll see these names on screen constantly: <b>integrations</b>, <b>connections</b>, <b>lookups</b> (code translation tables, like “M → Male”), <b>libraries</b> (small JavaScript functions) and <b>projects</b> (folders that keep one solution’s pieces together).</p>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="editions">
+  <div class="ch-head"><h2><span class="num">9</span>Editions and billing, in simple words</h2><label class="got"><input type="checkbox" id="got-editions"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:20%">Edition</th><th style="width:80%">What you get</th></tr>
+    <tr><td><b>Standard</b></td><td>Integrations, standard adapters (REST, SOAP, FTP, databases, Oracle and many SaaS apps), recipes, File Server</td></tr>
+    <tr><td><b>Enterprise</b></td><td>Everything in Standard, plus enterprise adapters (SAP, E-Business Suite, JD Edwards, Siebel), Process Automation, B2B, robotic process automation and AI features</td></tr>
+    <tr><td><b>Healthcare</b></td><td>Everything in Enterprise, plus healthcare message formats (HL7, FHIR)</td></tr>
+  </table></div>
+  <p><b>How it’s paid for:</b> OIC is billed in <b>message packs</b>. With a normal new licence, one pack covers <b>5,000 messages per hour</b>. A small company might need 1 pack; a big one, 10 or more. You don’t pay per integration you build, but for the volume of traffic they handle. For a learning instance, 1 pack is plenty.</p>
+  <p>Why should a developer care about billing? Because design choices change the bill. An integration that checks a server every minute, all day, uses far more messages than one that runs once an hour. Good OIC developers think about volume.</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="roles">
+  <div class="ch-head"><h2><span class="num">10</span>Who can do what: roles</h2><label class="got"><input type="checkbox" id="got-roles"> Got it</label></div>
+  <div class="story"><b class="lbl">The hospital</b>In a hospital, the head of department can change anything, doctors treat patients, nurses monitor them, and visitors can only look. OIC gives each user a <mark>role</mark> in the same way, so people can only do what their job needs.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:26%">Role</th><th style="width:44%">Can do</th><th style="width:30%">Typically given to</th></tr>
+    <tr><td><b>ServiceAdministrator</b></td><td>Everything: settings, certificates, users’ work, all integrations</td><td>The OIC admin</td></tr>
+    <tr><td><b>ServiceDeveloper</b></td><td>Build, edit, activate and test integrations and connections</td><td>You, the OIC developer</td></tr>
+    <tr><td><b>ServiceMonitor</b></td><td>Watch runs, metrics and errors, without changing anything</td><td>Support team</td></tr>
+    <tr><td><b>ServiceViewer</b></td><td>Look at all pages and details, read-only</td><td>Auditors, managers</td></tr>
+    <tr><td><b>ServiceUser</b></td><td>Basic access, such as running integrations; can’t edit</td><td>Business users</td></tr>
+    <tr><td><b>ServiceInvoker</b></td><td>Only <b>call</b> integrations through their APIs; can’t open the screens at all</td><td>Other applications (system users)</td></tr>
+  </table></div>
+  <p>Remember <b>ServiceInvoker</b>. When another application needs to call your integration (like the mobile app in chapter 6), it gets its own user with only this role. That’s least privilege from Part 3.3 in action.</p>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="access">
+  <div class="ch-head"><h2><span class="num">11</span>Getting your own OIC</h2><label class="got"><input type="checkbox" id="got-access"> Got it</label></div>
+  <p>You can read and understand everything in Phase 6 without an instance. But to <b>build</b>, you need one. Here are the realistic options.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:26%">Option</th><th style="width:46%">How</th><th style="width:28%">Good to know</th></tr>
+    <tr><td><b>Your company’s DEV instance</b></td><td>Ask your manager or OIC admin for a user with the ServiceDeveloper role</td><td>Best option if you’re already on a project</td></tr>
+    <tr><td><b>Oracle Cloud free trial</b></td><td>Sign up at oracle.com/cloud/free, then create an Integration instance (steps below)</td><td>The trial gives time-limited credits; OIC is <b>not</b> in the “Always Free” list, so it stops when credits or the trial end</td></tr>
+    <tr><td><b>Oracle LiveLabs</b></td><td>Search “Oracle Integration” on Oracle LiveLabs for guided workshops</td><td>Some workshops can run in a temporary sandbox; availability changes</td></tr>
+  </table></div>
+  <h3>Creating an instance in a trial account</h3>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Open the Oracle Cloud Console</b>Sign in, and choose your region (top bar) — for example India West (Mumbai).</div></li>
+    <li><span class="dot">2</span><div><b>Find Integration</b>Open the ☰ menu → <b>Developer Services</b> → under Application Integration, click <b>Integration</b>.</div></li>
+    <li><span class="dot">3</span><div><b>Pick a compartment</b>Use your own compartment, not <code>root</code>. Create one first if you don’t have it (Identity → Compartments).</div></li>
+    <li><span class="dot">4</span><div><b>Create instance</b>Click <b>Create instance</b> and fill in: <b>Name</b> (e.g. <code>learn-oic</code>, it becomes part of the URL), <b>Edition</b> Standard (or Enterprise to see everything), <b>Shape</b> Development, <b>License type</b> “Subscribe to a new Oracle Integration license”, <b>Message packs</b> 1.</div></li>
+    <li><span class="dot">5</span><div><b>Wait</b>Click <b>Create</b>. After some minutes the <b>State</b> becomes <b>Active</b>.</div></li>
+    <li><span class="dot">6</span><div><b>Open it</b>Click the instance name, then <b>Service console</b>. OIC opens in a new tab. Bookmark it.</div></li>
+  </ol>
+  <div class="sticky"><strong>Save your credits.</strong> A running instance uses credits even when you’re not building. In a trial, you can <b>Stop</b> the instance from its OCI page when you finish for the day, and <b>Start</b> it again next time. And keep your trial password safe: the person who created the instance is its first administrator.</div>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="tour">
+  <div class="ch-head"><h2><span class="num">12</span>Console tour: the home page</h2><label class="got"><input type="checkbox" id="got-tour"> Got it</label></div>
+  <p>When OIC opens, you see the <b>Home</b> page. On the left is the <b>navigation pane</b>: the main menu you’ll use every day. Let’s map it once, slowly.</p>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 330" role="img" aria-label="Sketch of the OIC home screen. A navigation pane on the left lists Home, Projects, Design, Observability and Settings, plus Visual Builder and Process. The main area shows a search for recipes and accelerators, and recently used projects.">
+      <g class="rough">
+        <rect class="box f-card" x="10" y="10" width="700" height="310" rx="14"/>
+        <rect class="box f-blue" x="10" y="10" width="700" height="40" rx="10"/>
+        <rect class="box f-grey" x="10" y="50" width="190" height="270" rx="6"/>
+        <rect class="box f-yellow" x="225" y="75" width="460" height="60" rx="10"/>
+        <rect class="box f-green" x="225" y="155" width="220" height="140" rx="10"/>
+        <rect class="box f-green" x="465" y="155" width="220" height="140" rx="10"/>
+      </g>
+      <text class="t" x="28" y="36" style="font-weight:700">Oracle Integration</text><text class="ts" x="560" y="36">🔔  ?  👤</text>
+      <text class="t" x="28" y="82">⌂ Home</text><text class="t" x="28" y="114">▤ Projects</text><text class="t" x="28" y="146">✎ Design ▸</text><text class="t" x="28" y="178">◉ Observability ▸</text><text class="t" x="28" y="210">⚙ Settings ▸</text>
+      <text class="ts" x="28" y="250">Visual Builder</text><text class="ts" x="28" y="274">Process</text>
+      <text class="t" x="245" y="102" style="font-weight:700">Search recipes and accelerators…</text><text class="ts" x="245" y="124">ready-made integrations from Oracle</text>
+      <text class="t" x="335" y="185" text-anchor="middle" style="font-weight:700">Recent projects</text><text class="ts" x="335" y="210" text-anchor="middle">pick up where</text><text class="ts" x="335" y="230" text-anchor="middle">you left off</text>
+      <text class="t" x="575" y="185" text-anchor="middle" style="font-weight:700">Getting started</text><text class="ts" x="575" y="210" text-anchor="middle">tutorials and</text><text class="ts" x="575" y="230" text-anchor="middle">documentation</text>
+    </svg></div>
+    <figcaption>A simplified sketch. Oracle updates the look every few months, but the menu names stay the same.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:22%">Menu</th><th style="width:48%">What’s there</th><th style="width:30%">You’ll use it to…</th></tr>
+    <tr><td><b>Home</b></td><td>Launch pad: search recipes, see recent projects</td><td>Start your day</td></tr>
+    <tr><td><b>Projects</b></td><td>Folders that bundle a solution’s integrations, connections, lookups and libraries</td><td>Organise and deploy your work</td></tr>
+    <tr><td><b>Design</b></td><td>Where you build: integrations, connections, lookups and more (chapter 13)</td><td>Build</td></tr>
+    <tr><td><b>Observability</b></td><td>Where you watch runs, find errors, see schedules (chapter 14)</td><td>Check and fix</td></tr>
+    <tr><td><b>Settings</b></td><td>Instance-wide options: certificates, email notifications, tracing… (chapter 14)</td><td>Mostly the admin’s area</td></tr>
+    <tr><td>Visual Builder, Process</td><td>The other tools inside the box (chapter 8)</td><td>Later phases</td></tr>
+  </table></div>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="design">
+  <div class="ch-head"><h2><span class="num">13</span>The Design menu: your workshop</h2><label class="got"><input type="checkbox" id="got-design"> Got it</label></div>
+  <p>Click <b>Design</b> and it opens a submenu. Each item is a list page with a search box, a <b>Create</b> button, and an <b>Actions</b> (⋯) menu on every row.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:20%">Design item</th><th style="width:46%">It holds</th><th style="width:34%">Covered in</th></tr>
+    <tr><td><b>Integrations</b></td><td>All your integration flows, with their status (Draft, Configured, Active)</td><td>Parts 6.3 – 6.6</td></tr>
+    <tr><td><b>Connections</b></td><td>All connections, each with its adapter, role and status</td><td>Part 6.2</td></tr>
+    <tr><td><b>Events</b></td><td>Business events that integrations can publish and subscribe to</td><td>Phase 7</td></tr>
+    <tr><td><b>Lookups</b></td><td>Code translation tables, like <code>M → Male</code>, <code>IN → India</code></td><td>Phase 7</td></tr>
+    <tr><td><b>Libraries</b></td><td>JavaScript functions you can call from integrations</td><td>Phase 7</td></tr>
+    <tr><td><b>Packages</b></td><td>Groups of integrations, mostly from older ways of organising</td><td>Mention only</td></tr>
+    <tr><td><b>Agents</b></td><td>Connectivity agents that reach systems inside a company network</td><td>Part 6.2, Phase 7</td></tr>
+    <tr><td><b>Adapters</b></td><td>The list of every adapter your instance has</td><td>Part 6.2</td></tr>
+  </table></div>
+  <h3>An integration’s life: the three statuses</h3>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 150" role="img" aria-label="An integration moves from Draft, while you are still building, to Configured, when every step is complete and valid, to Active, when it is switched on and can run. Deactivating returns it to Configured so you can edit it again.">
+      <g class="rough">
+        <rect class="box f-grey" x="30" y="40" width="170" height="70" rx="14"/>
+        <rect class="box f-yellow" x="275" y="40" width="170" height="70" rx="14"/>
+        <rect class="box f-green" x="520" y="40" width="170" height="70" rx="14"/>
+        <path class="ln" d="M202 75 L 269 75" marker-end="url(#ah)"/>
+        <path class="ln" d="M447 68 L 514 68" marker-end="url(#ah)"/>
+        <path class="lr" d="M514 88 L 451 88" marker-end="url(#ahr)"/>
+      </g>
+      <text class="t" x="115" y="70" text-anchor="middle" style="font-weight:700">Draft</text><text class="ts" x="115" y="92" text-anchor="middle">still building</text>
+      <text class="t" x="360" y="70" text-anchor="middle" style="font-weight:700">Configured</text><text class="ts" x="360" y="92" text-anchor="middle">complete, but OFF</text>
+      <text class="t" x="605" y="70" text-anchor="middle" style="font-weight:700">Active</text><text class="ts" x="605" y="92" text-anchor="middle">ON: can run</text>
+      <text class="ts" x="482" y="58" text-anchor="middle">activate</text><text class="ts" x="482" y="128" text-anchor="middle" style="fill:var(--red)">deactivate to edit</text>
+    </svg></div>
+    <figcaption>You can’t edit an Active integration. Deactivate it, make the change, then activate again (Part 6.5).</figcaption>
+  </figure>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="observe">
+  <div class="ch-head"><h2><span class="num">14</span>Observability and Settings</h2><label class="got"><input type="checkbox" id="got-observe"> Got it</label></div>
+  <div class="story"><b class="lbl">The parcel tracking page</b>After you send a parcel, you open the courier’s tracking page: “Picked up · In transit · Delivered”, or “Delivery failed: address not found”. <mark>Observability</mark> is OIC’s tracking page for every run of every integration.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:22%">Observability item</th><th style="width:78%">Shows</th></tr>
+    <tr><td><b>Dashboards</b></td><td>The big picture: how many runs succeeded or failed, system health</td></tr>
+    <tr><td><b>Integrations</b></td><td>For each active integration: messages received, processed, succeeded, errored</td></tr>
+    <tr><td><b>Instances</b></td><td>Every single run, with its ID, status and your <b>business identifier</b> (like an employee number), so you can find “the run for employee 104”</td></tr>
+    <tr><td><b>Errors</b></td><td>Only the failed runs, with the reason, and buttons to <b>resubmit</b> some of them</td></tr>
+    <tr><td><b>Future runs</b></td><td>A calendar of when scheduled integrations will run next</td></tr>
+    <tr><td><b>Agents</b></td><td>Whether your connectivity agents are up</td></tr>
+  </table></div>
+  <p>Developers spend a surprising amount of time here. In interviews, “How do you troubleshoot a failed integration?” almost always starts with: “I open Observability → Instances, search by the business identifier, open the instance and read the activity stream.” You’ll do exactly that in Part 6.5.</p>
+  <h3>Settings (mostly for the admin)</h3>
+  <p><b>Certificates</b> (to trust other systems’ HTTPS, Phase 1), <b>Notifications</b> (email settings), <b>Tracing</b> (how much detail runs record), <b>Import and Export</b> (moving work between instances), and <b>File Server</b> settings. As a developer you’ll mostly read these, not change them.</p>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="phases">
+  <div class="ch-head"><h2><span class="num">15</span>How Phases 1–4 fit into OIC</h2><label class="got"><input type="checkbox" id="got-phases"> Got it</label></div>
+  <p>Everything you learned before was preparation for this tool. Here’s exactly where each phase shows up on OIC’s screens.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">You learned</th><th style="width:76%">You’ll use it in OIC when…</th></tr>
+    <tr><td>Phase 1 · HTTP</td><td>Setting a REST connection’s URL, choosing GET or POST, reading a 404 or 500 in a failed instance</td></tr>
+    <tr><td>Phase 2 · JSON, XML, XPath</td><td>Giving OIC a sample JSON, reading payloads, and in the <b>mapper</b>, which is built on XPath and XSLT</td></tr>
+    <tr><td>Phase 3 · APIs &amp; security</td><td>Configuring REST and SOAP adapters, choosing a security policy (Basic, OAuth), paging through Fusion REST APIs</td></tr>
+    <tr><td>Phase 4 · SQL</td><td>Using the database adapters: running SQL, calling procedures, polling tables</td></tr>
+  </table></div>
+  <p>That’s why people who skip the basics struggle in OIC: the clicking is easy, but understanding what you’re clicking needs Phases 1–4.</p>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="glossary">
+  <div class="ch-head"><h2><span class="num">16</span>Words you learned</h2><label class="got"><input type="checkbox" id="got-glossary"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Word</th><th style="width:76%">Meaning in one line</th></tr>
+    <tr><td><b>Integration</b> (the idea)</td><td>Apps passing data to each other automatically</td></tr>
+    <tr><td><b>OIC / Oracle Integration 3</b></td><td>Oracle’s cloud service for building integrations</td></tr>
+    <tr><td><b>iPaaS</b></td><td>Integration Platform as a Service: the product category</td></tr>
+    <tr><td><b>Point-to-point</b></td><td>Wiring every app directly to every other app (spaghetti)</td></tr>
+    <tr><td><b>Integration</b> (in OIC)</td><td>One automatic flow you build</td></tr>
+    <tr><td><b>Adapter</b></td><td>Built-in know-how for one kind of system</td></tr>
+    <tr><td><b>Connection</b></td><td>An adapter plus one real system’s address and login</td></tr>
+    <tr><td><b>Trigger / Invoke</b></td><td>What starts the flow / a call the flow makes outward</td></tr>
+    <tr><td><b>Map</b></td><td>Turning data from one shape into another</td></tr>
+    <tr><td><b>Activate</b></td><td>Switch an integration on</td></tr>
+    <tr><td><b>Instance</b></td><td>One run of an integration</td></tr>
+    <tr><td><b>OCI · tenancy · compartment</b></td><td>Oracle’s cloud · your company’s account · a folder inside it</td></tr>
+    <tr><td><b>Message pack</b></td><td>The billing unit: 5,000 messages per hour</td></tr>
+    <tr><td><b>Role</b></td><td>What a user may do (ServiceDeveloper, ServiceMonitor…)</td></tr>
+    <tr><td><b>Observability</b></td><td>OIC’s tracking pages for runs and errors</td></tr>
+  </table></div>
+</section>
+
+<!-- 17 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">17</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. In one line, what problem does OIC solve?</summary><p>It makes applications pass data to each other automatically, instead of people copying it or every app being wired to every other app.</p></details>
+    <details><summary>2. Why is a hub better than point-to-point?</summary><p>Fewer links, one place to build and monitor, one place to fix when an app changes, and credentials kept in one place.</p></details>
+    <details><summary>3. Adapter vs connection?</summary><p>An adapter knows how to talk to a kind of system (like REST). A connection is an adapter plus one specific system’s URL and login.</p></details>
+    <details><summary>4. Trigger vs invoke?</summary><p>The trigger starts the integration (a call, an event or a schedule). An invoke is a call the integration makes out to another system.</p></details>
+    <details><summary>5. What is an instance?</summary><p>One single run of an integration, with its own ID and status.</p></details>
+    <details><summary>6. Name the three statuses an integration moves through.</summary><p>Draft, Configured, Active.</p></details>
+    <details><summary>7. Which role should another application get if it only needs to call your integration?</summary><p>ServiceInvoker.</p></details>
+    <details><summary>8. Where do you go to find a failed run for employee 104?</summary><p>Observability → Instances (or Errors), and search by the business identifier.</p></details>
+    <details><summary>9. What does one message pack give you with a new licence?</summary><p>5,000 messages per hour.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final"><b>OIC</b> is Oracle’s cloud <b>hub</b> for connecting applications: you build <b>integrations</b> that start from a <b>trigger</b>, <b>map</b> data and <b>invoke</b> other systems through <b>connections</b> built on <b>adapters</b>; you <b>activate</b> them, watch every <b>instance</b> in <b>Observability</b>, and it all lives in an <b>OIC instance</b> inside Oracle Cloud (OCI).</p>
+  <p>Next: <a href="../phase-06-2-connections-and-adapters/index.html">Part 6.2 · Connections &amp; adapters →</a></p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 6.1 · What is OIC? · by @devwithprabir</footer>
+
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p61-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p61-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>
