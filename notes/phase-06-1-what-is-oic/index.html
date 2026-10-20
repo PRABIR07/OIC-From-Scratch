@@ -454,29 +454,44 @@ header.top{position:relative}
 <!-- 12 -->
 <section class="ch" id="tour">
   <div class="ch-head"><h2><span class="num">12</span>Console tour: the home page</h2><label class="got"><input type="checkbox" id="got-tour"> Got it</label></div>
-  <p>When OIC opens, you see the <b>Home</b> page. On the left is the <b>navigation pane</b>: the main menu you’ll use every day. Let’s map it once, slowly.</p>
+  <p>When OIC opens, you land on the <b>Home</b> page. The main menu (the <b>navigation pane</b>) is hidden at first: click the <b>☰</b> icon at the top left to open it. Your instance name, with <b>(Dev)</b> for a Development shape, shows at the top right.</p>
   <figure>
-    <div class="dia"><svg viewBox="0 0 720 330" role="img" aria-label="Sketch of the OIC home screen. A navigation pane on the left lists Home, Projects, Design, Observability and Settings, plus Visual Builder and Process. The main area shows a search for recipes and accelerators, and recently used projects.">
+    <div class="dia"><svg viewBox="0 0 720 340" role="img" aria-label="Sketch of the OIC home page: a top bar with the menu icon, the Oracle logo and the instance name; a welcome banner with three buttons, Guide me, I'll build my own project and Browse solutions; three status tiles for error rate, active integrations and emails used; and a Recent projects list on the right">
       <g class="rough">
-        <rect class="box f-card" x="10" y="10" width="700" height="310" rx="14"/>
-        <rect class="box f-blue" x="10" y="10" width="700" height="40" rx="10"/>
-        <rect class="box f-grey" x="10" y="50" width="190" height="270" rx="6"/>
-        <rect class="box f-yellow" x="225" y="75" width="460" height="60" rx="10"/>
-        <rect class="box f-green" x="225" y="155" width="220" height="140" rx="10"/>
-        <rect class="box f-green" x="465" y="155" width="220" height="140" rx="10"/>
+        <rect class="box f-card" x="10" y="10" width="700" height="320" rx="14"/>
+        <rect class="box f-grey" x="10" y="10" width="700" height="40" rx="10"/>
+        <rect class="box f-yellow" x="30" y="65" width="660" height="105" rx="12"/>
+        <rect class="box f-card" x="50" y="120" width="100" height="32" rx="8"/><rect class="box f-card" x="162" y="120" width="190" height="32" rx="8"/><rect class="box f-card" x="364" y="120" width="140" height="32" rx="8"/>
+        <rect class="box f-blue" x="30" y="190" width="150" height="70" rx="10"/><rect class="box f-blue" x="195" y="190" width="150" height="70" rx="10"/><rect class="box f-blue" x="360" y="190" width="150" height="70" rx="10"/>
+        <rect class="box f-green" x="530" y="190" width="160" height="120" rx="10"/>
+        <path class="lr" d="M60 82 C 40 75, 30 60, 28 52" marker-end="url(#ahr)"/>
       </g>
-      <text class="t" x="28" y="36" style="font-weight:700">Oracle Integration</text><text class="ts" x="560" y="36">🔔  ?  👤</text>
-      <text class="t" x="28" y="82">⌂ Home</text><text class="t" x="28" y="114">▤ Projects</text><text class="t" x="28" y="146">✎ Design ▸</text><text class="t" x="28" y="178">◉ Observability ▸</text><text class="t" x="28" y="210">⚙ Settings ▸</text>
-      <text class="ts" x="28" y="250">Visual Builder</text><text class="ts" x="28" y="274">Process</text>
-      <text class="t" x="245" y="102" style="font-weight:700">Search recipes and accelerators…</text><text class="ts" x="245" y="124">ready-made integrations from Oracle</text>
-      <text class="t" x="335" y="185" text-anchor="middle" style="font-weight:700">Recent projects</text><text class="ts" x="335" y="210" text-anchor="middle">pick up where</text><text class="ts" x="335" y="230" text-anchor="middle">you left off</text>
-      <text class="t" x="575" y="185" text-anchor="middle" style="font-weight:700">Getting started</text><text class="ts" x="575" y="210" text-anchor="middle">tutorials and</text><text class="ts" x="575" y="230" text-anchor="middle">documentation</text>
+      <text class="t" x="24" y="37" style="font-weight:700">☰  ORACLE</text><text class="ts" x="690" y="36" text-anchor="end">learn-oic-… (Dev)</text>
+      <text class="ts" x="64" y="92" style="fill:var(--red);font-weight:700">click ☰ to open the menu</text>
+      <text class="t" x="50" y="110" style="font-weight:700">Ready to get started?</text>
+      <text class="ts" x="100" y="141" text-anchor="middle">Guide me</text><text class="ts" x="257" y="141" text-anchor="middle">I’ll build my own project</text><text class="ts" x="434" y="141" text-anchor="middle">Browse solutions</text>
+      <text class="ts" x="45" y="215">Error Rate</text><text class="t" x="45" y="240" style="font-weight:700">0%</text>
+      <text class="ts" x="210" y="215">Integrations</text><text class="t" x="210" y="240" style="font-weight:700">0 of 800</text>
+      <text class="ts" x="375" y="215">Emails</text><text class="t" x="375" y="240" style="font-weight:700">0 of 100</text>
+      <text class="t" x="610" y="218" text-anchor="middle" style="font-weight:700">Recent projects</text><text class="ts" x="610" y="244" text-anchor="middle">empty at first</text>
+      <text class="ts" x="270" y="300" text-anchor="middle">below: “Discover what’s new” news cards</text>
     </svg></div>
-    <figcaption>A simplified sketch. Oracle updates the look every few months, but the menu names stay the same.</figcaption>
+    <figcaption>A simplified sketch of the Oracle Integration 3 home page. Oracle refreshes the look from time to time, but the menu names stay the same.</figcaption>
   </figure>
   <div class="tbl"><table>
+    <tr><th style="width:30%">On the home page</th><th style="width:70%">What it is</th></tr>
+    <tr><td><b>Guide me</b></td><td>A step-by-step helper for your first build</td></tr>
+    <tr><td><b>I’ll build my own project</b></td><td>Creates an empty project for you to fill (we use this in Part 6.3)</td></tr>
+    <tr><td><b>Browse solutions</b></td><td>Ready-made recipes and accelerators from Oracle</td></tr>
+    <tr><td><b>Error Rate</b> tile</td><td>How many runs failed in the last 24 hours</td></tr>
+    <tr><td><b>Integrations</b> tile</td><td>Active integrations, out of the number your instance allows</td></tr>
+    <tr><td><b>Emails</b> tile</td><td>Notification emails used, out of the daily allowance</td></tr>
+    <tr><td><b>Recent projects</b></td><td>Shortcuts back to projects you opened recently</td></tr>
+  </table></div>
+  <h3>The navigation pane (open it with ☰)</h3>
+  <div class="tbl"><table>
     <tr><th style="width:22%">Menu</th><th style="width:48%">What’s there</th><th style="width:30%">You’ll use it to…</th></tr>
-    <tr><td><b>Home</b></td><td>Launch pad: search recipes, see recent projects</td><td>Start your day</td></tr>
+    <tr><td><b>Home</b></td><td>This page</td><td>Start your day</td></tr>
     <tr><td><b>Projects</b></td><td>Folders that bundle a solution’s integrations, connections, lookups and libraries</td><td>Organise and deploy your work</td></tr>
     <tr><td><b>Design</b></td><td>Where you build: integrations, connections, lookups and more (chapter 13)</td><td>Build</td></tr>
     <tr><td><b>Observability</b></td><td>Where you watch runs, find errors, see schedules (chapter 14)</td><td>Check and fix</td></tr>
