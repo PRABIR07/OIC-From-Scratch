@@ -253,6 +253,27 @@
       "readMinutes": 35,
       "video": "",
       "status": "published"
+    },
+    {
+      "slug": "phase-06-3-first-integration",
+      "phase": 6,
+      "part": 3,
+      "title": "6.3 · Your first integration",
+      "summary": "Build a working REST-to-REST integration click by click: integration styles, the canvas, the endpoint wizard, sample JSON, the mapper, business identifiers, then activate it and get your first 200 response.",
+      "topics": [
+        "Integration styles",
+        "Canvas",
+        "Endpoint wizard",
+        "JSON sample",
+        "Mapper",
+        "Business identifier",
+        "Activate",
+        "First run"
+      ],
+      "date": "2026-10-21",
+      "readMinutes": 45,
+      "video": "",
+      "status": "published"
     }
   ],
   "roadmap": [

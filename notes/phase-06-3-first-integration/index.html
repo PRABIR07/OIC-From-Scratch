@@ -1,0 +1,635 @@
+<title>Phase 6.3 · Your first integration | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 6 · Part 3 of 6</p>
+  <h1>Your first integration</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 6 · OIC Basics. Today you build a real, working integration: <mark>someone asks OIC for user number 1, OIC fetches that user from an API, and replies with just the details they need</mark>. First we understand each piece, then we build it together, click by click, with a “✓ You’ll see” check after every step.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#goal">1 · What we’ll build</a><a href="#styles">2 · Three integration styles</a><a href="#canvas">3 · The canvas</a><a href="#wizard">4 · The endpoint wizard</a>
+    <a href="#sample">5 · Why OIC needs sample JSON</a><a href="#mapper">6 · Maps and the mapper</a><a href="#bizid">7 · Business identifiers</a><a href="#prep">8 · Before you start</a>
+    <a href="#stepA">9 · Build: create the integration</a><a href="#stepB">10 · Build: the trigger</a><a href="#stepC">11 · Build: the invoke</a><a href="#stepD">12 · Build: the two maps</a>
+    <a href="#stepE">13 · Build: identifier &amp; save</a><a href="#stepF">14 · First run</a><a href="#mistakes">15 · Mistakes</a><a href="#glossary">16 · Words you learned</a>
+    <a href="#quiz">17 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="goal">
+  <div class="ch-head"><h2><span class="num">1</span>What we’ll build</h2><label class="got"><input type="checkbox" id="got-goal"> Got it</label></div>
+  <div class="story"><b class="lbl">The helpful receptionist</b>A visitor asks the receptionist: “Can you tell me about employee number 1?” The receptionist phones the records office, which reads out a <b>long</b> file: name, username, email, full address, phone, website, company details. The receptionist doesn’t repeat all of it. She tells the visitor just the <b>five things they need</b>. Our integration is that receptionist.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="The Get User By Id integration. A caller sends GET /users/1 to OIC through the REST_Trigger connection. A map passes the id on. OIC invokes JSONPlaceholder's /users/1 through the JSONPlaceholder_API connection and gets a long user record. A second map picks five fields, and OIC replies to the caller with userId, name, email, city and company.">
+      <g class="rough">
+        <rect class="box f-grey" x="10" y="110" width="105" height="80" rx="12"/>
+        <rect class="box f-blue dash" x="140" y="25" width="430" height="250" rx="18" style="fill:none"/>
+        <rect class="box f-yellow" x="160" y="110" width="110" height="80" rx="12"/>
+        <rect class="box f-pink" x="300" y="55" width="90" height="56" rx="10"/>
+        <rect class="box f-green" x="420" y="110" width="130" height="80" rx="12"/>
+        <rect class="box f-pink" x="300" y="190" width="90" height="56" rx="10"/>
+        <rect class="box f-orange" x="600" y="110" width="110" height="80" rx="12"/>
+        <path class="lb" d="M117 140 L 154 140" marker-end="url(#ahb)"/>
+        <path class="ln" d="M272 125 C 282 100, 288 88, 294 85" marker-end="url(#ah)"/>
+        <path class="ln" d="M392 85 C 405 88, 410 100, 418 120" marker-end="url(#ah)"/>
+        <path class="ln" d="M552 135 L 594 135" marker-end="url(#ah)"/>
+        <path class="ln" d="M594 168 L 554 168" marker-end="url(#ah)"/>
+        <path class="ln" d="M418 180 C 410 200, 405 212, 394 216" marker-end="url(#ah)"/>
+        <path class="ln" d="M298 216 C 285 212, 280 200, 274 182" marker-end="url(#ah)"/>
+        <path class="lr" d="M154 168 L 119 168" marker-end="url(#ahr)"/>
+      </g>
+      <text class="ts" x="355" y="18" text-anchor="middle">integration “Get User By Id”, inside OIC</text>
+      <text class="t" x="62" y="146" text-anchor="middle" style="font-weight:700">Caller</text><text class="ts" x="62" y="168" text-anchor="middle">you / Postman</text>
+      <text class="t" x="215" y="144" text-anchor="middle" style="font-weight:700">Trigger</text><text class="ts" x="215" y="166" text-anchor="middle">GetUser</text>
+      <text class="t" x="345" y="88" text-anchor="middle" style="font-weight:700">Map 1</text>
+      <text class="t" x="485" y="144" text-anchor="middle" style="font-weight:700">Invoke</text><text class="ts" x="485" y="166" text-anchor="middle">FetchUser</text>
+      <text class="t" x="345" y="223" text-anchor="middle" style="font-weight:700">Map 2</text>
+      <text class="t" x="655" y="144" text-anchor="middle" style="font-weight:700">JSON-</text><text class="t" x="655" y="166" text-anchor="middle" style="font-weight:700">Placeholder</text>
+      <text class="ts" x="135" y="128" text-anchor="middle" style="fill:var(--blue);font-size:11px">id 1</text>
+      <text class="ts" x="135" y="186" text-anchor="middle" style="fill:var(--red);font-size:11px">5 fields</text>
+      <text class="ts" x="355" y="293" text-anchor="middle">uses REST_Trigger (way in) and JSONPlaceholder_API (way out) from Part 6.2</text>
+    </svg></div>
+  </figure>
+  <div class="two">
+    <div class="cmd"><p class="what">JSONPlaceholder sends OIC this (long)</p><pre><span class="b">{
+  "id": 1,
+  "name": "Leanne Graham",
+  "username": "Bret",
+  "email": "Sincere@april.biz",
+  "address": {
+    "street": "Kulas Light",
+    "city": "Gwenborough", …
+  },
+  "phone": "1-770-736-8031 x56442",
+  "website": "hildegard.org",
+  "company": {
+    "name": "Romaguera-Crona", …
+  }
+}</span></pre></div>
+    <div class="cmd"><p class="what">OIC replies with this (just what’s needed)</p><pre><span class="b">{
+  "userId": 1,
+  "name": "Leanne Graham",
+  "email": "Sincere@april.biz",
+  "city": "Gwenborough",
+  "company": "Romaguera-Crona"
+}</span></pre></div>
+  </div>
+  <p>Look at the right side carefully: the field names changed (<code>id</code> became <code>userId</code>), nested fields were flattened (<code>address → city</code> became just <code>city</code>), and everything else was dropped. That’s the heart of integration work, and the <b>maps</b> will do it.</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="styles">
+  <div class="ch-head"><h2><span class="num">2</span>Three integration styles</h2><label class="got"><input type="checkbox" id="got-styles"> Got it</label></div>
+  <p>When you create an integration, OIC first asks <b>what starts it</b>. That choice is the integration’s <b>style</b>, and it can’t be changed later.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">Style</th><th style="width:34%">Starts when…</th><th style="width:48%">Example</th></tr>
+    <tr><td><b>Application</b></td><td>Another system <b>calls</b> it, or an app sends an event</td><td>A mobile app asks “give me user 1” (today’s integration)</td></tr>
+    <tr><td><b>Schedule</b></td><td>The <b>clock</b> says so, or someone clicks “Submit now”</td><td>Every night at 11 pm, copy the day’s orders (Part 6.6)</td></tr>
+    <tr><td><b>Event</b></td><td>Another OIC integration <b>publishes a business event</b></td><td>“Order created” is announced, and three integrations react (Phase 7)</td></tr>
+  </table></div>
+  <div class="sticky l"><strong>A simple way to choose:</strong> Is a <b>system or person calling</b> it right now? → Application. Is it the <b>clock</b>? → Schedule. Is it <b>another integration announcing something</b>? → Event.</div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="canvas">
+  <div class="ch-head"><h2><span class="num">3</span>The canvas: where you draw the flow</h2><label class="got"><input type="checkbox" id="got-canvas"> Got it</label></div>
+  <div class="story"><b class="lbl">A whiteboard with a marker</b>You draw a flowchart on a whiteboard: a box, an arrow, the next box. The OIC <mark>canvas</mark> is that whiteboard. The flow runs from top to bottom, and you add steps by clicking the <b>+</b> on the line between two steps.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 330" role="img" aria-label="Sketch of the integration canvas. A toolbar along the top holds icons such as business identifiers, layout, validate, save and run test. The flow runs downward: trigger, map, invoke, map, end. A plus sign appears on the line between steps to add a new step. A panel on the right lists triggers, invokes and actions.">
+      <g class="rough">
+        <rect class="box f-card" x="10" y="10" width="700" height="310" rx="14"/>
+        <rect class="box f-grey" x="10" y="10" width="700" height="44" rx="10"/>
+        <rect class="box f-blue" x="580" y="54" width="130" height="266" rx="6"/>
+        <rect class="box f-yellow" x="210" y="75" width="150" height="40" rx="10"/>
+        <rect class="box f-pink" x="235" y="135" width="100" height="32" rx="8"/>
+        <rect class="box f-green" x="210" y="190" width="150" height="40" rx="10"/>
+        <rect class="box f-pink" x="235" y="250" width="100" height="32" rx="8"/>
+        <path class="ln" d="M285 117 L 285 133"/><path class="ln" d="M285 169 L 285 188"/><path class="ln" d="M285 232 L 285 248"/>
+        <circle class="box f-green" cx="285" cy="178" r="9"/>
+        <path class="lr" d="M380 178 C 340 178, 320 178, 298 178" marker-end="url(#ahr)"/>
+      </g>
+      <text class="t" x="28" y="38" style="font-weight:700">← Get User By Id</text><text class="ts" x="420" y="38">🏷  ⇄  ✓  💾  ▶</text>
+      <text class="t" x="285" y="100" text-anchor="middle">GetUser (trigger)</text>
+      <text class="ts" x="285" y="156" text-anchor="middle">Map</text>
+      <text class="t" x="285" y="215" text-anchor="middle">FetchUser (invoke)</text>
+      <text class="ts" x="285" y="271" text-anchor="middle">Map</text>
+      <text class="t" x="285" y="182" text-anchor="middle" style="font-size:13px;font-weight:700">+</text>
+      <text class="ts" x="385" y="174" style="fill:var(--red);font-weight:700">hover a line → +</text><text class="ts" x="385" y="192" style="fill:var(--red)">to add a step</text>
+      <text class="t" x="645" y="85" text-anchor="middle" style="font-weight:700">Side panel</text>
+      <text class="ts" x="645" y="115" text-anchor="middle">Triggers</text><text class="ts" x="645" y="140" text-anchor="middle">Invokes</text><text class="ts" x="645" y="165" text-anchor="middle">Actions</text>
+      <text class="ts" x="380" y="72" style="font-size:11px">toolbar: identifier · layout · validate · save · run</text>
+    </svg></div>
+    <figcaption>A simplified sketch. Icons move around between OIC updates, so hover over an icon to see its name.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">Part of the canvas</th><th style="width:72%">What it does</th></tr>
+    <tr><td><b>The flow</b> (middle)</td><td>Your steps, top to bottom: trigger first, then maps, invokes and actions</td></tr>
+    <tr><td><b>The + on a line</b></td><td>Hover over the line between two steps; a <b>+</b> appears. Click it to add an invoke or an action there</td></tr>
+    <tr><td><b>Side panel</b></td><td>Lists your trigger connections, invoke connections and actions</td></tr>
+    <tr><td><b>Toolbar</b> (top)</td><td>Business identifiers, layout (vertical/horizontal), validate, save, run test</td></tr>
+    <tr><td><b>Error icon</b></td><td>A red icon while something is incomplete. Click it to see what’s missing. It’s normal while you’re still building</td></tr>
+  </table></div>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="wizard">
+  <div class="ch-head"><h2><span class="num">4</span>The endpoint wizard: five questions</h2><label class="got"><input type="checkbox" id="got-wizard"> Got it</label></div>
+  <div class="story"><b class="lbl">Filling in a courier booking form</b>When you book a courier, the form asks: what’s this delivery called? To which address? Pickup or drop? What’s inside the parcel? What comes back? Every time you add a REST trigger or invoke, OIC opens a similar form, called the <mark>Adapter Endpoint Configuration Wizard</mark>, with a few pages of questions.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">Wizard question</th><th style="width:38%">Means</th><th style="width:34%">Today, for the trigger</th></tr>
+    <tr><td>What do you want to call your endpoint?</td><td>A name for this step on the canvas</td><td><code>GetUser</code></td></tr>
+    <tr><td>What is the endpoint’s <b>relative resource URI</b>?</td><td>The path, added after the base address (Phase 1: URLs)</td><td><code>/users/{id}</code></td></tr>
+    <tr><td>What <b>action</b> do you want to perform?</td><td>The HTTP method (Phase 1: GET, POST…)</td><td><b>GET</b></td></tr>
+    <tr><td><b>Request parameters</b></td><td>Values in the path <code>{id}</code> or after <code>?</code> (Phase 3.1)</td><td><code>id</code>, a whole number</td></tr>
+    <tr><td><b>Response</b></td><td>What shape of data comes back</td><td>A sample JSON (chapter 5)</td></tr>
+  </table></div>
+  <p>The <code>{id}</code> in curly brackets is a <b>template parameter</b>: a placeholder that’s filled in on each call. <code>/users/1</code> means id = 1, <code>/users/7</code> means id = 7. OIC spots the curly brackets and creates the <code>id</code> parameter for you.</p>
+  <p>The wizard ends with a <b>Summary</b> page; click <b>Finish</b> and the step appears on the canvas. You can reopen it any time to change answers.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="sample">
+  <div class="ch-head"><h2><span class="num">5</span>Why OIC needs a sample JSON</h2><label class="got"><input type="checkbox" id="got-sample"> Got it</label></div>
+  <div class="story"><b class="lbl">Showing the tailor an old shirt</b>To stitch a new shirt, the tailor asks you to bring an old one that fits. He doesn’t copy its colour, only its <b>shape</b>: sleeve length, collar, size. OIC is the same. Before any real data flows, it needs to know the <b>shape</b> of the data, so you paste one example JSON. OIC learns the field names and structure from it.</div>
+  <ul>
+    <li>The sample only teaches the <b>shape</b>. The values in it (“Leanne Graham”) are never sent anywhere; real values arrive at runtime.</li>
+    <li>From the sample, OIC builds the tree of fields you’ll see in the <b>mapper</b>. If a field isn’t in the sample, it doesn’t exist for OIC, so <b>include every field you need</b>.</li>
+    <li>Use realistic values, not empty ones: <code>"city": "Gwenborough"</code> tells OIC it’s text; <code>"city": ""</code> or <code>null</code> tells it nothing.</li>
+    <li>Arrays need at least one item: <code>[ { … } ]</code>, never an empty <code>[]</code>.</li>
+  </ul>
+  <p>This is why Phase 2 (JSON) mattered: if the sample isn’t valid JSON, the wizard refuses it. If you’re ever unsure, paste it into a JSON validator first.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="mapper">
+  <div class="ch-head"><h2><span class="num">6</span>Maps and the mapper</h2><label class="got"><input type="checkbox" id="got-mapper"> Got it</label></div>
+  <div class="story"><b class="lbl">Copying a form into another form</b>You have a filled-in college form and a blank job application. You copy across: “Name” → “Full name”, “Mobile” → “Contact number”, and skip the rest. A <mark>map</mark> is that copying, done by OIC on every run. The <mark>mapper</mark> is the screen where you draw the copy lines.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 315" role="img" aria-label="Sketch of the mapper. Left: Sources, a tree of fields from JSONPlaceholder's response, including id, name, email, address with city inside, and company with name inside. Right: Target, the integration's response with userId, name, email, city and company. Lines are drawn from id to userId, name to name, email to email, address city to city, and company name to company.">
+      <g class="rough">
+        <rect class="box f-blue" x="15" y="15" width="270" height="270" rx="12"/>
+        <rect class="box f-green" x="435" y="15" width="270" height="270" rx="12"/>
+        <path class="ln" d="M160 90 C 300 90, 330 90, 440 90" marker-end="url(#ah)"/>
+        <path class="ln" d="M160 115 C 300 115, 330 120, 440 120" marker-end="url(#ah)"/>
+        <path class="ln" d="M160 140 C 300 140, 330 150, 440 150" marker-end="url(#ah)"/>
+        <path class="ln" d="M175 190 C 300 190, 330 180, 440 180" marker-end="url(#ah)"/>
+        <path class="ln" d="M175 245 C 300 245, 330 210, 440 210" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="35" y="45" style="font-weight:700">Sources</text><text class="ts" x="35" y="64">FetchUser Response</text>
+      <text class="t" x="45" y="94" style="font-family:var(--f-mono);font-size:13px">id</text>
+      <text class="t" x="45" y="119" style="font-family:var(--f-mono);font-size:13px">name</text>
+      <text class="t" x="45" y="144" style="font-family:var(--f-mono);font-size:13px">email</text>
+      <text class="t" x="45" y="169" style="font-family:var(--f-mono);font-size:13px">▾ address</text>
+      <text class="t" x="70" y="194" style="font-family:var(--f-mono);font-size:13px">city</text>
+      <text class="t" x="45" y="219" style="font-family:var(--f-mono);font-size:13px">  phone, website…</text>
+      <text class="t" x="45" y="244" style="font-family:var(--f-mono);font-size:13px">▾ company › name</text>
+      <text class="t" x="455" y="45" style="font-weight:700">Target</text><text class="ts" x="455" y="64">GetUser Response</text>
+      <text class="t" x="460" y="94" style="font-family:var(--f-mono);font-size:13px">userId</text>
+      <text class="t" x="460" y="124" style="font-family:var(--f-mono);font-size:13px">name</text>
+      <text class="t" x="460" y="154" style="font-family:var(--f-mono);font-size:13px">email</text>
+      <text class="t" x="460" y="184" style="font-family:var(--f-mono);font-size:13px">city</text>
+      <text class="t" x="460" y="214" style="font-family:var(--f-mono);font-size:13px">company</text>
+      <text class="ts" x="360" y="306" text-anchor="middle">drag a field from left onto a field on the right</text>
+    </svg></div>
+    <figcaption>Left = where data comes <b>from</b> (Sources). Right = what you’re <b>filling</b> (Target). Each line copies one value.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">Mapper word</th><th style="width:72%">Means</th></tr>
+    <tr><td><b>Sources</b> (left)</td><td>Everything available so far in this run: the trigger’s request, and responses of earlier invokes</td></tr>
+    <tr><td><b>Target</b> (right)</td><td>The message you’re building right now: the next invoke’s request, or the final reply</td></tr>
+    <tr><td><b>Drag and drop</b></td><td>Drag a source field onto a target field to draw a line</td></tr>
+    <tr><td><b>Validate</b></td><td>Checks the map; success shows “…successfully validated”</td></tr>
+    <tr><td><b>Mapper functions</b></td><td>Extras like joining text or formatting dates (Phase 7)</td></tr>
+    <tr><td><b>Code view</b></td><td>Shows the XSLT behind your lines, the language from Phase 2</td></tr>
+  </table></div>
+  <p>OIC adds a map <b>automatically</b> before each invoke and before the final reply, so you just open it and draw the lines. Maps are saved as you go.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="bizid">
+  <div class="ch-head"><h2><span class="num">7</span>Business identifiers: a label for every run</h2><label class="got"><input type="checkbox" id="got-bizid"> Got it</label></div>
+  <div class="story"><b class="lbl">Writing a name on a parcel</b>A courier office handles thousands of parcels. If a customer calls about “my parcel”, the staff search by the <b>tracking number</b> or <b>name</b>, not by checking every parcel. A <mark>business identifier</mark> is the label you put on every run, so you can find “the run for user 1” among thousands.</div>
+  <p>You choose up to <b>three</b> fields from the data as business identifiers, and one of them is the <b>primary</b> one. OIC records their values for every run, and shows them in <b>Observability → Instances</b>, where you can search by them. Today we use the user <code>id</code>. On real projects it’s an order number, employee number or invoice number: whatever support people will ask about.</p>
+  <p>Every integration <b>needs</b> a primary business identifier before it’s complete. Forgetting it is the most common reason a beginner’s integration won’t activate.</p>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="prep">
+  <div class="ch-head"><h2><span class="num">8</span>Before you start</h2><label class="got"><input type="checkbox" id="got-prep"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">✓</span><div><b>OIC is open</b>The top bar shows <b>ORACLE</b> and your instance name. (Not the “Cloud” console.)</div></li>
+    <li><span class="dot">✓</span><div><b>My First Project exists</b>with two connections at 100%: <code>REST_Trigger</code> (Trigger) and <code>JSONPlaceholder_API</code> (Invoke). If not, do Part 6.2, chapters 5 and 6, first.</div></li>
+    <li><span class="dot">✓</span><div><b>The two JSON samples are ready</b>You’ll paste them in steps 15 and 26. Keep this page open beside OIC.</div></li>
+  </ol>
+  <p>Give yourself about 30–40 minutes. If any screen looks different from the steps, take a screenshot and ask: OIC’s look changes a little with updates, but the steps stay the same.</p>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="stepA">
+  <div class="ch-head"><h2><span class="num">9</span>Build · Part A: create the integration</h2><label class="got"><input type="checkbox" id="got-stepA"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Open your project</b>☰ → <b>Projects</b> → click <b>My First Project</b>.<br>✓ <b>You’ll see:</b> the project page with the Integrations, Connections, Lookups and JavaScript libraries sections, and your two connections listed.</div></li>
+    <li><span class="dot">2</span><div><b>Add an integration</b>In the <b>Integrations</b> section, click <b>Add</b>.<br>✓ <b>You’ll see:</b> an <b>Add integration</b> panel.</div></li>
+    <li><span class="dot">3</span><div><b>Choose to create one</b>Click <b>Create integration</b>.<br>✓ <b>You’ll see:</b> the styles: <b>Application</b>, <b>Schedule</b> (and Event).</div></li>
+    <li><span class="dot">4</span><div><b>Pick the style</b>Select <b>Application</b>.<br>Why: someone will <b>call</b> this integration (chapter 2).</div></li>
+    <li><span class="dot">5</span><div><b>Name it</b>In <b>Name</b>, type <code>Get User By Id</code>. The <b>Identifier</b> fills itself (<code>GET_USER_BY_ID</code>) and the <b>Version</b> shows <code>01.00.0000</code>. Leave the other boxes as they are.</div></li>
+    <li><span class="dot">6</span><div><b>Create</b>Click <b>Create</b>.<br>✓ <b>You’ll see:</b> the <b>canvas</b>, almost empty, with an <b>Add trigger</b> option. A red error icon may appear: that’s normal, the integration isn’t finished yet.</div></li>
+  </ol>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="stepB">
+  <div class="ch-head"><h2><span class="num">10</span>Build · Part B: the trigger (the way in)</h2><label class="got"><input type="checkbox" id="got-stepB"> Got it</label></div>
+  <p>Now we tell OIC how callers will reach this integration: with <code>GET /users/{id}</code>, and what it will reply.</p>
+  <ol class="path">
+    <li><span class="dot">7</span><div><b>Add the trigger</b>Click <b>Add trigger</b> (or the Triggers list in the side panel) and choose <b>REST_Trigger</b>.<br>✓ <b>You’ll see:</b> the endpoint wizard opens on its <b>Basic Info</b> page.</div></li>
+    <li><span class="dot">8</span><div><b>Name the endpoint</b>In “What do you want to call your endpoint?”, type <code>GetUser</code>. Click <b>Continue</b>.</div></li>
+    <li><span class="dot">9</span><div><b>The path</b>In “What is the endpoint’s relative resource URI?”, type <code>/users/{id}</code><br>Careful: curly brackets around <code>id</code>, not round ones.</div></li>
+    <li><span class="dot">10</span><div><b>The method</b>In “What action do you want to perform on the endpoint?”, choose <b>GET</b>.<br>Why: callers are <b>reading</b> a user, not creating one (Phase 1).</div></li>
+    <li><span class="dot">11</span><div><b>Tick two options</b>Select <b>Add and review parameters for this endpoint</b> and <b>Configure this endpoint to receive the response</b>. Click <b>Continue</b>.<br>Why: we have a parameter (<code>id</code>), and we want to send a reply.</div></li>
+    <li><span class="dot">12</span><div><b>Check the parameter</b>On <b>Request Parameters</b>, under template parameters, you’ll see <code>id</code>, created from <code>{id}</code>. Set its <b>Data Type</b> to <b>int</b> (a whole number). Click <b>Continue</b>.</div></li>
+    <li><span class="dot">13</span><div><b>Response format</b>On the <b>Response</b> page, in “Select the response payload format”, choose <b>JSON Sample</b>.</div></li>
+    <li><span class="dot">14</span><div><b>Open the sample box</b>Click <b>&lt;&lt;&lt; inline &gt;&gt;&gt;</b>.<br>✓ <b>You’ll see:</b> a text box to paste JSON.</div></li>
+    <li><span class="dot">15</span><div><b>Paste the reply’s shape</b>Paste this, then click <b>OK</b>:
+      <div class="cmd"><pre><span class="a">{
+  "userId": 1,
+  "name": "Leanne Graham",
+  "email": "Sincere@april.biz",
+  "city": "Gwenborough",
+  "company": "Romaguera-Crona"
+}</span></pre></div>
+      This is the shape of <b>our</b> reply: the 5 fields from chapter 1.</div></li>
+    <li><span class="dot">16</span><div><b>Check element and media type</b><b>Element</b> shows <code>response-wrapper</code>; “What is the media-type of Response Body” shows <b>JSON</b>. Click <b>Continue</b>.</div></li>
+    <li><span class="dot">17</span><div><b>Finish</b>Read the <b>Summary</b> page (GET, <code>/users/{id}</code>, JSON response), then click <b>Finish</b>.<br>✓ <b>You’ll see:</b> <code>GetUser</code> at the top of the canvas. OIC may already have added a map after it.</div></li>
+  </ol>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="stepC">
+  <div class="ch-head"><h2><span class="num">11</span>Build · Part C: the invoke (the way out)</h2><label class="got"><input type="checkbox" id="got-stepC"> Got it</label></div>
+  <p>Next, OIC must call JSONPlaceholder’s <code>/users/{id}</code>. Same wizard, now for the outgoing call.</p>
+  <ol class="path">
+    <li><span class="dot">18</span><div><b>Find the +</b>Move your mouse along the line <b>below GetUser</b> until a <b>+</b> (Add) icon appears. Click it.<br>✓ <b>You’ll see:</b> a menu with <b>Invokes</b> and actions.</div></li>
+    <li><span class="dot">19</span><div><b>Choose the connection</b>Select <b>Invokes</b> → <b>JSONPlaceholder_API</b>.<br>✓ <b>You’ll see:</b> the endpoint wizard again.</div></li>
+    <li><span class="dot">20</span><div><b>Name the step</b>In “What do you want to call your endpoint?”, type <code>FetchUser</code>. Description: <code>Get one user from JSONPlaceholder</code>.</div></li>
+    <li><span class="dot">21</span><div><b>The path</b>Relative resource URI: <code>/users/{id}</code><br>Why: OIC will add this to the connection’s base address, making <code>https://jsonplaceholder.typicode.com/users/{id}</code>.</div></li>
+    <li><span class="dot">22</span><div><b>The method</b>Action: <b>GET</b>.</div></li>
+    <li><span class="dot">23</span><div><b>Tick the same two options</b><b>Add and review parameters for this endpoint</b> and <b>Configure this endpoint to receive the response</b>. Click <b>Continue</b>.</div></li>
+    <li><span class="dot">24</span><div><b>The parameter</b>On <b>Request Parameters</b>, check that <code>id</code> appears as a template parameter; set <b>Data Type</b> to <b>int</b>. Click <b>Continue</b>.</div></li>
+    <li><span class="dot">25</span><div><b>Response format</b>Choose <b>JSON Sample</b>, then click <b>&lt;&lt;&lt; inline &gt;&gt;&gt;</b>.</div></li>
+    <li><span class="dot">26</span><div><b>Paste JSONPlaceholder’s real shape</b>Paste this full user record, then click <b>OK</b>:
+      <div class="cmd"><pre><span class="a">{
+  "id": 1,
+  "name": "Leanne Graham",
+  "username": "Bret",
+  "email": "Sincere@april.biz",
+  "address": {
+    "street": "Kulas Light",
+    "suite": "Apt. 556",
+    "city": "Gwenborough",
+    "zipcode": "92998-3874",
+    "geo": { "lat": "-37.3159", "lng": "81.1496" }
+  },
+  "phone": "1-770-736-8031 x56442",
+  "website": "hildegard.org",
+  "company": {
+    "name": "Romaguera-Crona",
+    "catchPhrase": "Multi-layered client-server neural-net",
+    "bs": "harness real-time e-markets"
+  }
+}</span></pre></div>
+      This is exactly what <code>https://jsonplaceholder.typicode.com/users/1</code> returns. Open that link in your browser to see it yourself.</div></li>
+    <li><span class="dot">27</span><div><b>Check and finish</b><b>Element</b>: <code>response-wrapper</code>; media type: <b>JSON</b>. Click <b>Continue</b>, check the Summary, click <b>Finish</b>.<br>✓ <b>You’ll see:</b> the flow GetUser → Map → FetchUser → Map. If the layout looks crowded, click the <b>layout</b> icon in the toolbar to switch between vertical and horizontal.</div></li>
+  </ol>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="stepD">
+  <div class="ch-head"><h2><span class="num">12</span>Build · Part D: the two maps</h2><label class="got"><input type="checkbox" id="got-stepD"> Got it</label></div>
+  <h3>Map 1: pass the id along</h3>
+  <p>The caller sends an <code>id</code> to GetUser. FetchUser needs that same <code>id</code> to call JSONPlaceholder. Map 1 copies it across.</p>
+  <ol class="path">
+    <li><span class="dot">28</span><div><b>Open Map 1</b>Double-click (or click, then Edit) the map <b>between GetUser and FetchUser</b>.<br>✓ <b>You’ll see:</b> the mapper: <b>Sources</b> on the left, <b>Target</b> on the right.</div></li>
+    <li><span class="dot">29</span><div><b>Find the source id</b>In Sources, expand <b>GetUser Request (REST)</b> and then <b>Template Parameters</b>. You’ll see <code>id</code>.</div></li>
+    <li><span class="dot">30</span><div><b>Find the target id</b>In Target, expand <b>FetchUser Request (REST)</b> and then <b>Template Parameters</b>. You’ll see <code>id</code>.</div></li>
+    <li><span class="dot">31</span><div><b>Draw the line</b>Drag the source <code>id</code> and drop it on the target <code>id</code>.<br>✓ <b>You’ll see:</b> a line joining them, and a mark on the target field showing it’s mapped.</div></li>
+    <li><span class="dot">32</span><div><b>Validate</b>Click <b>Validate</b>.<br>✓ <b>You’ll see:</b> a message like “Map to FetchUser successfully validated.” Click <b>Back</b> (your map is saved).</div></li>
+  </ol>
+  <h3>Map 2: build the reply</h3>
+  <p>Now pick 5 fields from JSONPlaceholder’s long answer and put them into our short reply.</p>
+  <ol class="path">
+    <li><span class="dot">33</span><div><b>Open Map 2</b>Double-click the map <b>after FetchUser</b> (the last one, before the reply).</div></li>
+    <li><span class="dot">34</span><div><b>Open the source</b>In Sources, expand <b>FetchUser Response (REST)</b> → <b>Response Wrapper</b>. (There may be one extra level in between, like Execute Response; keep expanding.)<br>✓ <b>You’ll see:</b> id, name, username, email, address, phone, website, company.</div></li>
+    <li><span class="dot">35</span><div><b>Open the target</b>In Target, expand <b>GetUser Response (REST)</b> → <b>Response Wrapper</b>.<br>✓ <b>You’ll see:</b> userId, name, email, city, company.</div></li>
+    <li><span class="dot">36</span><div><b>Drag five lines</b>
+      <div class="tbl"><table>
+        <tr><th style="width:50%">Drag this source…</th><th style="width:50%">…onto this target</th></tr>
+        <tr><td><code>id</code></td><td><code>userId</code></td></tr>
+        <tr><td><code>name</code></td><td><code>name</code></td></tr>
+        <tr><td><code>email</code></td><td><code>email</code></td></tr>
+        <tr><td><code>address</code> → <code>city</code> (expand address first)</td><td><code>city</code></td></tr>
+        <tr><td><code>company</code> → <code>name</code> (expand company first)</td><td><code>company</code></td></tr>
+      </table></div>
+      Careful with the last one: drag <b>company → name</b>, not the top-level <code>name</code>, or you’ll get the person’s name instead of the company’s.</div></li>
+    <li><span class="dot">37</span><div><b>Validate and go back</b>Click <b>Validate</b> → “…successfully validated” → <b>Back</b>.</div></li>
+  </ol>
+  <div class="sticky l"><strong>Peek behind the curtain:</strong> before clicking Back, open the mapper’s <b>code view</b>. You’ll see XSLT lines like <code>&lt;nstrgmpr:city&gt;&lt;xsl:value-of select="…/address/city"/&gt;</code>. That’s Phase 2’s XPath and XSLT, written for you by your drag-and-drop.</div>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="stepE">
+  <div class="ch-head"><h2><span class="num">13</span>Build · Part E: business identifier and save</h2><label class="got"><input type="checkbox" id="got-stepE"> Got it</label></div>
+  <ol class="path">
+    <li><span class="dot">38</span><div><b>Open business identifiers</b>In the toolbar above the canvas, click the <b>Business identifiers</b> icon (it looks like a tag 🏷; hover to check).<br>✓ <b>You’ll see:</b> a panel with the fields available as identifiers.</div></li>
+    <li><span class="dot">39</span><div><b>Choose the id</b>Expand the trigger’s <b>Template Parameters</b> and drag <code>id</code> into the <b>Business identifier</b> field. It becomes the <b>primary</b> identifier.</div></li>
+    <li><span class="dot">40</span><div><b>Save the identifier</b>Click <b>Save</b> in that panel, then click outside it to close it.</div></li>
+    <li><span class="dot">41</span><div><b>Check for errors</b>Look for any red error icon on the canvas. Click it to read what’s missing (usually an unmapped required field or a missing identifier), and fix it.<br>✓ <b>You’ll see:</b> no red errors.</div></li>
+    <li><span class="dot">42</span><div><b>Leave the canvas</b>Click the <b>Back</b> arrow at the top left.<br>✓ <b>You’ll see:</b> your project page, with <b>Get User By Id</b> listed under Integrations, status <b>Configured</b> (complete, but not yet switched on).</div></li>
+  </ol>
+  <p>🎉 You’ve <b>built</b> your first integration. It isn’t running yet: it’s like a finished bus route that hasn’t been put into service. Next, we switch it on and try it.</p>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="stepF">
+  <div class="ch-head"><h2><span class="num">14</span>First run: switch it on and try it</h2><label class="got"><input type="checkbox" id="got-stepF"> Got it</label></div>
+  <p>Part 6.5 covers activation, testing and monitoring in depth. For now, just enough to see your integration work.</p>
+  <ol class="path">
+    <li><span class="dot">43</span><div><b>Activate</b>In the project’s Integrations list, click the <b>Actions</b> icon (⋯) on <b>Get User By Id</b> → <b>Activate</b>. In the panel, keep tracing at <b>Production</b> and click <b>Activate</b>.</div></li>
+    <li><span class="dot">44</span><div><b>Wait for Active</b>Click <b>Refresh</b> every few seconds until the status says <b>Active</b>.</div></li>
+    <li><span class="dot">45</span><div><b>Run it</b>Actions (⋯) → <b>Run</b>.<br>✓ <b>You’ll see:</b> a <b>Configure and run</b> page with a <b>Request</b> section and a <b>URI parameters</b> tab.</div></li>
+    <li><span class="dot">46</span><div><b>Ask for user 1</b>In <b>URI parameters</b>, type <code>1</code> for <code>id</code>, then click <b>Run</b>.</div></li>
+    <li><span class="dot">47</span><div><b>Read the answer</b>✓ <b>You’ll see:</b> on the right, an <b>activity stream</b> with green steps (GetUser → Map → FetchUser → Map); below, a <b>Response</b> with status <b>200</b> and a body like:
+      <div class="cmd"><pre><span class="b">{
+  "userId" : 1,
+  "name" : "Leanne Graham",
+  "email" : "Sincere@april.biz",
+  "city" : "Gwenborough",
+  "company" : "Romaguera-Crona"
+}</span></pre></div></div></li>
+    <li><span class="dot">48</span><div><b>Try another user</b>Run again with <code>id</code> = <code>2</code>. You should get <b>Ervin Howell</b>, email <code>Shanna@melissa.tv</code>, city <b>Wisokyburgh</b>, company <b>Deckow-Crist</b>.</div></li>
+    <li><span class="dot">49</span><div><b>Find your runs</b>Click <b>Track instances</b> (or ☰ → Observability → Instances).<br>✓ <b>You’ll see:</b> two instances, status <b>Succeeded</b>, with your business identifier (1 and 2) in the identifier column.</div></li>
+  </ol>
+  <div class="sticky"><strong>Before you edit it again:</strong> an <b>Active</b> integration can’t be changed. To edit, Actions (⋯) → <b>Deactivate</b> first, make your change, then activate again. And try <code>id</code> = <code>99</code> once: JSONPlaceholder has only 10 users, so it answers 404, and your run fails. That’s your first failed instance, and we’ll learn to read it in Part 6.5.</div>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">15</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:40%">What went wrong</th><th style="width:60%">Fix</th></tr>
+    <tr><td>Wrote <code>/users/(id)</code> or <code>/users/id</code></td><td>Use curly brackets: <code>/users/{id}</code>, so OIC creates the parameter</td></tr>
+    <tr><td>The sample JSON is refused</td><td>It isn’t valid JSON: check commas, quotes and brackets (Phase 2)</td></tr>
+    <tr><td>A field is missing in the mapper</td><td>It wasn’t in the sample. Reopen the wizard (edit the trigger/invoke) and paste a complete sample</td></tr>
+    <tr><td><code>company</code> shows the person’s name</td><td>You mapped top-level <code>name</code>; map <code>company → name</code> instead</td></tr>
+    <tr><td><code>city</code> is empty in the reply</td><td>You mapped <code>address</code> (the folder) instead of <code>address → city</code></td></tr>
+    <tr><td>Can’t activate: error about identifiers</td><td>Add a primary business identifier (step 38)</td></tr>
+    <tr><td>Can’t edit the integration</td><td>It’s Active. Deactivate first</td></tr>
+    <tr><td>Chose Schedule by mistake</td><td>The style can’t change: create a new integration with style Application</td></tr>
+  </table></div>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="glossary">
+  <div class="ch-head"><h2><span class="num">16</span>Words you learned</h2><label class="got"><input type="checkbox" id="got-glossary"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">Word</th><th style="width:72%">Meaning in one line</th></tr>
+    <tr><td><b>Integration style</b></td><td>What starts it: Application (a call), Schedule (the clock), Event (another integration’s announcement)</td></tr>
+    <tr><td><b>Canvas</b></td><td>The whiteboard where you draw the flow, top to bottom</td></tr>
+    <tr><td><b>Endpoint wizard</b></td><td>The question pages for each trigger or invoke: name, path, method, parameters, response</td></tr>
+    <tr><td><b>Relative resource URI</b></td><td>The path added after the base address, like <code>/users/{id}</code></td></tr>
+    <tr><td><b>Template parameter</b></td><td>A placeholder in curly brackets in the path, filled on each call</td></tr>
+    <tr><td><b>JSON sample</b></td><td>An example that teaches OIC the shape of the data</td></tr>
+    <tr><td><b>Map / mapper</b></td><td>Copying fields from one message to another / the screen where you draw it</td></tr>
+    <tr><td><b>Sources / Target</b></td><td>Where data comes from (left) / the message you’re filling (right)</td></tr>
+    <tr><td><b>Business identifier</b></td><td>A field recorded on every run so you can search for it later</td></tr>
+    <tr><td><b>Configured</b></td><td>Complete but switched off</td></tr>
+  </table></div>
+</section>
+
+<!-- 17 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">17</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. Which style for an integration that a mobile app calls?</summary><p>Application.</p></details>
+    <details><summary>2. Why do we paste a sample JSON?</summary><p>To teach OIC the shape of the data (field names and structure). Its values are never sent.</p></details>
+    <details><summary>3. What does <code>{id}</code> in <code>/users/{id}</code> mean?</summary><p>A template parameter: a placeholder filled with a different value on each call.</p></details>
+    <details><summary>4. In the mapper, which side is Sources and which is Target?</summary><p>Sources (left) is where data comes from; Target (right) is the message being built.</p></details>
+    <details><summary>5. Why does Map 1 exist?</summary><p>To pass the id the caller sent (trigger request) into the id FetchUser needs (invoke request).</p></details>
+    <details><summary>6. Why must we map <code>company → name</code> and not <code>name</code>?</summary><p>Top-level name is the person’s name; company → name is the company’s name.</p></details>
+    <details><summary>7. What is a business identifier for?</summary><p>To label every run with a field (like the user id) so you can search for it in Observability.</p></details>
+    <details><summary>8. You need to change an Active integration. What first?</summary><p>Deactivate it.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final">An <b>Application</b> integration starts with a <b>REST trigger</b> (<code>GET /users/{id}</code>), uses <b>maps</b> to pass and reshape data, <b>invokes</b> another system through a connection, replies with only what’s needed, is labelled by a <b>business identifier</b>, and runs once you <b>activate</b> it.</p>
+  <p>Next: Part 6.4 · Actions: Assign, Switch, Log, Notification and loops (coming next).</p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 6.3 · Your first integration · by @devwithprabir</footer>
+
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p63-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p63-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>
