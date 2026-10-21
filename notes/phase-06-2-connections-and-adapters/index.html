@@ -193,7 +193,7 @@ header.top{position:relative}
   <p class="brand">Notes by <b>@devwithprabir</b></p>
   <nav class="toc" aria-label="Contents">
     <a href="#idea">1 · Adapter vs connection</a><a href="#kinds">2 · Kinds of adapters</a><a href="#roles">3 · Roles: trigger, invoke, both</a><a href="#parts">4 · The five parts of a connection</a>
-    <a href="#invoke">5 · Build an invoke connection</a><a href="#trigger">6 · Build a trigger connection</a><a href="#security">7 · Security policies</a><a href="#access">8 · Access type</a>
+    <a href="#invoke">5 · Invoke connection, step by step</a><a href="#trigger">6 · Trigger connection, step by step</a><a href="#security">7 · Security policies</a><a href="#access">8 · Access type</a>
     <a href="#agent">9 · The connectivity agent</a><a href="#test">10 · Test, save, status</a><a href="#others">11 · Other adapters at a glance</a><a href="#good">12 · Good habits</a>
     <a href="#tools">13 · Practice</a><a href="#mistakes">14 · Mistakes</a><a href="#glossary">15 · Words you learned</a><a href="#quiz">16 · Self-check</a>
   </nav>
@@ -300,17 +300,51 @@ header.top{position:relative}
 
 <!-- 5 -->
 <section class="ch" id="invoke">
-  <div class="ch-head"><h2><span class="num">5</span>Build your first invoke connection</h2><label class="got"><input type="checkbox" id="got-invoke"> Got it</label></div>
-  <p>We’ll connect OIC to <b>JSONPlaceholder</b>, the free practice API you used in Phase 3. It needs no login, so it’s perfect for a first connection. In Part 6.6, an integration will use this connection to fetch users.</p>
+  <div class="ch-head"><h2><span class="num">5</span>Build your first invoke connection, step by step</h2><label class="got"><input type="checkbox" id="got-invoke"> Got it</label></div>
+  <p>Follow this with OIC open next to the notes. Do one step, check that your screen matches “✓ You’ll see”, then go to the next. Don’t skip ahead.</p>
+  <div class="story"><b class="lbl">What we’re building, and why</b>We’ll create a <b>project</b> (a folder for our work), and inside it a connection called <code>JSONPlaceholder_API</code>. It is OIC’s <b>way out</b>: later, an integration will use it to <b>call</b> the free practice API you used in Phase 3, <code>https://jsonplaceholder.typicode.com</code>. That API needs no login, so it’s the easiest possible first connection.</div>
+
+  <h3>Part A · Open OIC</h3>
   <ol class="path">
-    <li><span class="dot">1</span><div><b>Open the connections list</b>In the navigation pane, click <b>Design → Connections</b>, then click <b>Create</b>. (Inside a project, it’s the <b>Connections</b> section → <b>Add</b>; same panel.)</div></li>
-    <li><span class="dot">2</span><div><b>Choose the adapter</b>The <b>Create connection</b> panel lists adapters. Type <code>REST</code> in the search box and select <b>REST</b>.</div></li>
-    <li><span class="dot">3</span><div><b>① Identity</b><b>Name</b>: <code>JSONPlaceholder_API</code>. The <b>Identifier</b> fills itself in capitals: <code>JSONPLACEHOLDER_API</code>. <b>Role</b>: <b>Invoke</b>. <b>Description</b>: “Free practice REST API”. Click <b>Create</b>.</div></li>
-    <li><span class="dot">4</span><div><b>② Properties</b><b>Connection Type</b>: <b>REST API Base URL</b>. <b>Connection URL</b>: <code>https://jsonplaceholder.typicode.com</code> (no slash at the end). Leave TLS empty.</div></li>
-    <li><span class="dot">5</span><div><b>③ Security</b><b>Security policy</b>: <b>No Security Policy</b>, because this API is public.</div></li>
-    <li><span class="dot">6</span><div><b>④ Access type</b>Keep <b>Public gateway</b>: the API is on the public internet.</div></li>
-    <li><span class="dot">7</span><div><b>⑤ Test, then Save</b>Click <b>Test</b> at the top. You should see a green message that the connection was tested successfully, and the progress shows <b>100%</b>. Click <b>Save</b>, then the <b>Back</b> arrow.</div></li>
+    <li><span class="dot">1</span><div><b>Open the right website</b>Open your OIC address (the <b>Service console</b> link of your instance, which you bookmarked). Make sure the top bar shows the <b>ORACLE</b> logo and your instance name, like <code>learn-oic-… (Dev)</code>.<br>✓ <b>You’ll see:</b> the “Ready to get started?” home page.<br>✗ If you see a “<b>Cloud</b>” logo and menus like Compute, Storage and Networking, you’re in the <b>Oracle Cloud Console</b>, not OIC. Go to ☰ → Developer Services → Integration → click your instance → <b>Service console</b>.</div></li>
+    <li><span class="dot">2</span><div><b>Open the menu</b>Click the <b>☰</b> icon to the left of the ORACLE logo.<br>✓ <b>You’ll see:</b> a menu with <b>Home, Projects, Design, Observability, Settings</b>.</div></li>
   </ol>
+
+  <h3>Part B · Create a project (your folder)</h3>
+  <ol class="path">
+    <li><span class="dot">3</span><div><b>Go to Projects</b>In the menu, click <b>Projects</b>.<br>✓ <b>You’ll see:</b> a Projects page, empty at first.</div></li>
+    <li><span class="dot">4</span><div><b>Start a new project</b>Click <b>Add</b> (top right), then choose <b>Create</b>.<br>✓ <b>You’ll see:</b> a panel asking for the project details.</div></li>
+    <li><span class="dot">5</span><div><b>Name it</b>In <b>Name</b>, type <code>My First Project</code>. Leave every other box as it is. Click <b>Create</b>.<br>✓ <b>You’ll see:</b> your project page, with sections called <b>Integrations</b>, <b>Connections</b>, <b>Lookups</b> and <b>JavaScript libraries</b>. All are empty.</div></li>
+  </ol>
+  <div class="sticky l"><strong>Why a project?</strong> A project keeps everything for one solution together: its integrations, connections and lookups. Oracle Integration 3 is built around projects, and in Part 6.3 we’ll build our first integration inside this same project. (You can also create connections outside projects, from Design → Connections → Create. Both open the same panel.)</div>
+
+  <h3>Part C · Create the connection</h3>
+  <ol class="path">
+    <li><span class="dot">6</span><div><b>Add a connection</b>On the project page, find the <b>Connections</b> section and click <b>Add</b>. (When the project already has connections, this is a <b>+</b> button instead.)<br>✓ <b>You’ll see:</b> a <b>Create connection</b> panel with a long list of adapters and a search box.</div></li>
+    <li><span class="dot">7</span><div><b>Pick the adapter</b>In the search box, type <code>REST</code>. Click <b>REST</b> in the results.<br>Why REST? Because JSONPlaceholder is a REST API (Phase 3.1), so we use the REST “plug”.<br>✓ <b>You’ll see:</b> a form asking for Name, Identifier and Role.</div></li>
+    <li><span class="dot">8</span><div><b>Name</b>Type <code>JSONPlaceholder_API</code>.<br>Why: name connections after the <b>system</b> they reach, so anyone can recognise it later.</div></li>
+    <li><span class="dot">9</span><div><b>Identifier</b>Don’t type anything: it fills itself as <code>JSONPLACEHOLDER_API</code> (capitals, no spaces). It’s the connection’s permanent ID that OIC uses behind the scenes.</div></li>
+    <li><span class="dot">10</span><div><b>Role</b>Choose <b>Invoke</b>.<br>Why: OIC will <b>call out</b> to this API. (Trigger would mean the API calls OIC, which isn’t what we want.)</div></li>
+    <li><span class="dot">11</span><div><b>Description</b> (optional)Type <code>Free practice REST API</code>. Leave <b>Share with other projects</b> switched off.</div></li>
+    <li><span class="dot">12</span><div><b>Create it</b>Click <b>Create</b>.<br>✓ <b>You’ll see:</b> the connection’s settings page, with sections for <b>Properties</b>, <b>Security</b> and <b>Access type</b>, and <b>Test</b> and <b>Save</b> buttons at the top. A progress percentage shows how complete it is.</div></li>
+  </ol>
+
+  <h3>Part D · Fill in the settings</h3>
+  <ol class="path">
+    <li><span class="dot">13</span><div><b>Connection Type</b>Choose <b>REST API Base URL</b>.<br>Why: we’ll give OIC the API’s main address. (The other option, an OpenAPI URL, is for APIs that publish a description file.)</div></li>
+    <li><span class="dot">14</span><div><b>Connection URL</b>Type exactly <code>https://jsonplaceholder.typicode.com</code><br>Careful: <b>no slash at the end</b>, and <b>no path</b> like <code>/users</code>. Only the base address goes here; each integration adds its own path later.</div></li>
+    <li><span class="dot">15</span><div><b>TLS Version</b> and other optional boxesLeave them empty.</div></li>
+    <li><span class="dot">16</span><div><b>Security policy</b>Choose <b>No Security Policy</b>.<br>Why: JSONPlaceholder is public and asks for no username, password or token. (A real company API would need one: Part 6.2, chapter 7.)</div></li>
+    <li><span class="dot">17</span><div><b>Access type</b>Keep <b>Public gateway</b> selected.<br>Why: the API is on the public internet, so OIC can reach it directly.</div></li>
+  </ol>
+
+  <h3>Part E · Test and save</h3>
+  <ol class="path">
+    <li><span class="dot">18</span><div><b>Test</b>Click <b>Test</b> at the top of the page.<br>✓ <b>You’ll see:</b> a green message that the connection was tested successfully, and the progress shows <b>100%</b>.<br>✗ If it fails, check the URL letter by letter (a common typo is “jsonplaceholdr”), and that there’s no slash at the end. Fix it and click Test again.</div></li>
+    <li><span class="dot">19</span><div><b>Save</b>Click <b>Save</b>.</div></li>
+    <li><span class="dot">20</span><div><b>Go back</b>Click the <b>Back</b> arrow (top left).<br>✓ <b>You’ll see:</b> your project page, with <code>JSONPlaceholder_API</code> listed under Connections.</div></li>
+  </ol>
+
   <figure>
     <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="Sketch of the filled-in connection page: name JSONPlaceholder_API, role Invoke, connection type REST API Base URL, connection URL https://jsonplaceholder.typicode.com, security No Security Policy, access type Public gateway, and Test and Save buttons at the top with 100 percent progress">
       <g class="rough">
@@ -328,29 +362,40 @@ header.top{position:relative}
       <text class="ts" x="30" y="214" style="font-weight:700">Access type</text><text class="t" x="260" y="214" style="font-family:var(--f-mono);font-size:13px">● Public gateway</text>
       <text class="ts" x="560" y="214" style="fill:var(--blue);font-weight:700">Configuration 100% ✓</text>
     </svg></div>
-    <figcaption>A sketch of what you fill in. The real page has a few more optional fields; leave them empty.</figcaption>
+    <figcaption>What your finished connection holds. The real page has a few more optional boxes; leave them empty.</figcaption>
   </figure>
   <p>Notice what you did <b>not</b> enter: any path like <code>/users/1</code>. The connection holds only the <b>base URL</b>, the part that’s the same for every call. The specific path (<code>/users/{id}</code>) is chosen later, inside each integration. That’s what lets one connection serve many integrations.</p>
 </section>
 
 <!-- 6 -->
 <section class="ch" id="trigger">
-  <div class="ch-head"><h2><span class="num">6</span>Build your first trigger connection</h2><label class="got"><input type="checkbox" id="got-trigger"> Got it</label></div>
-  <p>Now the way <b>in</b>: a REST connection that lets other systems call your integrations. A trigger connection has <b>no URL</b> to fill in, because OIC <b>creates</b> the address for each integration when you activate it.</p>
-  <ol class="path">
-    <li><span class="dot">1</span><div><b>Create</b><b>Design → Connections → Create</b>, search <code>REST</code>, select <b>REST</b>.</div></li>
-    <li><span class="dot">2</span><div><b>① Identity</b><b>Name</b>: <code>REST_Trigger</code>. <b>Role</b>: <b>Trigger</b>. Click <b>Create</b>.</div></li>
-    <li><span class="dot">3</span><div><b>③ Security</b><b>Security policy</b>: <b>OAuth 2.0 or Basic Authentication</b>. This means callers can prove who they are either with a token or a username and password (Part 3.3).</div></li>
-    <li><span class="dot">4</span><div><b>④ Access type</b>Keep <b>Public gateway</b>.</div></li>
-    <li><span class="dot">5</span><div><b>⑤ Test and Save</b>Click <b>Test</b> → success, 100% → <b>Save</b> → <b>Back</b>.</div></li>
-  </ol>
-  <p>You now have the two connections almost every beginner integration needs: <b>a way in</b> (<code>REST_Trigger</code>) and <b>a way out</b> (<code>JSONPlaceholder_API</code>). You’ll reuse <code>REST_Trigger</code> for many integrations; each one will get its own address.</p>
+  <div class="ch-head"><h2><span class="num">6</span>Build your first trigger connection, step by step</h2><label class="got"><input type="checkbox" id="got-trigger"> Got it</label></div>
+  <div class="story"><b class="lbl">The way IN</b>Your house has a gate you go <b>out</b> through, and a front door visitors come <b>in</b> through. <code>JSONPlaceholder_API</code> was the gate (OIC goes out). Now we build the front door: <code>REST_Trigger</code>, which lets <b>other systems call your integrations</b> and start them.</div>
   <div class="tbl"><table>
-    <tr><th style="width:30%">Trigger security option</th><th style="width:70%">Callers must send</th></tr>
-    <tr><td><b>Basic Authentication</b></td><td>A username and password of an OIC user (e.g. one with the ServiceInvoker role)</td></tr>
-    <tr><td><b>OAuth2.0</b></td><td>A Bearer token from OCI IAM (client credentials, Part 3.3 ch. 14)</td></tr>
+    <tr><th style="width:24%"></th><th style="width:38%">JSONPlaceholder_API</th><th style="width:38%">REST_Trigger</th></tr>
+    <tr><td>Direction</td><td>OUT: OIC calls someone</td><td>IN: someone calls OIC</td></tr>
+    <tr><td>Role</td><td>Invoke</td><td>Trigger</td></tr>
+    <tr><td>URL to fill in?</td><td>Yes, the API’s address</td><td><b>No.</b> OIC creates the address itself when you activate an integration</td></tr>
+    <tr><td>Security</td><td>No Security Policy (public API)</td><td>Callers must prove who they are</td></tr>
+  </table></div>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Add another connection</b>On your project page, in the <b>Connections</b> section, click <b>+</b>.<br>✓ <b>You’ll see:</b> the same <b>Create connection</b> panel.</div></li>
+    <li><span class="dot">2</span><div><b>Pick the adapter</b>Search <code>REST</code> and click <b>REST</b>.</div></li>
+    <li><span class="dot">3</span><div><b>Name</b>Type <code>REST_Trigger</code>.</div></li>
+    <li><span class="dot">4</span><div><b>Role</b>Choose <b>Trigger</b> (not Invoke this time).<br>Why: this connection is for calls coming <b>in</b> to OIC.</div></li>
+    <li><span class="dot">5</span><div><b>Create it</b>Click <b>Create</b>.<br>✓ <b>You’ll see:</b> a settings page with <b>fewer boxes</b> than last time, and <b>no Connection URL</b>. That’s normal for a trigger.</div></li>
+    <li><span class="dot">6</span><div><b>Security policy</b>Choose <b>OAuth 2.0 or Basic Authentication</b>.<br>Why: anyone calling your integration must prove who they are, either with a username and password (Basic) or a token (OAuth), as you learned in Part 3.3. This option accepts either.</div></li>
+    <li><span class="dot">7</span><div><b>Access type</b>Keep <b>Public gateway</b>.</div></li>
+    <li><span class="dot">8</span><div><b>Test</b>Click <b>Test</b>.<br>✓ <b>You’ll see:</b> a green success message and <b>100%</b>.</div></li>
+    <li><span class="dot">9</span><div><b>Save and go back</b>Click <b>Save</b>, then the <b>Back</b> arrow.<br>✓ <b>You’ll see:</b> two connections in your project: <code>JSONPlaceholder_API</code> and <code>REST_Trigger</code>.</div></li>
+  </ol>
+  <div class="tbl"><table>
+    <tr><th style="width:34%">Trigger security option</th><th style="width:66%">Callers must send</th></tr>
+    <tr><td><b>Basic Authentication</b></td><td>A username and password of an OIC user (for example, one with the ServiceInvoker role)</td></tr>
+    <tr><td><b>OAuth2.0</b></td><td>A Bearer token from OCI IAM (client credentials, Part 3.3, chapter 14)</td></tr>
     <tr><td><b>OAuth 2.0 or Basic Authentication</b></td><td>Either one. A friendly choice while learning</td></tr>
   </table></div>
+  <div class="sticky"><strong>Checkpoint.</strong> Your project now has a <b>way in</b> (<code>REST_Trigger</code>) and a <b>way out</b> (<code>JSONPlaceholder_API</code>), both at 100%. That’s everything Part 6.3 needs to build your first integration: something calls OIC through REST_Trigger, and OIC fetches data through JSONPlaceholder_API.</div>
 </section>
 
 <!-- 7 -->
@@ -465,7 +510,7 @@ header.top{position:relative}
   <p>If you have an OIC instance, do these now. If not, read them and keep them for later. Part 6.6 builds on them.</p>
   <ol class="path">
     <li><span class="dot">1</span><div><b>Explore adapters</b>Open <b>Design → Adapters</b> and search for REST, FTP, Oracle ERP Cloud and Salesforce. Notice each one’s roles.</div></li>
-    <li><span class="dot">2</span><div><b>Invoke connection</b>Create <code>JSONPlaceholder_API</code> (chapter 5). Test → 100% → Save.</div></li>
+    <li><span class="dot">2</span><div><b>Invoke connection</b>Follow chapter 5 to create <code>My First Project</code> and <code>JSONPlaceholder_API</code>. Test → 100% → Save.</div></li>
     <li><span class="dot">3</span><div><b>Trigger connection</b>Create <code>REST_Trigger</code> (chapter 6). Test → 100% → Save.</div></li>
     <li><span class="dot">4</span><div><b>Break it on purpose</b>Edit <code>JSONPlaceholder_API</code>, change the URL to <code>https://jsonplaceholdr.typicode.com</code> (missing “e”) and click Test. Read the error. Fix it, test again, save.</div></li>
     <li><span class="dot">5</span><div><b>API key connection (optional)</b>Create a free key at openweathermap.org, then a <code>Weather_API</code> connection: URL <code>https://api.openweathermap.org</code>, policy <b>API Key Based Authentication</b>. Oracle’s own tutorial uses this one.</div></li>
