@@ -25,7 +25,8 @@ by **@devwithprabir**
 | 6.1 | **What is OIC?** | The integration problem, core OIC words, OCI, editions, roles, console tour | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-06-1-what-is-oic/index.html) |
 | 6.2 | **Connections & adapters** | Adapter vs connection, roles, REST connections step by step, security, access types, connectivity agent | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-06-2-connections-and-adapters/index.html) |
 | 6.3 | **Your first integration** | Styles, canvas, endpoint wizard, sample JSON, mapper, business identifiers, first run | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-06-3-first-integration/index.html) |
-| 6.4–6.6 | OIC Basics (continued) | Actions, activate & monitor, labs | Coming soon |
+| 6.4 | **Actions** | Assign, Switch, Log, Notification, For Each, While, Scope, Throw New Fault, with two labs | [Read](https://prabir07.github.io/OIC-From-Scratch/notes/phase-06-4-actions/index.html) |
+| 6.5–6.6 | OIC Basics (continued) | Activate & monitor, labs | Coming soon |
 | 7 | OIC Intermediate | Loops, fault handling, stage file, lookups | Coming soon |
 | 8 | Oracle Fusion Applications | BIP reports, FBDI, HDL, business events | Coming soon |
 | 9 | Advanced & Related Tools | VBCS, Process Automation, OCI basics | Coming soon |

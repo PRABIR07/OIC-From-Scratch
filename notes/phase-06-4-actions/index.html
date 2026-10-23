@@ -1,0 +1,598 @@
+<title>Phase 6.4 · Actions | devwithprabir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: one notebook page, red margin line, sections as hand-written chapters with sketched diagrams and sticky notes */
+:root{
+  --paper:#FBF7EC; --rule:#E7DEC8; --margin:#EBA99A; --card:#FFFDF6;
+  --ink:#1F2A44; --ink-soft:#4A5670; --red:#C2410C; --blue:#1D6FA5;
+  --hl-yellow:#FFE58A; --hl-green:#D3EDC0; --hl-pink:#F8D5E3; --hl-blue:#D3E6F8; --hl-orange:#FBDCCB; --hl-purple:#E6DFFA; --hl-grey:#ECE8DD;
+  --code-bg:#22313A; --code-fg:#F3EFE4; --code-a:#FFB454; --code-b:#8CC8F0;
+  --shadow:rgba(31,42,68,.14);
+  --f-hand:'Caveat','Brush Script MT',cursive;
+  --f-body:'Patrick Hand','Kalam','Trebuchet MS',sans-serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1D292F; --rule:#27363D; --margin:#7A4A45; --card:#24333A;
+  --ink:#EEE9DC; --ink-soft:#B9C2C4; --red:#FF9A75; --blue:#8CC8F0;
+  --hl-yellow:#5E5222; --hl-green:#2E4A2B; --hl-pink:#523042; --hl-blue:#23405B; --hl-orange:#58392B; --hl-purple:#3B3560; --hl-grey:#33424A;
+  --code-bg:#121B20; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.6;
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);}
+.page{max-width:900px;margin:0 auto;padding-inline:clamp(16px,5vw,64px) 16px;padding-block:40px 80px;position:relative}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:clamp(6px,3vw,40px);width:2px;background:var(--margin)}
+h1,h2,h3{font-family:var(--f-hand);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(52px,9vw,88px)}
+h2{font-size:clamp(40px,6.5vw,58px)}
+h3{font-size:32px;color:var(--blue)}
+p{margin:0;max-width:66ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.squiggle{display:block;width:220px;height:16px;margin-top:6px}
+.squiggle path{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round}
+mark{color:inherit;background:linear-gradient(176deg,transparent 30%,var(--hl-yellow) 30%,var(--hl-yellow) 88%,transparent 88%);padding:0 3px}
+mark.g{background:linear-gradient(176deg,transparent 30%,var(--hl-green) 30%,var(--hl-green) 88%,transparent 88%)}
+mark.p{background:linear-gradient(176deg,transparent 30%,var(--hl-pink) 30%,var(--hl-pink) 88%,transparent 88%)}
+mark.b{background:linear-gradient(176deg,transparent 30%,var(--hl-blue) 30%,var(--hl-blue) 88%,transparent 88%)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--hl-grey);padding:1px 6px;border-radius:4px}
+
+/* header */
+header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:28px}
+.byline{color:var(--ink-soft);font-size:20px}
+.toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.toc a{font-family:var(--f-body);color:var(--ink);text-decoration:none;border:2px dashed var(--ink-soft);border-radius:999px;padding:2px 14px;font-size:17px;background:var(--card)}
+.toc a:hover,.toc a:focus-visible{border-style:solid;border-color:var(--red);outline:none}
+
+/* sections */
+section.ch{display:flex;flex-direction:column;gap:20px;padding-block:44px;border-top:2px dashed var(--rule)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.got{display:flex;align-items:center;gap:8px;font-size:17px;color:var(--ink-soft);cursor:pointer;user-select:none}
+.got input{width:20px;height:20px;accent-color:var(--red)}
+.num{font-family:var(--f-hand);color:var(--red);font-size:30px;margin-right:6px}
+
+.story{background:var(--card);border:2.5px solid var(--ink);border-radius:18px 22px 16px 24px;padding:18px 22px;box-shadow:5px 6px 0 var(--shadow);transform:rotate(-.4deg)}
+.story b.lbl{font-family:var(--f-hand);font-size:26px;color:var(--red);display:block;line-height:1;margin-bottom:6px}
+.sticky{background:var(--hl-yellow);padding:14px 18px;box-shadow:4px 6px 0 var(--shadow);transform:rotate(.8deg);max-width:640px}
+.sticky.l{transform:rotate(-.8deg)}
+.sticky strong{font-family:var(--f-hand);font-size:24px}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:16px 20px 14px 18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h4{font-family:var(--f-hand);font-size:28px;margin:0;line-height:1}
+.card.t1{background:var(--hl-blue)} .card.t2{background:var(--hl-green)} .card.t3{background:var(--hl-orange)}
+.card.t4{background:var(--hl-pink)} .card.t5{background:var(--hl-purple)} .card.t6{background:var(--hl-grey)}
+.tilt-a{transform:rotate(-.7deg)} .tilt-b{transform:rotate(.7deg)}
+
+/* diagrams */
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dia{overflow-x:auto;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:10px}
+.dia svg{display:block;width:100%;min-width:520px;height:auto}
+figcaption{font-size:16px;color:var(--ink-soft);font-style:italic}
+svg .t{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+svg .ts{font-family:var(--f-body);font-size:14.5px;fill:var(--ink-soft)}
+svg .th{font-family:var(--f-hand);font-size:28px;font-weight:700;fill:var(--ink)}
+svg .tr{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--red)}
+svg .tb{font-family:var(--f-hand);font-size:24px;font-weight:700;fill:var(--blue)}
+svg .box{stroke:var(--ink);stroke-width:2.5}
+svg .ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lr{stroke:var(--red);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .lb{stroke:var(--blue);stroke-width:2.5;fill:none;stroke-linecap:round}
+svg .dash{stroke-dasharray:6 6}
+svg .f-blue{fill:var(--hl-blue)} svg .f-green{fill:var(--hl-green)} svg .f-orange{fill:var(--hl-orange)}
+svg .f-pink{fill:var(--hl-pink)} svg .f-purple{fill:var(--hl-purple)} svg .f-grey{fill:var(--hl-grey)} svg .f-yellow{fill:var(--hl-yellow)} svg .f-card{fill:var(--card)}
+.rough{filter:url(#rough)}
+
+/* URL anatomy */
+.url{font-family:var(--f-mono);font-size:clamp(13px,2.5vw,19px);background:var(--card);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+.url span{padding:2px 1px;border-bottom:3px solid}
+.u1{background:var(--hl-purple);border-color:#7B61C9!important} .u2{background:var(--hl-green);border-color:#2E8B6A!important}
+.u3{background:var(--hl-orange);border-color:#D9632B!important} .u4{background:var(--hl-blue);border-color:#1D6FA5!important}
+.u5{background:var(--hl-pink);border-color:#C2417A!important} .u6{background:var(--hl-yellow);border-color:#B88A00!important}
+.u7{background:var(--hl-grey);border-color:#8A8A80!important}
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.legend div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.sw{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--ink);transform:translateY(2px)}
+
+/* sticky numbers */
+.notes{display:flex;flex-wrap:wrap;gap:16px}
+.note{flex:1 1 120px;background:var(--hl-yellow);padding:12px 10px;text-align:center;box-shadow:4px 6px 0 var(--shadow)}
+.note:nth-child(odd){transform:rotate(-2deg)} .note:nth-child(even){transform:rotate(2deg)}
+.note b{display:block;font-family:var(--f-hand);font-size:46px;line-height:1}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--card);border:2.5px solid var(--ink);border-radius:16px;padding:6px 10px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th{font-family:var(--f-hand);font-size:24px;text-align:left;padding:8px 10px;border-bottom:2.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1.5px dashed var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--f-mono);font-size:16px}
+
+/* code */
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:15px;line-height:1.55;padding:16px 18px;border-radius:14px;overflow-x:auto}
+pre .a{color:var(--code-a)} pre .b{color:var(--code-b)} pre .c{color:#9AA8AD}
+.cmd{display:flex;flex-direction:column;gap:8px}
+.cmd .what{font-family:var(--f-hand);font-size:26px;line-height:1}
+
+/* journey + ladder */
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+ol.path::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;border-left:3px dashed var(--ink-soft)}
+ol.path li{display:flex;gap:16px;align-items:flex-start;position:relative}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);background:var(--hl-yellow);display:grid;place-items:center;font-family:var(--f-hand);font-size:30px;font-weight:700}
+ol.path li > div{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 14px;flex:1;min-width:0}
+ol.path li > div b{font-family:var(--f-hand);font-size:26px;display:block;line-height:1.05}
+ol.path .tag{font-size:15px;color:var(--ink-soft)}
+
+/* quiz */
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-size:19px}
+summary:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+details p{margin-top:8px;color:var(--blue)}
+
+.final{font-family:var(--f-hand);font-size:clamp(28px,4.6vw,38px);line-height:1.35;background:var(--card);border:2.5px solid var(--ink);border-radius:20px;padding:22px 26px;box-shadow:6px 8px 0 var(--shadow);transform:rotate(-.5deg)}
+.final b{color:var(--red)}
+footer{padding-top:40px;color:var(--ink-soft);font-size:17px}
+.two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* branding */
+header.top{position:relative}
+.stamp{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--red);color:var(--red);border-radius:14px;padding:6px 14px 4px;transform:rotate(7deg);font-family:var(--f-hand);line-height:1;background:var(--card);box-shadow:3px 4px 0 var(--shadow)}
+.stamp b{font-size:30px;font-weight:700}
+.stamp span{font-family:var(--f-body);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.brand{font-size:20px}
+.brand b{font-family:var(--f-hand);font-size:28px;color:var(--red)}
+.corner{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--red);background:var(--card);border:2px solid var(--red);border-radius:999px;padding:0 14px;box-shadow:3px 4px 0 var(--shadow);transform:rotate(-3deg)}
+.sign{font-family:var(--f-hand);font-size:24px;color:var(--ink-soft);align-self:flex-end}
+@media (max-width:620px){.stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}}
+@media (prefers-reduced-motion:no-preference){.toc a{transition:border-color .15s}}
+/* print / Save as PDF */
+@media print{
+  @page{margin:12mm 10mm}
+  html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:15.5px}
+  .page{max-width:none;padding-block:0}
+  .got{display:none}
+  .toc a{border-style:solid}
+  .dia{overflow:visible}
+  .dia svg{min-width:0}
+  .url,.tbl,pre{overflow:visible;white-space:pre-wrap}
+  .url{white-space:normal;word-break:break-all}
+  section.ch{padding-block:22px}
+  h2,h3,.ch-head{break-after:avoid}
+  figure,.story,.sticky,.card,.tbl,pre,.cmd,ol.path li,details,.notes,.final,.legend div{break-inside:avoid}
+  details summary{list-style:none}
+  .corner{position:fixed;bottom:4mm;right:4mm;box-shadow:none}
+}
+@media (max-width:520px){.story,.sticky,.final,.tilt-a,.tilt-b{transform:none}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/></marker>
+  </defs>
+</svg>
+
+<div class="page">
+
+<header class="top">
+  <div class="stamp" aria-label="devwithprabir"><b>devwithprabir</b><span>OIC from Scratch</span></div>
+  <p class="eyebrow"><a href="../../index.html" style="color:inherit">Home</a> · <a href="../index.html" style="color:inherit">← All notes</a> · Phase 6 · Part 4 of 6</p>
+  <h1>Actions: teaching your integration to think</h1>
+  <svg class="squiggle" viewBox="0 0 220 16" aria-hidden="true"><path d="M3 9 C 25 2, 45 15, 70 8 S 115 2, 140 9 S 185 15, 217 7"/></svg>
+  <p class="byline">Phase 6 · OIC Basics. Your first integration always did the same thing: fetch, map, reply. Real integrations must <mark>decide, remember, repeat, report and protect themselves</mark>. That’s what <b>actions</b> are for. We learn each one with a story, then add them to your integration in two step-by-step labs.</p>
+  <p class="brand">Notes by <b>@devwithprabir</b></p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#what">1 · What actions are</a><a href="#assign">2 · Assign &amp; variables</a><a href="#switch">3 · Switch</a><a href="#log">4 · Log</a>
+    <a href="#notify">5 · Notification</a><a href="#foreach">6 · For Each</a><a href="#while">7 · While</a><a href="#scope">8 · Scope &amp; fault handlers</a>
+    <a href="#throw">9 · Throw New Fault &amp; Wait</a><a href="#others">10 · Other actions</a><a href="#labA">11 · Lab A: a smarter Get User</a><a href="#labB">12 · Lab B: loop over posts</a>
+    <a href="#mistakes">13 · Mistakes</a><a href="#glossary">14 · Words you learned</a><a href="#quiz">15 · Self-check</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="what">
+  <div class="ch-head"><h2><span class="num">1</span>What actions are</h2><label class="got"><input type="checkbox" id="got-what"> Got it</label></div>
+  <div class="story"><b class="lbl">A recipe is more than ingredients</b>A recipe doesn’t only say “take rice, add water”. It says “<b>if</b> the rice is old, soak it longer”, “stir <b>every</b> 5 minutes”, “<b>note</b> the time”, “<b>tell</b> everyone when it’s ready”, “<b>if</b> it burns, start again”. Triggers, invokes and maps are the ingredients. <mark>Actions are the instructions</mark>: decide, repeat, remember, report, recover.</div>
+  <p>You add an action exactly like an invoke: hover over a line on the canvas, click <b>+</b>, and choose it from the <b>Actions</b> list.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:22%">The integration needs to…</th><th style="width:28%">Action</th><th style="width:50%">Everyday twin</th></tr>
+    <tr><td>Remember a value</td><td><b>Assign</b></td><td>Writing a note on a sticky pad</td></tr>
+    <tr><td>Choose a path</td><td><b>Switch</b></td><td>A railway signal sending a train left or right</td></tr>
+    <tr><td>Write in its diary</td><td><b>Log</b></td><td>A ship captain’s logbook</td></tr>
+    <tr><td>Tell a person</td><td><b>Notification</b></td><td>Sending an email to the manager</td></tr>
+    <tr><td>Repeat for each item</td><td><b>For Each</b></td><td>A teacher checking every notebook in a pile</td></tr>
+    <tr><td>Repeat until something changes</td><td><b>While</b></td><td>Stirring until the milk boils</td></tr>
+    <tr><td>Protect a group of steps</td><td><b>Scope</b> + fault handler</td><td>A safety net under a trapeze artist</td></tr>
+    <tr><td>Stop with an error</td><td><b>Throw New Fault</b></td><td>Pulling the emergency chain</td></tr>
+    <tr><td>Pause</td><td><b>Wait</b></td><td>“Come back after 10 minutes”</td></tr>
+  </table></div>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="assign">
+  <div class="ch-head"><h2><span class="num">2</span>Assign: giving your integration a memory</h2><label class="got"><input type="checkbox" id="got-assign"> Got it</label></div>
+  <div class="story"><b class="lbl">The sticky note</b>While cooking you jot “started at 7:10” on a sticky note, so you can check it later. A <mark>variable</mark> is a labelled sticky note inside one run of the integration, and <mark>Assign</mark> is the action that writes on it.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 200" role="img" aria-label="An Assign action creates a variable named v_status and sets it to the text FOUND. Later steps, such as a map or a Switch, can read v_status from the Sources list.">
+      <g class="rough">
+        <rect class="box f-orange" x="20" y="60" width="160" height="80" rx="12"/>
+        <rect class="box f-yellow" x="270" y="40" width="180" height="120" rx="6" style="transform:rotate(-2deg);transform-origin:360px 100px"/>
+        <rect class="box f-blue" x="540" y="60" width="160" height="80" rx="12"/>
+        <path class="ln" d="M182 100 L 264 100" marker-end="url(#ah)"/>
+        <path class="ln" d="M456 100 L 534 100" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="100" y="96" text-anchor="middle" style="font-weight:700">Assign</text><text class="ts" x="100" y="118" text-anchor="middle">writes the note</text>
+      <text class="t" x="360" y="85" text-anchor="middle" style="font-family:var(--f-mono);font-size:14px">v_status</text>
+      <text class="t" x="360" y="115" text-anchor="middle" style="font-family:var(--f-mono);font-size:16px;font-weight:700">'FOUND'</text>
+      <text class="ts" x="360" y="140" text-anchor="middle">a variable</text>
+      <text class="t" x="620" y="96" text-anchor="middle" style="font-weight:700">Later steps</text><text class="ts" x="620" y="118" text-anchor="middle">read it in Sources</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:26%">Box in Assign</th><th style="width:74%">What to put</th></tr>
+    <tr><td><b>+ (add)</b></td><td>Choose the type. For beginners it’s <b>String</b> (text). Numbers are stored as text too, and compared with functions when needed.</td></tr>
+    <tr><td><b>Variable</b></td><td>A name. A good habit: start with <code>v_</code>, like <code>v_status</code>, so it never looks like a data field</td></tr>
+    <tr><td><b>Operation</b></td><td>Always <code>=</code> for String: “this variable becomes…”</td></tr>
+    <tr><td><b>Value</b></td><td>Text in <b>single quotes</b>, like <code>'FOUND'</code>, or a value dragged from Sources, or an expression</td></tr>
+  </table></div>
+  <p>Once assigned, the variable appears in the <b>Sources</b> list of later maps and Switch conditions (often under a <code>$</code> sign, like <code>$v_status</code>). Assign again later to change it.</p>
+  <div class="sticky l"><strong>Where a variable can be seen:</strong> a variable created <b>inside</b> a loop or a scope is only visible inside it. If you need it afterwards, create it with an Assign <b>before</b> the loop or scope, and just update it inside.</div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="switch">
+  <div class="ch-head"><h2><span class="num">3</span>Switch: choosing a path</h2><label class="got"><input type="checkbox" id="got-switch"> Got it</label></div>
+  <div class="story"><b class="lbl">The railway signal</b>At a junction, the signal checks the train: goods train → left track; passenger train → right track; anything else → the main line. Each train takes <b>exactly one</b> track. <mark>Switch</mark> works the same way: it checks conditions from top to bottom, and the run follows the <b>first</b> route that’s true. If none is true, it takes <b>Otherwise</b>.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 250" role="img" aria-label="A Switch diamond checks the id. Route 1: id greater than 10, go to Log and Throw New Fault, invalid user. Otherwise: go on to fetch the user. Only one branch runs.">
+      <g class="rough">
+        <path class="box f-yellow" d="M360 20 L 450 75 L 360 130 L 270 75 Z" style="stroke-width:2.5"/>
+        <rect class="box f-orange" x="60" y="170" width="250" height="64" rx="12"/>
+        <rect class="box f-green" x="410" y="170" width="250" height="64" rx="12"/>
+        <path class="lr" d="M300 105 C 240 130, 210 145, 200 164" marker-end="url(#ahr)"/>
+        <path class="ln" d="M420 105 C 480 130, 510 145, 520 164" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="360" y="72" text-anchor="middle" style="font-weight:700">Switch</text><text class="ts" x="360" y="92" text-anchor="middle">check id</text>
+      <text class="ts" x="180" y="112" text-anchor="middle" style="fill:var(--red);font-weight:700">Route 1: id &gt; 10</text>
+      <text class="ts" x="510" y="128" text-anchor="middle" style="font-weight:700">Otherwise</text>
+      <text class="t" x="185" y="198" text-anchor="middle" style="font-weight:700">Log + Throw New Fault</text><text class="ts" x="185" y="220" text-anchor="middle">“no such user”</text>
+      <text class="t" x="535" y="198" text-anchor="middle" style="font-weight:700">FetchUser → Map</text><text class="ts" x="535" y="220" text-anchor="middle">the normal path</text>
+    </svg></div>
+    <figcaption>JSONPlaceholder has only users 1–10, so we can catch a bad id <b>before</b> calling it (Lab A).</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:28%">Part</th><th style="width:72%">What it is</th></tr>
+    <tr><td><b>Route</b></td><td>A branch with a condition. A new Switch starts with <b>Route 1</b> and <b>Otherwise</b>. Add more routes from the Switch’s actions menu</td></tr>
+    <tr><td><b>Condition</b></td><td>Built in <b>Configure Route</b>: a <b>Value</b> (drag a field), an <b>Operator</b> (<code>=</code>, <code>&gt;</code>, <code>!=</code>…), and a second <b>Value</b> (like <code>10</code> or <code>'IN'</code>). Combine several with “Add condition”</td></tr>
+    <tr><td><b>Otherwise</b></td><td>Runs when no route matched. Always think about what should happen here</td></tr>
+  </table></div>
+  <p>Behind the screen, a condition is just XPath from Phase 2, like <code>$id &gt; 10</code>. The developer view of the condition editor shows it.</p>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="log">
+  <div class="ch-head"><h2><span class="num">4</span>Log: the integration’s diary</h2><label class="got"><input type="checkbox" id="got-log"> Got it</label></div>
+  <div class="story"><b class="lbl">The captain’s logbook</b>A ship’s captain writes in the logbook: “10:00 left port. 14:30 storm, changed course.” Later, anyone can read what happened and why. The <mark>Log</mark> action (also called Logger) writes a line into the run’s <b>activity stream</b>, so when you open an instance later, you can read its story.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:26%">Box</th><th style="width:74%">What to put</th></tr>
+    <tr><td><b>Logging mode</b></td><td><b>Always</b> (written on every run) or <b>When tracing level is set to Audit</b> (only when you’re investigating)</td></tr>
+    <tr><td><b>Message</b></td><td>Fixed text, or a message built from data, like <code>concat('Fetched user ', name)</code></td></tr>
+  </table></div>
+  <div class="two">
+    <div class="card t2 tilt-a"><h4>Good log messages</h4><p>“Fetched user 3, Clementine Bauch” · “Skipping order 501: status CANCELLED” · “Loaded 250 of 250 invoices”</p></div>
+    <div class="card t4 tilt-b"><h4>Bad log messages</h4><p>“here” · “step 2 done” · a full payload with passwords or salaries in it (logs are read by many people, Part 3.3)</p></div>
+  </div>
+  <p>A good log line answers, months later: <b>what</b> happened, to <b>which record</b>, and <b>why</b>.</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="notify">
+  <div class="ch-head"><h2><span class="num">5</span>Notification: telling a human</h2><label class="got"><input type="checkbox" id="got-notify"> Got it</label></div>
+  <div class="story"><b class="lbl">The doorbell</b>Most of the time, integrations run silently. But some moments need a person: “The nightly bank file failed”, “A big order just arrived”. <mark>Notification</mark> is the integration ringing a person’s doorbell, by sending an <b>email</b>.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:20%">Box</th><th style="width:80%">What to put</th></tr>
+    <tr><td><b>To</b></td><td>An email address, typed or taken from the data. Several addresses are separated by commas</td></tr>
+    <tr><td><b>From</b></td><td>Leave as default (a no-reply address), unless your admin approved a sender in Settings → Notifications</td></tr>
+    <tr><td><b>Subject</b></td><td>Plain text, or built from data</td></tr>
+    <tr><td><b>Body</b></td><td>Text or simple HTML. Insert data with <b>parameters</b> in curly brackets, like <code>User {userName} was fetched.</code></td></tr>
+    <tr><td><b>Parameters</b></td><td>Click <b>+</b>, give a name (<code>userName</code>) and map a value to it</td></tr>
+  </table></div>
+  <p>Limits matter: emails count against a daily allowance (your home page shows it, “0 of 100”), and one email can’t be bigger than about 1 MB. So notify people about <b>exceptions</b>, not every successful run; nobody reads 500 emails a day.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="foreach">
+  <div class="ch-head"><h2><span class="num">6</span>For Each: once for every item</h2><label class="got"><input type="checkbox" id="got-foreach"> Got it</label></div>
+  <div class="story"><b class="lbl">The teacher and the notebooks</b>A teacher has a pile of 40 notebooks. She picks up the first, checks it, puts it aside, picks up the next… until the pile is empty. She doesn’t write 40 different instructions: one instruction, repeated <b>for each</b> notebook. That’s the <mark>For Each</mark> action.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="A list of ten posts goes into a For Each loop. Inside the loop, the steps run once per post, using the current item named currentPost. After the last item, the integration continues.">
+      <g class="rough">
+        <rect class="box f-card" x="20" y="40" width="70" height="30" rx="6"/><rect class="box f-card" x="20" y="76" width="70" height="30" rx="6"/><rect class="box f-card" x="20" y="112" width="70" height="30" rx="6"/><rect class="box f-card" x="20" y="148" width="70" height="30" rx="6"/>
+        <rect class="box f-blue dash" x="170" y="25" width="380" height="180" rx="18" style="fill:none"/>
+        <rect class="box f-yellow" x="230" y="80" width="260" height="70" rx="12"/>
+        <rect class="box f-green" x="600" y="80" width="105" height="70" rx="12"/>
+        <path class="ln" d="M92 110 L 224 110" marker-end="url(#ah)"/>
+        <path class="lb" d="M490 150 C 520 190, 200 190, 230 150" marker-end="url(#ahb)"/>
+        <path class="ln" d="M552 115 L 594 115" marker-end="url(#ah)"/>
+      </g>
+      <text class="ts" x="55" y="60" text-anchor="middle">post 1</text><text class="ts" x="55" y="96" text-anchor="middle">post 2</text><text class="ts" x="55" y="132" text-anchor="middle">post 3</text><text class="ts" x="55" y="168" text-anchor="middle">… 10</text>
+      <text class="ts" x="360" y="48" text-anchor="middle">For Each  ·  current element: currentPost</text>
+      <text class="t" x="360" y="110" text-anchor="middle" style="font-weight:700">Log the title</text><text class="ts" x="360" y="132" text-anchor="middle">runs once per post</text>
+      <text class="ts" x="360" y="200" text-anchor="middle" style="fill:var(--blue)">next item, until the list ends</text>
+      <text class="t" x="652" y="110" text-anchor="middle" style="font-weight:700">Continue</text><text class="ts" x="652" y="132" text-anchor="middle">after the loop</text>
+    </svg></div>
+  </figure>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Box</th><th style="width:70%">What to put</th></tr>
+    <tr><td><b>Repeating Element</b></td><td>Drag the <b>list</b> from Sources: the element that repeats (it shows a repeat sign in the tree)</td></tr>
+    <tr><td><b>Current Element Name</b></td><td>A nickname for “the item I’m holding right now”, like <code>currentPost</code>. Inside the loop, use it in maps and logs</td></tr>
+    <tr><td><b>Process items in parallel</b></td><td>Handle several items at the same time. Leave it off while learning: one by one is easier to follow</td></tr>
+  </table></div>
+  <p>This is how OIC processes real batches: every line of an invoice file, every employee in a list, every order from an API page (Part 3.4’s pagination). Remember the warning from Part 4.6, though: calling a system once <b>per item</b> is slow for big lists. Loop for logic; send big batches in one call when the target allows it.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="while">
+  <div class="ch-head"><h2><span class="num">7</span>While: repeat until something changes</h2><label class="got"><input type="checkbox" id="got-while"> Got it</label></div>
+  <div class="story"><b class="lbl">Stirring the milk</b>You don’t stir milk “10 times”. You stir <b>while</b> it hasn’t boiled. The number of rounds isn’t known in advance. <mark>While</mark> repeats its steps as long as a condition is true.</div>
+  <div class="tbl"><table>
+    <tr><th style="width:28%"></th><th style="width:36%">For Each</th><th style="width:36%">While</th></tr>
+    <tr><td>Repeats</td><td>Once per item in a list</td><td>As long as a condition is true</td></tr>
+    <tr><td>You know how many times?</td><td>Yes: the list’s length</td><td>No</td></tr>
+    <tr><td>Classic use in OIC</td><td>Process every record in a response</td><td><b>Paging</b> (while <code>hasMore</code> is true, Part 3.4) and <b>polling a job</b> (while status is RUNNING, wait and check again)</td></tr>
+  </table></div>
+  <div class="sticky"><strong>The infinite loop trap.</strong> If nothing inside the loop ever changes the condition, it runs forever. Always update something inside: a counter (<code>v_page = v_page + 1</code>) or a status from the latest call. And add a safety limit, like “and <code>v_attempts &lt; 20</code>”.</div>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="scope">
+  <div class="ch-head"><h2><span class="num">8</span>Scope and fault handlers: the safety net</h2><label class="got"><input type="checkbox" id="got-scope"> Got it</label></div>
+  <div class="story"><b class="lbl">The trapeze net</b>A trapeze artist performs over a net. If she falls, she lands safely, and the show goes on. A <mark>Scope</mark> is a box you put around some steps; its <mark>fault handler</mark> is the net. If any step inside fails, OIC jumps to the handler instead of crashing the whole run.</div>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 230" role="img" aria-label="A Scope contains FetchUser and a map. If FetchUser fails, control jumps to the fault handler, which logs the error, sends a notification and can re-throw the fault. If nothing fails, the integration continues after the scope.">
+      <g class="rough">
+        <rect class="box f-blue dash" x="20" y="20" width="380" height="190" rx="18" style="fill:none"/>
+        <rect class="box f-green" x="50" y="60" width="140" height="56" rx="10"/>
+        <rect class="box f-pink" x="230" y="60" width="140" height="56" rx="10"/>
+        <rect class="box f-orange" x="460" y="120" width="240" height="90" rx="12"/>
+        <rect class="box f-grey" x="460" y="25" width="240" height="60" rx="12"/>
+        <path class="ln" d="M192 88 L 224 88" marker-end="url(#ah)"/>
+        <path class="lr dash" d="M120 118 C 150 180, 380 190, 454 170" marker-end="url(#ahr)"/>
+        <path class="ln" d="M402 60 L 454 55" marker-end="url(#ah)"/>
+      </g>
+      <text class="ts" x="40" y="44">Scope</text>
+      <text class="t" x="120" y="93" text-anchor="middle" style="font-weight:700">FetchUser</text>
+      <text class="t" x="300" y="93" text-anchor="middle" style="font-weight:700">Map</text>
+      <text class="t" x="580" y="52" text-anchor="middle" style="font-weight:700">continue</text><text class="ts" x="580" y="72" text-anchor="middle">if all went well</text>
+      <text class="t" x="580" y="148" text-anchor="middle" style="font-weight:700">Fault handler</text><text class="ts" x="580" y="170" text-anchor="middle">Log · Notify · decide:</text><text class="ts" x="580" y="190" text-anchor="middle">recover or Re-throw</text>
+      <text class="ts" x="280" y="200" text-anchor="middle" style="fill:var(--red)">something failed inside</text>
+    </svg></div>
+  </figure>
+  <p>Inside a scope’s <b>Fault Handlers</b>, the <b>Default Handler</b> catches any error. In it you typically <b>log</b> what went wrong, <b>notify</b> support, and then either <b>recover</b> (for example, reply “user not available” instead of an error) or <b>Re-throw Fault</b> so the run is marked failed and appears in Observability → Errors.</p>
+  <p>Fault handling is a big topic, and it gets a full chapter in Phase 7. For now, remember the idea: <b>risky steps (calls to other systems) go inside a scope with a net under them</b>.</p>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="throw">
+  <div class="ch-head"><h2><span class="num">9</span>Throw New Fault and Wait</h2><label class="got"><input type="checkbox" id="got-throw"> Got it</label></div>
+  <div class="two">
+    <div class="card t5 tilt-a"><h4>Throw New Fault: the emergency chain</h4><p>Stops the run on purpose with <b>your own error</b>: a <b>Code</b> (like <code>INVALID_ID</code>), a <b>Reason</b> (“User id must be 1 to 10”) and <b>Details</b>. Use it when the data is wrong and continuing would be pointless or harmful. It’s OIC’s twin of PL/SQL’s RAISE_APPLICATION_ERROR (Part 4.6).</p></div>
+    <div class="card t3 tilt-b"><h4>Wait: come back later</h4><p>Pauses the run for a number of <b>seconds</b>. Used inside a While to check a long job’s status every few minutes (Part 3.4, 202 Accepted), or to slow down before a retry when an API says 429.</p></div>
+  </div>
+  <p>Throwing a fault isn’t “breaking” the integration: it’s <b>failing clearly</b>. A run that stops with “INVALID_ID: User id must be 1 to 10” is far easier to support than one that quietly sends a half-empty reply.</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="others">
+  <div class="ch-head"><h2><span class="num">10</span>Other actions at a glance</h2><label class="got"><input type="checkbox" id="got-others"> Got it</label></div>
+  <p>You’ll meet these in Phases 7 and 8. Just know their names for now.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Action</th><th style="width:76%">In one line</th></tr>
+    <tr><td><b>Stage File</b></td><td>Read, write, zip, unzip or list files in OIC’s temporary file area: the heart of file integrations</td></tr>
+    <tr><td><b>Data Stitch</b></td><td>Build or change a complex message piece by piece (when Assign’s simple text isn’t enough)</td></tr>
+    <tr><td><b>Parallel</b></td><td>Run up to five branches at the same time, then continue when all are done</td></tr>
+    <tr><td><b>Re-throw Fault</b></td><td>Inside a fault handler: pass the caught error onwards, marking the run failed</td></tr>
+    <tr><td><b>JavaScript</b></td><td>Call a small function from a JavaScript library (Design → Libraries)</td></tr>
+    <tr><td><b>OCI Function</b></td><td>Call a serverless function in Oracle Cloud for heavy custom logic</td></tr>
+    <tr><td><b>Pick</b></td><td>When one REST trigger has several operations, a separate branch for each</td></tr>
+  </table></div>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="labA">
+  <div class="ch-head"><h2><span class="num">11</span>Lab A: make Get User By Id smarter</h2><label class="got"><input type="checkbox" id="got-labA"> Got it</label></div>
+  <p>We’ll upgrade your integration from Part 6.3 so that it:</p>
+  <ol>
+    <li><b>refuses</b> ids above 10 with a clear error (Switch + Log + Throw New Fault),</li>
+    <li><b>remembers</b> what happened in a variable (Assign),</li>
+    <li><b>writes</b> a diary line for every good fetch (Log).</li>
+  </ol>
+  <figure>
+    <div class="dia"><svg viewBox="0 0 720 300" role="img" aria-label="The upgraded flow: GetUser trigger, then Assign v_status = STARTED, then a Switch. Route 1, id greater than 10: Log 'Invalid id' then Throw New Fault INVALID_ID. Otherwise: map, FetchUser invoke, Log 'Fetched user name', then the reply map.">
+      <g class="rough">
+        <rect class="box f-yellow" x="270" y="10" width="180" height="36" rx="10"/>
+        <rect class="box f-orange" x="235" y="62" width="250" height="36" rx="10"/>
+        <path class="box f-yellow" d="M360 112 L 420 140 L 360 168 L 300 140 Z" style="stroke-width:2.5"/>
+        <rect class="box f-pink" x="40" y="190" width="230" height="36" rx="10"/>
+        <rect class="box f-pink" x="40" y="240" width="230" height="36" rx="10"/>
+        <rect class="box f-green" x="450" y="182" width="230" height="30" rx="10"/>
+        <rect class="box f-green" x="450" y="220" width="230" height="30" rx="10"/>
+        <rect class="box f-green" x="450" y="258" width="230" height="30" rx="10"/>
+        <path class="ln" d="M360 48 L 360 60" marker-end="url(#ah)"/><path class="ln" d="M360 100 L 360 110" marker-end="url(#ah)"/>
+        <path class="lr" d="M300 140 C 200 140, 160 160, 155 186" marker-end="url(#ahr)"/>
+        <path class="ln" d="M420 140 C 520 140, 560 160, 565 178" marker-end="url(#ah)"/>
+        <path class="ln" d="M155 228 L 155 238" marker-end="url(#ah)"/>
+      </g>
+      <text class="t" x="360" y="34" text-anchor="middle">GetUser (trigger)</text>
+      <text class="t" x="360" y="86" text-anchor="middle" style="font-family:var(--f-mono);font-size:13px">Assign v_status='STARTED'</text>
+      <text class="ts" x="360" y="145" text-anchor="middle" style="font-weight:700">Switch</text>
+      <text class="ts" x="200" y="130" text-anchor="middle" style="fill:var(--red);font-weight:700">id &gt; 10</text>
+      <text class="ts" x="520" y="130" text-anchor="middle" style="font-weight:700">Otherwise</text>
+      <text class="t" x="155" y="214" text-anchor="middle">Log “Invalid id …”</text>
+      <text class="t" x="155" y="264" text-anchor="middle">Throw New Fault</text>
+      <text class="ts" x="565" y="202" text-anchor="middle">Map → FetchUser</text>
+      <text class="ts" x="565" y="240" text-anchor="middle">Log “Fetched user …”</text>
+      <text class="ts" x="565" y="278" text-anchor="middle">Map → reply</text>
+    </svg></div>
+  </figure>
+  <h3>Part 1 · Open it for editing</h3>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>Deactivate</b>☰ → Projects → <b>My First Project</b>. On <b>Get User By Id</b>, click Actions (⋯) → <b>Deactivate</b>, and confirm.<br>Why: an Active integration can’t be edited.<br>✓ <b>You’ll see:</b> status changes to <b>Configured</b>.</div></li>
+    <li><span class="dot">2</span><div><b>Open the canvas</b>Click the integration’s name (or Actions → Edit).<br>✓ <b>You’ll see:</b> GetUser → Map → FetchUser → Map.</div></li>
+  </ol>
+  <h3>Part 2 · Assign a status</h3>
+  <ol class="path">
+    <li><span class="dot">3</span><div><b>Add Assign after the trigger</b>Hover on the line <b>right below GetUser</b>, click <b>+</b> → <b>Actions</b> → <b>Assign</b>.</div></li>
+    <li><span class="dot">4</span><div><b>Name it</b>Name: <code>SetStatus</code>.</div></li>
+    <li><span class="dot">5</span><div><b>Add the variable</b>Click <b>+</b>, choose <b>String</b>. Variable: <code>v_status</code>. Value: <code>'STARTED'</code> (with the single quotes).<br>✓ <b>You’ll see:</b> one row: <code>v_status = 'STARTED'</code>. Close the panel.</div></li>
+  </ol>
+  <h3>Part 3 · The Switch</h3>
+  <ol class="path">
+    <li><span class="dot">6</span><div><b>Add a Switch after Assign</b>Hover on the line below <b>SetStatus</b> → <b>+</b> → Actions → <b>Switch</b>.<br>✓ <b>You’ll see:</b> two branches: <b>Route 1</b> (or a branch with an empty condition) and <b>Otherwise</b>.</div></li>
+    <li><span class="dot">7</span><div><b>Configure Route 1</b>Click Route 1 → Edit. In <b>Configure Route</b>: upper <b>Value</b>: drag <code>id</code> from <b>GetUser Request → Template Parameters</b>. <b>Operator</b>: <code>&gt;</code>. Lower <b>Value</b>: <code>10</code>. Name the route <code>InvalidId</code>. Save/close.<br>✓ <b>You’ll see:</b> the route shows a condition like <code>id &gt; 10</code>.</div></li>
+    <li><span class="dot">8</span><div><b>Move the normal path into Otherwise</b>The existing <b>Map → FetchUser → Map</b> must run only in the Otherwise branch. If OIC placed them after the Switch, drag each one into the <b>Otherwise</b> branch (or use their move/cut options), in the same order.<br>✓ <b>You’ll see:</b> Otherwise contains Map → FetchUser → Map; InvalidId is empty.</div></li>
+  </ol>
+  <h3>Part 4 · The bad-id branch</h3>
+  <ol class="path">
+    <li><span class="dot">9</span><div><b>Log the problem</b>Inside <b>InvalidId</b>, click <b>+</b> → Actions → <b>Log</b>. Name: <code>LogInvalidId</code>. Logging mode: <b>Always</b>. Message: build <code>concat('Invalid user id requested: ', id)</code> (drag <code>id</code> from Sources into the expression).</div></li>
+    <li><span class="dot">10</span><div><b>Throw the fault</b>Below the Log, click <b>+</b> → Actions → <b>Throw New Fault</b>. Name: <code>InvalidIdFault</code>. <b>Code</b>: <code>'INVALID_ID'</code>. <b>Reason</b>: <code>'User id must be between 1 and 10'</code>. Leave Details empty.<br>✓ <b>You’ll see:</b> InvalidId: Log → Throw New Fault.</div></li>
+  </ol>
+  <h3>Part 5 · The good-path diary line</h3>
+  <ol class="path">
+    <li><span class="dot">11</span><div><b>Log after FetchUser</b>In <b>Otherwise</b>, between <b>FetchUser</b> and the last Map, click <b>+</b> → Actions → <b>Log</b>. Name: <code>LogFetched</code>. Mode: <b>Always</b>. Message: <code>concat('Fetched user ', id, ': ', name)</code>, dragging <code>id</code> and <code>name</code> from <b>FetchUser Response</b>.</div></li>
+    <li><span class="dot">12</span><div><b>Update the status</b>Below LogFetched, add an <b>Assign</b> named <code>SetFound</code>: choose the existing variable <code>v_status</code>, Value <code>'FOUND'</code>.</div></li>
+  </ol>
+  <h3>Part 6 · Save, activate, test</h3>
+  <ol class="path">
+    <li><span class="dot">13</span><div><b>Check errors and save</b>Fix any red error icon, click <b>Save</b>, then <b>Back</b>.</div></li>
+    <li><span class="dot">14</span><div><b>Activate</b>Actions (⋯) → <b>Activate</b> → tracing <b>Production</b> → <b>Activate</b>. Refresh until <b>Active</b>.</div></li>
+    <li><span class="dot">15</span><div><b>Good id</b>Actions → <b>Run</b>, id = <code>3</code> → <b>Run</b>.<br>✓ <b>You’ll see:</b> status 200, user <b>Clementine Bauch</b>, and in the activity stream a line “Fetched user 3: Clementine Bauch”.</div></li>
+    <li><span class="dot">16</span><div><b>Bad id</b>Run again with id = <code>25</code>.<br>✓ <b>You’ll see:</b> an <b>error</b> response instead of 200, the log line “Invalid user id requested: 25”, and the fault <code>INVALID_ID</code> in the activity stream. No call was made to JSONPlaceholder.</div></li>
+  </ol>
+  <p>Compare with Part 6.3: id 25 used to reach JSONPlaceholder and fail with a confusing 404. Now it fails <b>early</b>, with <b>your</b> clear message. That’s professional integration design.</p>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="labB">
+  <div class="ch-head"><h2><span class="num">12</span>Lab B: loop over a user’s posts (For Each)</h2><label class="got"><input type="checkbox" id="got-labB"> Got it</label></div>
+  <p>A new integration, <b>Log User Posts</b>: given a user id, fetch all their posts (a <b>list</b>) and write each title into the log with a For Each loop. Same project, same connections.</p>
+  <h3>Part 1 · Create and trigger</h3>
+  <ol class="path">
+    <li><span class="dot">1</span><div><b>New integration</b>In My First Project → Integrations → <b>+</b> → Create integration → <b>Application</b>. Name: <code>Log User Posts</code> → <b>Create</b>.</div></li>
+    <li><span class="dot">2</span><div><b>Trigger</b>Add trigger → <b>REST_Trigger</b>. Endpoint name <code>LogPosts</code>; relative URI <code>/users/{id}/posts</code>; action <b>GET</b>; tick both options (parameters and response).</div></li>
+    <li><span class="dot">3</span><div><b>Parameter</b>Template parameter <code>id</code>, Data Type <b>int</b>.</div></li>
+    <li><span class="dot">4</span><div><b>Response</b>JSON Sample → inline → paste <code>{ "userId": 1, "status": "Logged" }</code> → OK → Continue → Finish.</div></li>
+  </ol>
+  <h3>Part 2 · Fetch the list</h3>
+  <ol class="path">
+    <li><span class="dot">5</span><div><b>Invoke</b>+ below LogPosts → Invokes → <b>JSONPlaceholder_API</b>. Name <code>FetchPosts</code>; relative URI <code>/posts</code>; action <b>GET</b>; tick both options.</div></li>
+    <li><span class="dot">6</span><div><b>Query parameter</b>On Request Parameters, under <b>query parameters</b> click <b>Add</b>: Name <code>userId</code>, Data Type <b>int</b>.<br>Why: the real call becomes <code>/posts?userId=1</code> (Phase 3.1: query parameters filter a list).</div></li>
+    <li><span class="dot">7</span><div><b>Response (a list)</b>JSON Sample → inline → paste this <b>array</b> (two items are enough to show the shape) → OK:
+      <div class="cmd"><pre><span class="a">[
+  { "userId": 1, "id": 1, "title": "sunt aut facere repellat", "body": "quia et suscipit" },
+  { "userId": 1, "id": 2, "title": "qui est esse", "body": "est rerum tempore" }
+]</span></pre></div>
+      Continue → Finish.</div></li>
+    <li><span class="dot">8</span><div><b>Map the id</b>Open the map before FetchPosts. Drag trigger <b>Template Parameters → id</b> onto FetchPosts <b>Query Parameters → userId</b>. Validate → Back.</div></li>
+  </ol>
+  <h3>Part 3 · The loop</h3>
+  <ol class="path">
+    <li><span class="dot">9</span><div><b>Add For Each</b>+ below FetchPosts → Actions → <b>For Each</b>. Name <code>EachPost</code>.</div></li>
+    <li><span class="dot">10</span><div><b>Choose the list</b>For <b>Repeating Element</b>, expand <b>FetchPosts Response → Response Wrapper</b> and drag the repeating element (the list item, often shown as <b>Top Level Array</b>). <b>Current Element Name</b>: <code>currentPost</code>. Leave “Process items in parallel” off.<br>✓ <b>You’ll see:</b> a loop box on the canvas with an empty inside.</div></li>
+    <li><span class="dot">11</span><div><b>Log inside the loop</b>Inside EachPost, + → Actions → <b>Log</b>. Name <code>LogTitle</code>, mode <b>Always</b>, message <code>concat('Post ', id, ': ', title)</code>, dragging <code>id</code> and <code>title</code> from <b>currentPost</b> (not from the whole list).</div></li>
+  </ol>
+  <h3>Part 4 · Reply, identify, run</h3>
+  <ol class="path">
+    <li><span class="dot">12</span><div><b>Reply map</b>Open the final map (after the loop). Drag trigger <b>id</b> → target <b>userId</b>. For <b>status</b>, type the fixed text <code>Logged</code> into the target (in the mapper, select <b>status</b> and enter the value <code>'Logged'</code> in its expression box). Validate → Back.</div></li>
+    <li><span class="dot">13</span><div><b>Business identifier</b>Toolbar → Business identifiers → drag trigger <b>id</b> → Save.</div></li>
+    <li><span class="dot">14</span><div><b>Save, activate, run</b>Save → Back → Actions → Activate (Production) → Active → Actions → Run, id = <code>1</code> → Run.<br>✓ <b>You’ll see:</b> status 200 with <code>{"userId":1,"status":"Logged"}</code>, and in the activity stream <b>ten</b> log lines, “Post 1: sunt aut facere…”, through “Post 10: …”: one per loop.</div></li>
+  </ol>
+  <div class="sticky l"><strong>Why ten lines?</strong> User 1 has exactly 10 posts on JSONPlaceholder (open <code>https://jsonplaceholder.typicode.com/posts?userId=1</code> in your browser and count). The For Each ran its inside steps once per post. Try id 2: ten more, all different titles.</div>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="mistakes">
+  <div class="ch-head"><h2><span class="num">13</span>Common mistakes</h2><label class="got"><input type="checkbox" id="got-mistakes"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:42%">What went wrong</th><th style="width:58%">Fix</th></tr>
+    <tr><td>Assign value <code>FOUND</code> without quotes</td><td>Text needs single quotes: <code>'FOUND'</code>. Without them, OIC looks for a field called FOUND</td></tr>
+    <tr><td>Switch never takes your route</td><td>Check the condition and its types; open the developer view to read the real expression</td></tr>
+    <tr><td>Forgot the Otherwise path</td><td>Decide what happens when no route matches, even if it’s just a Log</td></tr>
+    <tr><td>Logging whole payloads with personal data</td><td>Log ids and short messages, not salaries, passwords or full records</td></tr>
+    <tr><td>One email per successful run</td><td>Notify on exceptions only; mind the daily email limit</td></tr>
+    <tr><td>Inside the loop, mapped from the whole list</td><td>Use the current element (<code>currentPost</code>), not the list</td></tr>
+    <tr><td>A While loop that never ends</td><td>Change the condition inside the loop, and add a maximum-attempts check</td></tr>
+    <tr><td>Variable “disappears” after a loop</td><td>Create it with Assign before the loop; only update it inside</td></tr>
+  </table></div>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="glossary">
+  <div class="ch-head"><h2><span class="num">14</span>Words you learned</h2><label class="got"><input type="checkbox" id="got-glossary"> Got it</label></div>
+  <div class="tbl"><table>
+    <tr><th style="width:26%">Word</th><th style="width:74%">Meaning in one line</th></tr>
+    <tr><td><b>Action</b></td><td>A step that decides, repeats, remembers, reports or protects, beyond fetch and map</td></tr>
+    <tr><td><b>Variable / Assign</b></td><td>A sticky note inside one run / the action that writes on it</td></tr>
+    <tr><td><b>Switch / Route / Otherwise</b></td><td>Choose one path / a path with a condition / the path when nothing matches</td></tr>
+    <tr><td><b>Log</b></td><td>Write a line into the run’s activity stream</td></tr>
+    <tr><td><b>Notification</b></td><td>Send an email to a person</td></tr>
+    <tr><td><b>For Each / current element</b></td><td>Repeat for every item in a list / the item being handled right now</td></tr>
+    <tr><td><b>While</b></td><td>Repeat as long as a condition is true</td></tr>
+    <tr><td><b>Scope / fault handler</b></td><td>A box around risky steps / the safety net that runs if something inside fails</td></tr>
+    <tr><td><b>Throw New Fault</b></td><td>Stop the run on purpose with your own error code and reason</td></tr>
+    <tr><td><b>Wait</b></td><td>Pause for some seconds</td></tr>
+  </table></div>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="quiz">
+  <div class="ch-head"><h2><span class="num">15</span>Self-check</h2><label class="got"><input type="checkbox" id="got-quiz"> Got it</label></div>
+  <p>Answer in your head first, then tap to check.</p>
+  <div>
+    <details><summary>1. You need to remember “how many records failed” during a run. Which action?</summary><p>Assign (a variable).</p></details>
+    <details><summary>2. A Switch has routes A (true) and B (also true). Which runs?</summary><p>Only A: the first true route wins. Otherwise runs only when none is true.</p></details>
+    <details><summary>3. For Each or While: process every line of an invoice file?</summary><p>For Each: you have a list of known items.</p></details>
+    <details><summary>4. For Each or While: keep calling an API page by page until hasMore is false?</summary><p>While: you don’t know how many pages in advance.</p></details>
+    <details><summary>5. What’s the risk with While, and how do you prevent it?</summary><p>An infinite loop. Change the condition inside the loop and add a maximum-attempts check.</p></details>
+    <details><summary>6. Why Throw New Fault for id 25 instead of letting the API return 404?</summary><p>It fails early, with a clear code and reason, without a useless call to the other system.</p></details>
+    <details><summary>7. What’s a Scope’s fault handler for?</summary><p>A safety net: if a step inside fails, it runs instead, to log, notify, recover or re-throw.</p></details>
+    <details><summary>8. Inside a For Each, where do you take fields from?</summary><p>From the current element (e.g. currentPost), not the whole list.</p></details>
+  </div>
+</section>
+
+<section class="ch" id="summary">
+  <h2>All of it, in one sentence</h2>
+  <p class="final"><b>Actions</b> make an integration think: <b>Assign</b> remembers, <b>Switch</b> chooses one path, <b>Log</b> writes the diary, <b>Notification</b> tells people, <b>For Each</b> and <b>While</b> repeat, <b>Scope</b> with a fault handler catches failures, and <b>Throw New Fault</b> stops clearly when the data is wrong.</p>
+  <p>Next: Part 6.5 · Activate, test &amp; monitor (coming next).</p>
+  <p class="sign">— @devwithprabir</p>
+</section>
+
+<footer>OIC from Scratch · Phase 6.4 · Actions · by @devwithprabir</footer>
+
+
+</div>
+<p class="corner" aria-hidden="true">@devwithprabir</p>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('.got input');
+  boxes.forEach(function(b){
+    try{ if(localStorage.getItem('p64-'+b.id)==='1') b.checked=true; }catch(e){}
+    b.addEventListener('change',function(){ try{ localStorage.setItem('p64-'+b.id,b.checked?'1':'0'); }catch(e){} });
+  });
+  // show every quiz answer in a printed / saved PDF copy
+  var opened=[];
+  window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){ if(!d.open){ d.open=true; opened.push(d); } }); });
+  window.addEventListener('afterprint',function(){ opened.forEach(function(d){ d.open=false; }); opened=[]; });
+})();
+</script>
